@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectSpecification>
+  <metadata>
+    <name>Monorepo Project Generation Prompt</name>
+    <version>1.0</version>
+    <created>2026-02-04</created>
+    <description>A comprehensive XML specification for generating a full-stack monorepo with NestJS backend and Next.js frontends</description>
+  </metadata>
+
+  <project>
+    <basicInfo>
+      <projectName>Your Project Name</projectName>
+      <description>A scalable SaaS application with a monorepo architecture using NestJS backend and Next.js frontends</description>
+    </basicInfo>
+
+    <monorepoSetup>
+      <packageManager name="pnpm" version="10.14.0+">PNPM is the primary package manager for this monorepo</packageManager>
+      <workspaceStructure>
+        <directory name="apps/*">Application packages</directory>
+        <directory name="packages/*">Shared/reusable packages</directory>
+      </workspaceStructure>
+      <buildTool name="Turbo" version="2.5.6+">Task orchestration and caching</buildTool>
+      <nodeVersion>22.18.0+</nodeVersion>
+      <typeScriptVersion>5.9.2+</typeScriptVersion>
+    </monorepoSetup>
+
+    <directoryStructure>
+      <root>
+        <directories>
+          <directory name="apps">
+            <directory name="backend">
+              <description>NestJS API server</description>
+              <structure>
+                <src>
+                  <file name="app.controller.ts">Main application controller</file>
+                  <file name="app.service.ts">Main application service</file>
+                  <file name="main.ts">Bootstrap file</file>
+                  <directory name="modules">Feature modules</directory>
+                  <directory name="common">Shared utilities, decorators, filters</directory>
+                  <directory name="config">Configuration files</directory>
+                </src>
+                <directory name="migrations">Database migrations (TypeORM)</directory>
+                <directory name="storage">File storage directory</directory>
+                <configFiles>
+                  <file name="nest-cli.json">NestJS CLI configuration</file>
+                  <file name="Dockerfile">Container definition</file>
+                  <file name="webpack-hmr.config.js">Webpack HMR configuration</file>
+                  <file name="tsconfig.json">TypeScript config</file>
+                  <file name="tsconfig.build.json">TypeScript build config</file>
+                  <file name="package.json">Dependencies and scripts</file>
+                </configFiles>
+              </structure>
+            </directory>
+
+            <directory name="frontend">
+              <description>Next.js main frontend application</description>
+              <structure>
+                <directory name="public">Static assets</directory>
+                <src>
+                  <directory name="app">
+                    <file name="layout.tsx">Root layout component</file>
+                    <file name="page.tsx">Root page component</file>
+                    <file name="globals.css">Global styles</file>
+                    <directory name="(auth)">Auth route group</directory>
+                    <directory name="(protected)">Protected route group</directory>
+                  </directory>
+                  <directory name="components">
+                    <directory name="ui">Base UI components</directory>
+                    <directory name="molecules">Composed components</directory>
+                    <directory name="organs">Complex feature components</directory>
+                    <directory name="layout">Layout components</directory>
+                    <directory name="ai-elements">AI-specific components</directory>
+                    <directory name="providers">Context/Provider components</directory>
+                  </directory>
+                  <directory name="hooks">
+                    <file name="use-debounce.ts">Debounce hook</file>
+                    <note>Custom hooks for reusable logic</note>
+                  </directory>
+                  <directory name="lib">
+                    <file name="chat-transport.ts">Chat transport utilities</file>
+                    <note>Utility functions and helpers</note>
+                  </directory>
+                  <directory name="types">Type definitions</directory>
+                  <directory name="common">
+                    <directory name="constants">Application constants</directory>
+                    <directory name="enums">TypeScript enums</directory>
+                    <directory name="types">Common types</directory>
+                    <directory name="gql">GraphQL types</directory>
+                  </directory>
+                  <directory name="__generated__">
+                    <directory name="gql">Generated GraphQL files</directory>
+                  </directory>
+                  <directory name="workers">Web Workers</directory>
+                </src>
+                <configFiles>
+                  <file name="next.config.ts">Next.js configuration</file>
+                  <file name="tsconfig.json">TypeScript configuration</file>
+                  <file name="components.json">Component library config</file>
+                  <file name="postcss.config.mjs">PostCSS configuration</file>
+                  <file name="Dockerfile">Container definition</file>
+                  <file name="package.json">Dependencies and scripts</file>
+                </configFiles>
+              </structure>
+            </directory>
+
+            <directory name="admin">
+              <description>Next.js admin dashboard (optional second frontend)</description>
+              <structure>
+                <src>
+                  <directory name="app">Admin routing</directory>
+                  <directory name="components">Admin components</directory>
+                  <directory name="payload">Payload CMS config (if using)</directory>
+                  <directory name="db">Database schemas</directory>
+                </src>
+                <file name="package.json">Admin dependencies</file>
+              </structure>
+            </directory>
+          </directory>
+
+          <directory name="packages">
+            <directory name="env-config">
+              <description>Shared environment configuration</description>
+              <structure>
+                <directory name="src">Configuration source</directory>
+                <file name="package.json">Package definition</file>
+                <file name="tsconfig.json">TypeScript config</file>
+              </structure>
+            </directory>
+
+            <directory name="ui-components">
+              <description>Shared UI component library (optional)</description>
+              <structure>
+                <file name="package.json">Package definition</file>
+              </structure>
+            </directory>
+
+            <directory name="types">
+              <description>Shared type definitions (optional)</description>
+              <structure>
+                <file name="package.json">Package definition</file>
+              </structure>
+            </directory>
+          </directory>
+
+          <directory name="docker">
+            <file name="docker-compose.yml">Docker services orchestration</file>
+            <file name="postgres.Dockerfile">PostgreSQL custom image</file>
+          </directory>
+
+          <directory name=".github">
+            <directory name="workflows">CI/CD pipeline definitions</directory>
+          </directory>
+        </directories>
+
+        <rootFiles>
+          <file name="pnpm-workspace.yaml">Workspace configuration</file>
+          <file name="turbo.json">Turbo build configuration</file>
+          <file name="package.json">Root package configuration</file>
+          <file name="pnpm-lock.yaml">Dependency lock file</file>
+          <file name="tsconfig.json">Root TypeScript configuration</file>
+          <file name="eslint.config.mjs">ESLint configuration</file>
+          <file name=".prettierrc">Prettier configuration</file>
+          <file name=".gitignore">Git ignore rules</file>
+          <file name=".env.example">Environment variables template</file>
+          <file name="README.md">Project documentation</file>
+        </rootFiles>
+      </root>
+    </directoryStructure>
+
+    <backend>
+      <framework name="NestJS" version="10+">
+        <description>Progressive Node.js framework for building server-side applications</description>
+      </framework>
+      <database>
+        <orm name="TypeORM">Object-relational mapping for database operations</orm>
+        <driver name="PostgreSQL">Primary database</driver>
+        <migrations>
+          <location>apps/backend/migrations/</location>
+          <pattern>[timestamp]-[description].ts</pattern>
+          <examples>
+            <migration name="1747423276913-auth.ts">Authentication tables</migration>
+            <migration name="1747423276914-documents.ts">Document models</migration>
+            <migration name="1748886096614-file.ts">File handling tables</migration>
+            <migration name="1749157474809-timestamp-change.ts">Timestamp updates</migration>
+            <migration name="1749701687166-user-feedback.ts">User feedback system</migration>
+            <migration name="1749845965903-chat.ts">Chat features</migration>
+            <migration name="1751621133842-user-waitlist.ts">User waitlist</migration>
+            <migration name="1751773561970-user-email-subscription.ts">Email subscriptions</migration>
+            <migration name="1753256446459-extracted-content-url.ts">Content extraction</migration>
+            <migration name="1753903823447-user-tags-invited-by.ts">User tags and referrals</migration>
+          </examples>
+        </migrations>
+      </database>
+      <authentication>
+        <type>JWT-based authentication</type>
+        <description>Stateless authentication using JSON Web Tokens</description>
+      </authentication>
+      <apis>
+        <api type="REST">RESTful API endpoints</api>
+        <api type="GraphQL">GraphQL API (optional)</api>
+      </apis>
+      <fileStorage>
+        <option>MinIO - S3-compatible object storage</option>
+        <option>AWS S3 - Amazon Simple Storage Service</option>
+      </fileStorage>
+      <validation>
+        <package name="class-validator">Decorator-based validation</package>
+        <package name="class-transformer">Class transformation utilities</package>
+      </validation>
+      <logging>
+        <option>Built-in NestJS logger</option>
+        <option>Winston - Advanced logging library</option>
+      </logging>
+      <serverPort>3001</serverPort>
+      <portNote>Default, configurable via environment variables</portNote>
+
+      <keyDependencies>
+        <dependency>@nestjs/core</dependency>
+        <dependency>@nestjs/common</dependency>
+        <dependency>@nestjs/jwt</dependency>
+        <dependency>typeorm</dependency>
+        <dependency>pg</dependency>
+        <dependency>@nestjs/graphql</dependency>
+        <dependency>graphql</dependency>
+        <dependency>ioredis</dependency>
+        <dependency>@nestjs/throttler</dependency>
+        <dependency>aws-sdk</dependency>
+        <dependency>minio</dependency>
+      </keyDependencies>
+    </backend>
+
+    <frontend>
+      <framework name="Next.js" version="14+">
+        <description>React framework with App Router for production-grade applications</description>
+        <router>App Router</router>
+      </framework>
+      <styling>
+        <primary>Tailwind CSS</primary>
+        <plugins>
+          <plugin name="@tailwindcss/forms">Form styling</plugin>
+          <plugin name="@tailwindcss/typography">Typography styles</plugin>
+        </plugins>
+      </styling>
+      <uiComponents>
+        <option>shadcn/ui - High-quality component library</option>
+        <option>Headless UI - Unstyled accessible components</option>
+      </uiComponents>
+      <stateManagement>
+        <option>React Context API - Built-in state management</option>
+        <option>Zustand - Lightweight state management</option>
+      </stateManagement>
+      <apiCommunication>
+        <option>Apollo Client - GraphQL client</option>
+        <option>TanStack Query - REST API data fetching</option>
+      </apiCommunication>
+      <formHandling>
+        <package name="react-hook-form">Performant form handling</package>
+        <package name="zod">Schema validation</package>
+      </formHandling>
+      <authentication>
+        <option>NextAuth.js - Authentication library</option>
+        <option>Custom JWT handling</option>
+      </authentication>
+      <codeGeneration>
+        <tool name="GraphQL Codegen">Generate type-safe queries and mutations</tool>
+      </codeGeneration>
+      <serverPort>3000</serverPort>
+      <portNote>Default, configurable via environment variables</portNote>
+
+      <keyDependencies>
+        <dependency>next</dependency>
+        <dependency>react</dependency>
+        <dependency>react-dom</dependency>
+        <dependency>@apollo/client</dependency>
+        <dependency>zustand</dependency>
+        <dependency>react-hook-form</dependency>
+        <dependency>zod</dependency>
+        <dependency>next-auth</dependency>
+        <dependency>tailwindcss</dependency>
+        <dependency>@tailwindcss/forms</dependency>
+        <dependency>@tailwindcss/typography</dependency>
+      </keyDependencies>
+    </frontend>
+
+    <infrastructure>
+      <dockerCompose>
+        <description>Orchestrate development environment with Docker Compose</description>
+        <services>
+          <service name="PostgreSQL Database">
+            <containerName>project-postgres</containerName>
+            <port>5433:5432</port>
+            <volumes>postgres_data</volumes>
+            <credentials>
+              <username>admin</username>
+              <password>admin</password>
+              <database>project-db</database>
+            </credentials>
+            <healthcheck>
+              <test>pg_isready</test>
+              <interval>5s</interval>
+              <timeout>5s</timeout>
+              <retries>5</retries>
+            </healthcheck>
+            <restartPolicy>always</restartPolicy>
+          </service>
+
+          <service name="Redis Cache">
+            <containerName>project-redis</containerName>
+            <image>redis:7</image>
+            <port>6379:6379</port>
+            <volumes>redis_data</volumes>
+            <healthcheck>
+              <test>redis-cli ping</test>
+              <interval>30s</interval>
+              <timeout>20s</timeout>
+              <retries>3</retries>
+            </healthcheck>
+            <restartPolicy>always</restartPolicy>
+          </service>
+
+          <service name="MinIO Object Storage">
+            <containerName>project-minio</containerName>
+            <image>minio/minio</image>
+            <ports>
+              <port>9000:9000</port>
+              <port>9001:9001</port>
+            </ports>
+            <credentials>
+              <username>minioadmin</username>
+              <password>minioadmin</password>
+            </credentials>
+            <volumes>minio_data</volumes>
+            <description>S3-compatible object storage for files</description>
+            <consoleAccess>http://localhost:9001</consoleAccess>
+            <restartPolicy>always</restartPolicy>
+          </service>
+        </services>
+
+        <network>
+          <name>project-network</name>
+          <driver>bridge</driver>
+        </network>
+
+        <volumes>
+          <volume name="postgres_data">PostgreSQL data persistence</volume>
+          <volume name="redis_data">Redis data persistence</volume>
+          <volume name="minio_data">MinIO data persistence</volume>
+        </volumes>
+      </dockerCompose>
+    </infrastructure>
+
+    <developmentTools>
+      <linter>
+        <tool name="ESLint">
+          <description>JavaScript/TypeScript linting</description>
+          <config>eslint.config.mjs</config>
+          <rules>
+            <rule>No unused variables</rule>
+            <rule>Proper imports organization</rule>
+            <rule>Consistent naming conventions</rule>
+          </rules>
+        </tool>
+      </linter>
+
+      <formatter>
+        <tool name="Prettier">
+          <description>Code formatting and consistency</description>
+          <config>.prettierrc</config>
+          <lineLength>80</lineLength>
+          <plugins>
+            <plugin name="prettier-plugin-tailwindcss">Tailwind class sorting</plugin>
+            <plugin name="prettier-plugin-organize-imports">Import organization</plugin>
+          </plugins>
+        </tool>
+      </formatter>
+
+      <gitHooks>
+        <tool name="Husky">
+          <description>Git hooks for code quality enforcement</description>
+          <hooks>
+            <hook name="pre-commit">Linting and formatting checks</hook>
+            <hook name="pre-push">Type checking and tests</hook>
+          </hooks>
+        </tool>
+      </gitHooks>
+
+      <environmentManagement>
+        <tool name="dotenvx">
+          <description>Encrypted environment variable management</description>
+          <features>
+            <feature>Secure .env file encryption</feature>
+            <feature>Decryption for local development</feature>
+          </features>
+        </tool>
+      </environmentManagement>
+
+      <containerization>
+        <description>Docker support for both backend and frontend</description>
+        <backend>Multi-stage build with SWC for fast compilation</backend>
+        <frontend>Production-optimized image with standalone output</frontend>
+        <security>Non-root user, minimal base images</security>
+      </containerization>
+    </developmentTools>
+
+    <turboConfiguration>
+      <description>Turbo task orchestration and caching</description>
+      <tasks>
+        <task name="build">
+          <description>Production build for all packages</description>
+          <dependsOn>^build</dependsOn>
+          <inputs>$TURBO_DEFAULT$, .env*</inputs>
+          <outputs>.next/**, !.next/cache/**, dist/**</outputs>
+          <caching>true</caching>
+        </task>
+
+        <task name="dev">
+          <description>Development mode with hot reload</description>
+          <cache>false</cache>
+          <persistent>true</persistent>
+        </task>
+
+        <task name="lint:check">
+          <description>Code quality verification</description>
+          <dependsOn>^lint:check</dependsOn>
+          <caching>true</caching>
+        </task>
+
+        <task name="format:check">
+          <description>Code formatting validation</description>
+          <dependsOn>^format:check</dependsOn>
+        </task>
+
+        <task name="format:fix">
+          <description>Auto-format code across workspace</description>
+          <dependsOn>^format:fix</dependsOn>
+        </task>
+
+        <task name="type-check">
+          <description>TypeScript type checking</description>
+          <dependsOn>^type-check</dependsOn>
+          <caching>true</caching>
+        </task>
+      </tasks>
+    </turboConfiguration>
+
+    <packageJsonScripts>
+      <description>Root workspace scripts</description>
+      <scripts>
+        <script name="build">turbo run build</script>
+        <script name="dev">turbo run dev</script>
+        <script name="lint:check">turbo run lint:check</script>
+        <script name="type-check">turbo run type-check</script>
+        <script name="format:check">prettier --check && turbo run format:check</script>
+        <script name="format:fix">prettier --write && turbo run format:fix</script>
+        <script name="backend:dev">turbo run dev --filter=backend</script>
+        <script name="frontend:dev">turbo run dev --filter=frontend</script>
+        <script name="admin:dev">turbo run dev --filter=admin</script>
+        <script name="build:packages">turbo run build --filter=./packages/*</script>
+        <script name="prepare">husky</script>
+        <script name="env-encrypt">dotenvx encrypt -f .env</script>
+        <script name="env-decrypt">dotenvx decrypt -f .env</script>
+      </scripts>
+    </packageJsonScripts>
+
+    <environmentVariables>
+      <location>.env.example in root and per-app directories</location>
+      <encryption>dotenvx for secrets</encryption>
+      <environments>
+        <environment>development</environment>
+        <environment>staging</environment>
+        <environment>production</environment>
+      </environments>
+      <commonVariables>
+        <variable name="DATABASE_URL">PostgreSQL connection string</variable>
+        <variable name="REDIS_URL">Redis connection URL</variable>
+        <variable name="JWT_SECRET">JWT signing secret</variable>
+        <variable name="MINIO_ENDPOINT">MinIO API endpoint</variable>
+        <variable name="MINIO_ROOT_USER">MinIO username</variable>
+        <variable name="MINIO_ROOT_PASSWORD">MinIO password</variable>
+        <variable name="NEXTAUTH_SECRET">NextAuth.js secret</variable>
+        <variable name="NEXTAUTH_URL">NextAuth callback URL</variable>
+        <variable name="API_URL">Backend API base URL</variable>
+        <variable name="GRAPHQL_ENDPOINT">GraphQL API endpoint</variable>
+      </commonVariables>
+    </environmentVariables>
+
+    <codeQualityStandards>
+      <typeScript>
+        <mode>strict</mode>
+        <strictNullChecks>true</strictNullChecks>
+        <strictFunctionTypes>true</strictFunctionTypes>
+        <noImplicitAny>true</noImplicitAny>
+      </typeScript>
+
+      <linting>
+        <rule>No unused variables</rule>
+        <rule>Proper imports organization</rule>
+        <rule>Consistent naming conventions</rule>
+        <rule>No console logs in production</rule>
+        <rule>Explicit error handling</rule>
+      </linting>
+
+      <formatting>
+        <rule>80-character line length</rule>
+        <rule>Tailwind class sorting</rule>
+        <rule>Import organization</rule>
+        <rule>Consistent spacing and indentation</rule>
+      </formatting>
+
+      <gitHooks>
+        <preCommit>
+          <check>Linting</check>
+          <check>Formatting</check>
+          <check>Type checking</check>
+        </preCommit>
+        <prePush>
+          <check>Full test suite</check>
+          <check>Build verification</check>
+        </prePush>
+      </gitHooks>
+
+      <testing>
+        <framework>Jest</framework>
+        <coverage>
+          <minimum>70%</minimum>
+          <branches>65%</branches>
+          <functions>70%</functions>
+          <lines>70%</lines>
+        </coverage>
+      </testing>
+    </codeQualityStandards>
+
+    <cicdPipelines>
+      <platform>GitHub Actions</platform>
+      <location>.github/workflows/</location>
+      <workflows>
+        <workflow name="PR Validation" trigger="pull_request">
+          <job name="lint">Run ESLint across workspace</job>
+          <job name="format">Check Prettier formatting</job>
+          <job name="type-check">Verify TypeScript compilation</job>
+          <job name="build">Build all applications</job>
+          <job name="test">Run test suites</job>
+        </workflow>
+
+        <workflow name="Merge to Main" trigger="push_to_main">
+          <job name="build">Build all applications</job>
+          <job name="push-images">Push Docker images to registry</job>
+          <job name="deploy">Deploy to staging environment</job>
+        </workflow>
+
+        <workflow name="Release" trigger="tag_creation">
+          <job name="build">Build all applications</job>
+          <job name="push-release-images">Push Docker images with version tag</job>
+          <job name="deploy-production">Deploy to production</job>
+        </workflow>
+      </workflows>
+    </cicdPipelines>
+
+    <dockerStrategy>
+      <backend>
+        <description>NestJS multi-stage Dockerfile</description>
+        <builder>SWC for fast TypeScript compilation</builder>
+        <optimization>
+          <remove>Development dependencies</remove>
+          <minify>true</minify>
+          <cacheLayering>true</cacheLayering>
+        </optimization>
+      </backend>
+
+      <frontend>
+        <description>Next.js production-optimized Dockerfile</description>
+        <output>Standalone output mode</output>
+        <optimization>
+          <imageSize>Minimal with only runtime dependencies</imageSize>
+          <caching>true</caching>
+          <security>Non-root user execution</security>
+        </optimization>
+      </frontend>
+
+      <bestPractices>
+        <practice>Use non-root user for security</practice>
+        <practice>Minimal base images (alpine, distroless)</practice>
+        <practice>Multi-stage builds to reduce image size</practice>
+        <practice>Health checks for all services</practice>
+        <practice>Environment variable support via .env files</practice>
+      </bestPractices>
+    </dockerStrategy>
+
+    <outputDeliverables>
+      <deliverable name="Configuration Files">
+        <file>tsconfig.json - Root TypeScript configuration</file>
+        <file>eslint.config.mjs - ESLint rules and extensions</file>
+        <file>.prettierrc - Prettier formatting configuration</file>
+        <file>turbo.json - Turbo task definitions</file>
+        <file>pnpm-workspace.yaml - Workspace structure</file>
+      </deliverable>
+
+      <deliverable name="Docker Setup">
+        <file>apps/backend/Dockerfile - Backend container</file>
+        <file>apps/frontend/Dockerfile - Frontend container</file>
+        <file>docker/docker-compose.yml - Services orchestration</file>
+        <file>docker/postgres.Dockerfile - Custom PostgreSQL image</file>
+      </deliverable>
+
+      <deliverable name="Application Structure">
+        <directory>apps/backend - NestJS backend with modules, services, controllers</directory>
+        <directory>apps/frontend - Next.js frontend with components and pages</directory>
+        <directory>packages - Shared utilities and type definitions</directory>
+      </deliverable>
+
+      <deliverable name="Database">
+        <file>Database migrations with example patterns</file>
+        <file>TypeORM connection configuration</file>
+        <file>Migration runner setup</file>
+      </deliverable>
+
+      <deliverable name="Documentation">
+        <file>README.md - Project overview and setup instructions</file>
+        <file>DEVELOPMENT.md - Development workflow guide</file>
+        <file>ARCHITECTURE.md - System architecture documentation</file>
+        <file>API.md - API documentation (if GraphQL/REST)</file>
+      </deliverable>
+
+      <deliverable name="CI/CD">
+        <directory>.github/workflows - GitHub Actions pipeline templates</directory>
+        <file>GitHub Actions configuration for build, test, and deploy</file>
+      </deliverable>
+
+      <deliverable name="Dependency Management">
+        <file>package.json files with all required dependencies</file>
+        <file>pnpm-lock.yaml - Locked dependency versions</file>
+        <file>.env.example - Environment variables template</file>
+      </deliverable>
+
+      <deliverable name="Tooling">
+        <file>.gitignore - Git ignore patterns</file>
+        <file>.prettierignore - Prettier ignore patterns</file>
+        <file>nest-cli.json - NestJS CLI configuration</file>
+        <file>next.config.ts - Next.js configuration</file>
+      </deliverable>
+    </outputDeliverables>
+
+    <keyFeatures>
+      <feature name="Monorepo Benefits">Shared dependencies, unified tooling, easy code sharing</feature>
+      <feature name="Scalability">Multiple frontends can share backend and packages</feature>
+      <feature name="Development Experience">Local Docker stack, hot-reload in dev mode, fast build times</feature>
+      <feature name="Type Safety">Full TypeScript across frontend and backend</feature>
+      <feature name="Production Ready">Multi-stage Docker builds, database migrations, security best practices</feature>
+      <feature name="Extensibility">Easy to add new apps or shared packages</feature>
+      <feature name="Code Quality">ESLint, Prettier, Type checking, Git hooks automation</feature>
+      <feature name="Testing Framework">Jest with coverage reporting</feature>
+      <feature name="Infrastructure">PostgreSQL, Redis, MinIO all included via Docker Compose</feature>
+      <feature name="CI/CD Ready">GitHub Actions templates included</feature>
+    </keyFeatures>
+
+    <customizationOptions>
+      <option name="Service Naming">Customize app names (backend → api, frontend → web, etc.)</option>
+      <option name="Database">Switch from TypeORM to Prisma if preferred</option>
+      <option name="ORM Alternative">Use Drizzle ORM for type-safe database operations</option>
+      <option name="State Management">Choose Zustand, Redux, or Context API</option>
+      <option name="GraphQL Client">Apollo Client or alternatives</option>
+      <option name="Testing">Add Vitest, Playwright, or Cypress</option>
+      <option name="Additional Services">Add more microservices as needed</option>
+      <option name="Authentication">NextAuth.js, Auth0, or custom JWT</option>
+      <option name="File Storage">MinIO, AWS S3, or GCP Cloud Storage</option>
+      <option name="Logging">Winston, Pino, or built-in loggers</option>
+      <option name="Monitoring">Add DataDog, New Relic, or OpenTelemetry</option>
+      <option name="Database">PostgreSQL, MySQL, or MongoDB</option>
+    </customizationOptions>
+
+  </project>
+
+  <usage>
+    <description>How to use this XML specification</description>
+    <steps>
+      <step number="1">Review the entire XML structure to understand the project layout</step>
+      <step number="2">Use as reference when setting up a new project manually</step>
+      <step number="3">Convert to text format for prompt-based generation tools</step>
+      <step number="4">Share with AI code generation models for automated setup</step>
+      <step number="5">Customize sections based on your specific project requirements</step>
+      <step number="6">Use as documentation for onboarding new team members</step>
+    </steps>
+
+    <tipsBestPractices>
+      <tip>Keep all sections aligned with your team's preferences</tip>
+      <tip>Review and update version numbers periodically</tip>
+      <tip>Customize the customization options based on your stack choices</tip>
+      <tip>Use this as a living document - update as your project evolves</tip>
+      <tip>Reference specific sections when discussing architecture with team members</tip>
+    </tipsBestPractices>
+  </usage>
+
+</projectSpecification>

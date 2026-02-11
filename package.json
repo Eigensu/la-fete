@@ -1,0 +1,37 @@
+{
+  "name": "la-fete-monorepo",
+  "version": "1.0.0",
+  "description": "Premium cake shop e-commerce platform with Razorpay payments and WeFast delivery integration",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint:check": "turbo run lint:check",
+    "type-check": "turbo run type-check",
+    "format:check": "prettier --check . && turbo run format:check",
+    "format:fix": "prettier --write . && turbo run format:fix",
+    "backend:dev": "turbo run dev --filter=backend",
+    "frontend:dev": "turbo run dev --filter=frontend",
+    "admin:dev": "turbo run dev --filter=admin",
+    "build:packages": "turbo run build --filter=./packages/*",
+    "prepare": "husky",
+    "env-encrypt": "dotenvx encrypt -f .env",
+    "env-decrypt": "dotenvx decrypt -f .env"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.22.0",
+    "@types/node": "^22.18.0",
+    "eslint": "^9.18.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.4.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2"
+  },
+  "packageManager": "pnpm@10.14.0",
+  "engines": {
+    "node": ">=22.18.0",
+    "pnpm": ">=10.14.0"
+  }
+}
