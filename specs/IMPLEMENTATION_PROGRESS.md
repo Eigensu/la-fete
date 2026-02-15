@@ -63,24 +63,99 @@
 ### Integration
 - [x] Added AuthModule and UsersModule to AppModule
 - [x] Updated .env.example with JWT settings
-- [ ] Products Module (with Variants)
-- [ ] Cart Module (persistent cart logic)
-- [ ] Orders Module (with transaction handling)
-- [ ] Payments Module (Razorpay integration)
-- [ ] Delivery Module (Borzo integration, slots)
+
+## ✅ Phase 3: Products & Cart Modules (COMPLETED)
+
+### Products Module
+- [x] ProductsModule
+- [x] ProductsService (CRUD operations, stock management)
+- [x] ProductsController (public GET, admin POST/PATCH/DELETE)
+- [x] CreateProductDto with variants validation
+- [x] UpdateProductDto
+- [x] UpdateVariantStockDto
+- [x] Admin-only routes protected with RolesGuard
+
+### Cart Module (Persistent)
+- [x] CartModule
+- [x] CartService (add, update, remove, clear, getTotal)
+- [x] CartController (GET /cart, POST /cart/items, etc.)
+- [x] AddToCartDto with stock validation
+- [x] UpdateCartItemDto
+- [x] Stock availability checks
+- [x] Price snapshot on add to cart
+- [x] Auto-create cart for user
+
+### Integration
+- [x] Added ProductsModule and CartModule to AppModule
+- [x] Cart depends on ProductsModule for variant validation
+
+## ✅ Phase 4: Orders, Payments & Delivery Modules (COMPLETED)
+
+### Orders Module
+- [x] OrdersModule with transaction handling
+- [x] OrdersService (create, findAll, findOne, updateStatus)
+- [x] OrdersController (POST /orders, GET /orders, GET /orders/:id, PATCH /orders/:id/status)
+- [x] CreateOrderDto with validation
+- [x] UpdateOrderStatusDto
+- [x] Order state machine with validation
+- [x] Stock locking during order creation
+- [x] Delivery slot locking and validation
+- [x] Order number generation (LF-YYYY-NNNN format)
+- [x] Integration with Cart, Products, Delivery, and Payments
+
+### Payments Module (Razorpay)
+- [x] PaymentsModule
+- [x] PaymentsService (createRazorpayOrder, verifyPayment)
+- [x] PaymentsController (POST /payments/verify)
+- [x] RazorpayService for API communication
+- [x] Signature verification with HMAC SHA256
+- [x] Payment status tracking
+
+### Delivery Module (Borzo)
+- [x] DeliveryModule
+- [x] DeliveryService (slots, booking, tracking)
+- [x] DeliveryController (GET /delivery/slots, POST /delivery/book, GET /delivery/track)
+- [x] BorzoService with API integration
+- [x] Distance calculation (Haversine formula)
+- [x] Delivery cost estimation with 10% buffer
+- [x] 25km radius enforcement
+- [x] Slot capacity management (max 5 per slot)
+- [x] Slot generation for 7-day advance booking
+- [x] Store location configuration via environment variables
+
+### Integration
+- [x] Added OrdersModule, PaymentsModule, and DeliveryModule to AppModule
+- [x] Fixed TypeScript compilation errors
+- [x] Installed @nestjs/mapped-types package
+- [x] Fixed type issues with EntityManager.findOne
+- [x] Backend compiles successfully
+
+## 🚧 Next Steps
+
+### Phase 5: Notifications Module
 - [ ] Notifications Module (Email, SMS)
-- [ ] Admin Module (analytics, management)
+- [ ] Email templates (order confirmation, dispatch, delivery)
+- [ ] SMS integration (Twilio or similar)
+- [ ] Notification queue with BullMQ
 
-### Phase 4: DTOs & Validation
-- [ ] Create all DTOs with class-validator
+### Phase 6: Admin Module
+- [ ] Admin dashboard endpoints
+- [ ] Analytics (revenue, popular products)
+- [ ] Order management interface
+- [ ] Delivery slot management
+
+### Phase 7: DTOs & Validation
+- [ ] Review all DTOs for completeness
 - [ ] Add validation pipes globally
+- [ ] Add error handling middleware
 
-### Phase 5: Background Jobs
+### Phase 8: Background Jobs
 - [ ] Set up BullMQ
 - [ ] Create notification queue
 - [ ] Create delivery scheduler queue
+- [ ] Automatic delivery booking 2 hours before slot
 
-### Phase 6: Testing
+### Phase 9: Testing
 - [ ] Unit tests for services
 - [ ] Integration tests for APIs
 - [ ] E2E tests for order flow
