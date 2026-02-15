@@ -1,0 +1,12 @@
+export enum NotificationType {
+  ORDER_CONFIRMATION = 'ORDER_CONFIRMATION',
+  ORDER_DISPATCHED = 'ORDER_DISPATCHED',
+  ORDER_DELIVERED = 'ORDER_DELIVERED',
+  ORDER_CANCELLED = 'ORDER_CANCELLED',
+}
+
+export enum NotificationChannel {
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+  WHATSAPP = 'WHATSAPP',
+}

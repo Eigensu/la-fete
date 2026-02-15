@@ -11,9 +11,9 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
     return {
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+      entities: [__dirname + '/../modules/**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-      synchronize: isDevelopment,
+      synchronize: false, // Always false - use migrations
       logging: isDevelopment,
       ssl: {
         rejectUnauthorized: false,
@@ -26,10 +26,13 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgresql://admin:admin@localhost:5433/lafete-db',
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  entities: [__dirname + '/../modules/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false,
   logging: true,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 };
 
 const dataSource = new DataSource(dataSourceOptions);

@@ -5,6 +5,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseConfig } from './config/database.config';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { join } from 'path';
 
 @Module({
@@ -22,6 +24,8 @@ import { join } from 'path';
         limit: 10,
       },
     ]),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
