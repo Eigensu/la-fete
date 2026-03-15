@@ -2,7 +2,7 @@
 
 export default function About() {
     return (
-        <section className="min-h-screen grid md:grid-cols-5 items-center bg-white">
+        <section id="about" className="relative min-h-screen grid md:grid-cols-5 items-center bg-white">
             {/* Left: Image - takes 2 columns */}
             <div className="relative h-[60vh] md:h-screen overflow-hidden bg-[#f5f0ed] md:col-span-2">
                 <div className="absolute inset-0 flex items-center justify-center p-12 md:p-16">
@@ -16,8 +16,8 @@ export default function About() {
             </div>
 
             {/* Right: Content - takes 3 columns */}
-            <div className="px-8 md:px-16 lg:px-20 py-16 md:py-24 md:col-span-3">
-                <div className="max-w-xl">
+            <div className="px-8 md:px-16 lg:px-20 xl:px-24 py-16 md:py-24 md:col-span-3">
+                <div>
                     <p className="text-[#86162f] text-xs md:text-sm uppercase tracking-[0.3em] mb-6 font-poppins font-light">
                         EST. 2019 · MUMBAI, INDIA
                     </p>
@@ -45,12 +45,6 @@ export default function About() {
                             className="px-8 py-4 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white text-center font-poppins text-sm uppercase tracking-wider hover:opacity-90 transition-opacity"
                         >
                             Order Now
-                        </a>
-                        <a
-                            href="#products"
-                            className="px-8 py-4 border-2 border-[#86162f] text-[#86162f] text-center font-poppins text-sm uppercase tracking-wider hover:bg-gradient-to-r hover:from-[#86162f] hover:via-[#a82043] hover:to-[#f8aeb2] hover:text-white hover:border-transparent transition-all"
-                        >
-                            View Products
                         </a>
                     </div>
                 </div>

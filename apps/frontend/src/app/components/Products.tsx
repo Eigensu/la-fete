@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function Products() {
     const products = [
         {
@@ -14,11 +16,15 @@ export default function Products() {
             name: 'Gourmet Tarts',
             description: 'Elegant tarts with seasonal fruits and cream',
         },
+        {
+            name: 'Artisan Breads',
+            description: 'Freshly baked sourdough and rustic loaves',
+        },
     ];
 
     return (
-        <section id="products" className="py-24 md:py-32 bg-white">
-            <div className="max-w-7xl mx-auto px-8 md:px-16">
+        <section id="products" className="relative pt-32 md:pt-40 pb-24 md:pb-32 bg-white">
+            <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
                 <div className="text-center mb-20">
                     <p className="text-[#f8aeb2] text-xs md:text-sm uppercase tracking-[0.3em] mb-4 font-poppins font-light">
                         Our Collection
@@ -28,7 +34,7 @@ export default function Products() {
                     </h2>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-12 md:gap-16">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
                     {products.map((product, index) => (
                         <div key={index} className="group">
                             <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
@@ -52,6 +58,15 @@ export default function Products() {
                             </p>
                         </div>
                     ))}
+                </div>
+                {/* Explore More Button */}
+                <div className="mt-16 text-center">
+                    <Link
+                        href="/products"
+                        className="inline-block px-10 py-4 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white font-poppins text-sm uppercase tracking-wider hover:opacity-90 transition-opacity shadow-lg"
+                    >
+                        Explore More
+                    </Link>
                 </div>
             </div>
         </section>

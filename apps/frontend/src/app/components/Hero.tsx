@@ -2,7 +2,7 @@
 
 export default function Hero() {
     return (
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
             {/* Background Image */}
             <div className="absolute inset-0">
                 <div
@@ -20,7 +20,7 @@ export default function Hero() {
             </div>
 
             {/* Content */}
-            <div className="relative z-10 text-center px-8">
+            <div className="relative z-10 text-center px-8 sm:px-12 md:px-16 lg:px-20">
                 {/* Title with glow */}
                 <div className="relative inline-block">
                     {/* Glow effect behind */}
