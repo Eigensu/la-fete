@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
@@ -51,11 +52,15 @@ export default function Products() {
                         <div key={index} className="group flex flex-col h-full">
                             <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
                                 {/* Bow decoration at top-left corner */}
-                                <img
-                                    src="/bow.png"
-                                    alt=""
-                                    className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10"
-                                />
+                                <div className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10 pointer-events-none">
+                                    <Image
+                                        src="/bow.png"
+                                        alt=""
+                                        width={128}
+                                        height={128}
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
                                 {product.tag && (
                                     <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
                                         {product.tag}

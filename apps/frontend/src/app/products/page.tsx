@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { ChevronDown, Plus, Minus } from 'lucide-react';
@@ -61,7 +62,9 @@ export default function ProductsPage() {
     const renderProductCard = (product: Product, index: number, sectionId: string) => (
         <div key={`${sectionId}-${index}`} className="group flex flex-col h-full">
             <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
-                <img src="/bow.png" alt="" className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10" />
+                <div className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10 pointer-events-none">
+                    <Image src="/bow.png" alt="" width={128} height={128} className="w-full h-full object-contain" />
+                </div>
                 {product.tag && (
                     <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
                         {product.tag}

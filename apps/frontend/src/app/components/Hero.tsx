@@ -1,13 +1,18 @@
 'use client';
 
+import Image from 'next/image';
+
 export default function Hero() {
     return (
         <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
             {/* Background Image */}
             <div className="absolute inset-0">
-                <div
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: 'url(/wallpaper.jpg)' }}
+                <Image
+                    src="/wallpaper.jpg"
+                    alt="La Fête Bakery"
+                    fill
+                    priority
+                    className="object-cover object-center"
                 />
                 {/* Overlay for better text readability */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#fce4e6]/40 via-[#fef9f8]/50 to-white/60"></div>
