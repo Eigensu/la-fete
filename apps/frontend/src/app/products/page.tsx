@@ -3,78 +3,111 @@
 import { useState } from 'react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Plus, Minus } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+
+interface Product {
+    name: string;
+    description: string;
+    category: string;
+    tag?: string;
+    price: number;
+}
 
 export default function ProductsPage() {
     const [filter, setFilter] = useState('all');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const { cart, updateQuantity } = useCart();
 
-    const byDietProducts = [
-        {
-            name: 'Gluten-Free Vanilla',
-            description: 'Light and airy vanilla cake made without gluten',
-            category: 'lafete'
-        },
-        {
-            name: 'Vegan Chocolate Fudge',
-            description: 'Rich chocolate cake completely plant-based',
-            category: 'lafete'
-        },
-        {
-            name: 'Keto Berry Tart',
-            description: 'Low-carb tart packed with fresh seasonal berries',
-            category: 'snackfest'
-        },
-        {
-            name: 'Sugar-Free Delight',
-            description: 'Naturally sweetened treats for the healthy heart',
-            category: 'snackfest'
-        },
+    const lesGateauxProducts: Product[] = [
+        { name: 'Classic Red Velvet', description: 'Our signature recipe with cream cheese frosting', category: 'lafete', tag: 'Bestseller', price: 520 },
+        { name: 'Spring Blossom Cupcake', description: 'Light floral notes with a creamy center', category: 'lafete', price: 180 },
+        { name: 'Ultimate Chocolate Dream', description: 'Triple layers of cocoa for the serious lover', category: 'lafete', price: 650 },
     ];
 
-    const byCravingsProducts = [
-        {
-            name: 'Ultimate Chocolate Dream',
-            description: 'For the serious chocolate lover, triple layers of cocoa',
-            category: 'lafete'
-        },
-        {
-            name: 'Citrus Burst Delight',
-            description: 'Zesty lemon and orange flavors for a refreshing bite',
-            category: 'snackfest'
-        },
-        {
-            name: 'Salted Caramel Crunch',
-            description: 'Perfect balance of sweet and salty with a crispy texture',
-            category: 'lafete'
-        },
-        {
-            name: 'Midnight Brownie',
-            description: 'Intense dark chocolate with a gooey molten center',
-            category: 'snackfest'
-        },
+    const petitIndulgencesProducts: Product[] = [
+        { name: 'Mango Passion Delight', description: 'Tropical summer flavors in every bite', category: 'lafete', tag: 'Seasonal', price: 420 },
+        { name: 'Midnight Brownie', description: 'Intense dark chocolate with a gooey molten center', category: 'lafete', price: 250 },
     ];
 
-    const newArrivalsProducts = [
-        { name: 'Spring Blossom Cupcake', description: 'Light floral notes with a creamy center', category: 'lafete' },
-        { name: 'Oatmeal Raisin Energy', description: 'Perfect bite-sized snack for on the go', category: 'snackfest' },
+    const byDietProducts: Product[] = [
+        { name: 'Gluten-Free Vanilla', description: 'Light and airy vanilla cake made without gluten', category: 'lafete', price: 450 },
+        { name: 'Vegan Chocolate Fudge', description: 'Rich chocolate cake completely plant-based', category: 'lafete', price: 550 },
     ];
 
-    const bestSellersProducts = [
-        { name: 'Classic Red Velvet', description: 'Our signature recipe with cream cheese frosting', category: 'lafete', tag: 'Bestseller' },
-        { name: 'Peanut Butter Blast', description: 'Crunchy peanut butter with chocolate drizzle', category: 'snackfest', tag: 'Bestseller' },
+    const granolaProducts: Product[] = [
+        { name: 'Oatmeal Raisin Energy', description: 'Perfect bite-sized snack for on the go', category: 'snackfest', price: 120 },
+        { name: 'Keto Berry Tart', description: 'Low-carb tart packed with fresh seasonal berries', category: 'snackfest', price: 380 },
     ];
 
-    const seasonalSpecialsProducts = [
-        { name: 'Mango Passion Delight', description: 'Tropical summer flavors in every bite', category: 'lafete', tag: 'Seasonal' },
-        { name: 'Pumpkin Spice Mini', description: 'Warm autumn spices for cozy evenings', category: 'snackfest' },
+    const spreadsProducts: Product[] = [
+        { name: 'Peanut Butter Blast', description: 'Crunchy peanut butter with chocolate drizzle', category: 'snackfest', tag: 'Bestseller', price: 350 },
+        { name: 'Salted Caramel Crunch', description: 'Perfect balance of sweet and salty', category: 'snackfest', price: 480 },
     ];
 
-    const filteredByDiet = filter === 'all' ? byDietProducts : byDietProducts.filter(p => p.category === filter);
-    const filteredByCravings = filter === 'all' ? byCravingsProducts : byCravingsProducts.filter(p => p.category === filter);
-    const filteredNewArrivals = filter === 'all' ? newArrivalsProducts : newArrivalsProducts.filter(p => p.category === filter);
-    const filteredBestSellers = filter === 'all' ? bestSellersProducts : bestSellersProducts.filter(p => p.category === filter);
-    const filteredSeasonal = filter === 'all' ? seasonalSpecialsProducts : seasonalSpecialsProducts.filter(p => p.category === filter);
+    const cakeMixesProducts: Product[] = [
+        { name: 'Sugar-Free Delight', description: 'Naturally sweetened treats for the healthy heart', category: 'snackfest', price: 320 },
+        { name: 'Pumpkin Spice Mini', description: 'Warm autumn spices for cozy evenings', category: 'snackfest', price: 290 },
+    ];
+
+    const filteredLesGateaux = filter === 'all' || filter === 'lafete' ? lesGateauxProducts : [];
+    const filteredPetitIndulgences = filter === 'all' || filter === 'lafete' ? petitIndulgencesProducts : [];
+    const filteredByDiet = filter === 'all' || filter === 'lafete' ? byDietProducts : [];
+
+    const filteredGranola = filter === 'all' || filter === 'snackfest' ? granolaProducts : [];
+    const filteredSpreads = filter === 'all' || filter === 'snackfest' ? spreadsProducts : [];
+    const filteredCakeMixes = filter === 'all' || filter === 'snackfest' ? cakeMixesProducts : [];
+
+    const renderProductCard = (product: Product, index: number, sectionId: string) => (
+        <div key={`${sectionId}-${index}`} className="group flex flex-col h-full">
+            <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
+                <img src="/bow.png" alt="" className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10" />
+                {product.tag && (
+                    <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
+                        {product.tag}
+                    </div>
+                )}
+                <svg className="w-32 h-32 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                </svg>
+            </div>
+            <h3 className="font-seasons text-2xl md:text-3xl text-[#86162f] mb-3 min-h-[3.5rem] md:min-h-[4rem] flex items-center">
+                {product.name}
+            </h3>
+            <p className="font-poppins text-sm text-gray-600 leading-relaxed mb-6">
+                {product.description}
+            </p>
+            <div className="mt-auto">
+                <div className="flex justify-between items-center mb-4">
+                    <span className="font-poppins font-semibold text-[#86162f]">₹{product.price}</span>
+                </div>
+                {cart[product.name] && cart[product.name].quantity > 0 ? (
+                    <div className="flex items-center justify-between bg-white border border-[#86162f]/20 rounded-sm overflow-hidden shadow-sm">
+                        <button
+                            onClick={() => updateQuantity(product.name, -1)}
+                            className="p-3 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
+                        >
+                            <Minus size={16} />
+                        </button>
+                        <span className="font-poppins font-medium text-[#86162f]">{cart[product.name].quantity}</span>
+                        <button
+                            onClick={() => updateQuantity(product.name, 1)}
+                            className="p-3 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
+                        >
+                            <Plus size={16} />
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        className="w-full py-3 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white font-poppins text-xs uppercase tracking-widest hover:opacity-90 transition-opacity rounded-sm shadow-md"
+                        onClick={() => updateQuantity(product.name, 1, product.price)}
+                    >
+                        Add to Cart
+                    </button>
+                )}
+            </div>
+        </div>
+    );
 
     return (
         <main className="relative min-h-screen bg-white">
@@ -93,7 +126,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Persistent Filter Bar */}
-            <div className="bg-white border-b border-[#f8aeb2]/30 sticky top-16 md:top-20 z-30 shadow-sm">
+            <div className="bg-white border-b border-[#f8aeb2]/30 relative z-30 shadow-sm">
                 <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24 py-4 flex justify-end items-center">
                     <div className="relative inline-block text-left">
                         <button
@@ -133,176 +166,81 @@ export default function ProductsPage() {
             </div>
 
 
-            {/* By Diet Section - Only for Snackfest and All */}
-            {(filter === 'all' || filter === 'snackfest') && filteredByDiet.length > 0 && (
-                <section id="diet" className="relative py-16 bg-white">
+            {/* La Fête Sections */}
+            {filteredLesGateaux.length > 0 && (
+                <section id="les-gateaux" className="relative py-16 bg-white">
                     <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
-                        <div className="mb-12 flex justify-between items-end pb-4">
-                            <h2 className="font-seasons text-[#86162f] text-2xl md:text-3xl">
-                                By Diet
-                            </h2>
+                        <div className="mb-12 flex justify-between items-end pb-4 border-b border-[#86162f]/10">
+                            <h2 className="font-seasons text-[#86162f] text-3xl">Les Gateaux</h2>
                         </div>
-
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12">
-                            {filteredByDiet.map((product, index) => (
-                                <div key={`diet-${index}`} className="group">
-                                    <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
-                                        {/* Bow decoration at top-left corner */}
-                                        <img
-                                            src="/bow.png"
-                                            alt=""
-                                            className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10"
-                                        />
-                                        {product.tag && (
-                                            <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
-                                                {product.tag}
-                                            </div>
-                                        )}
-                                        {/* Placeholder */}
-                                        <svg className="w-32 h-32 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="font-seasons text-2xl md:text-3xl text-[#86162f] mb-3">
-                                        {product.name}
-                                    </h3>
-                                    <p className="font-poppins text-sm text-gray-600 leading-relaxed">
-                                        {product.description}
-                                    </p>
-                                </div>
-                            ))}
+                            {filteredLesGateaux.map((product, index) => renderProductCard(product, index, 'gateaux'))}
                         </div>
                     </div>
                 </section>
             )}
 
-            {/* By Cravings Section - Only for La Fête and All */}
-            {(filter === 'all' || filter === 'lafete') && filteredByCravings.length > 0 && (
-                <section id="cravings" className="relative py-16 bg-white">
+            {filteredPetitIndulgences.length > 0 && (
+                <section id="petit-indulgences" className="relative py-16 bg-[#fcf9f8]">
                     <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
-                        <div className="mb-12">
-                            <h2 className="font-seasons text-[#86162f] text-2xl md:text-3xl pb-4">
-                                By Cravings
-                            </h2>
+                        <div className="mb-12 flex justify-between items-end pb-4 border-b border-[#86162f]/10">
+                            <h2 className="font-seasons text-[#86162f] text-3xl">Petit Indulgences</h2>
                         </div>
-
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12">
-                            {filteredByCravings.map((product, index) => (
-                                <div key={`craving-${index}`} className="group">
-                                    <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
-                                        <img src="/bow.png" alt="" className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10" />
-                                        {product.tag && (
-                                            <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
-                                                {product.tag}
-                                            </div>
-                                        )}
-                                        <svg className="w-32 h-32 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="font-seasons text-2xl md:text-3xl text-[#86162f] mb-3">{product.name}</h3>
-                                    <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.description}</p>
-                                </div>
-                            ))}
+                            {filteredPetitIndulgences.map((product, index) => renderProductCard(product, index, 'petit'))}
                         </div>
                     </div>
                 </section>
             )}
 
-            {/* New Arrivals Section - Only for Snackfest and All */}
-            {(filter === 'all' || filter === 'snackfest') && filteredNewArrivals.length > 0 && (
-                <section id="arrivals" className="relative py-16 bg-white">
+            {filteredByDiet.length > 0 && (
+                <section id="by-diet" className="relative py-16 bg-white">
                     <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
-                        <div className="mb-12">
-                            <h2 className="font-seasons text-[#86162f] text-2xl md:text-3xl border-b border-[#f8aeb2] pb-4 inline-block">
-                                New Arrivals
-                            </h2>
+                        <div className="mb-12 flex justify-between items-end pb-4 border-b border-[#86162f]/10">
+                            <h2 className="font-seasons text-[#86162f] text-3xl">By Diet</h2>
                         </div>
-
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12">
-                            {filteredNewArrivals.map((product, index) => (
-                                <div key={`arrival-${index}`} className="group">
-                                    <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
-                                        <img src="/bow.png" alt="" className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10" />
-                                        {product.tag && (
-                                            <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
-                                                {product.tag}
-                                            </div>
-                                        )}
-                                        <svg className="w-32 h-32 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="font-seasons text-2xl md:text-3xl text-[#86162f] mb-3">{product.name}</h3>
-                                    <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.description}</p>
-                                </div>
-                            ))}
+                            {filteredByDiet.map((product, index) => renderProductCard(product, index, 'diet'))}
                         </div>
                     </div>
                 </section>
             )}
 
-            {/* Best Sellers Section - For Both */}
-            {filteredBestSellers.length > 0 && (
-                <section id="sellers" className="relative py-16 bg-white">
+            {/* Snackfest Sections */}
+            {filteredGranola.length > 0 && (
+                <section id="granola" className="relative py-16 bg-[#fcf9f8]">
                     <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
-                        <div className="mb-12">
-                            <h2 className="font-seasons text-[#86162f] text-2xl md:text-3xl border-b border-[#f8aeb2] pb-4 inline-block">
-                                Best Sellers
-                            </h2>
+                        <div className="mb-12 flex justify-between items-end pb-4 border-b border-[#86162f]/10">
+                            <h2 className="font-seasons text-[#86162f] text-3xl">Granola</h2>
                         </div>
-
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12">
-                            {filteredBestSellers.map((product, index) => (
-                                <div key={`seller-${index}`} className="group">
-                                    <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
-                                        <img src="/bow.png" alt="" className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10" />
-                                        {product.tag && (
-                                            <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
-                                                {product.tag}
-                                            </div>
-                                        )}
-                                        <svg className="w-32 h-32 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="font-seasons text-2xl md:text-3xl text-[#86162f] mb-3">{product.name}</h3>
-                                    <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.description}</p>
-                                </div>
-                            ))}
+                            {filteredGranola.map((product, index) => renderProductCard(product, index, 'granola'))}
                         </div>
                     </div>
                 </section>
             )}
 
-            {/* Seasonal Specials Section - Only for La Fête and All */}
-            {(filter === 'all' || filter === 'lafete') && filteredSeasonal.length > 0 && (
-                <section id="seasonal" className="relative py-16 md:pb-32 bg-white">
+            {filteredSpreads.length > 0 && (
+                <section id="spreads" className="relative py-16 bg-white">
                     <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
-                        <div className="mb-12">
-                            <h2 className="font-seasons text-[#86162f] text-2xl md:text-3xl border-b border-[#f8aeb2] pb-4 inline-block">
-                                Seasonal Specials
-                            </h2>
+                        <div className="mb-12 flex justify-between items-end pb-4 border-b border-[#86162f]/10">
+                            <h2 className="font-seasons text-[#86162f] text-3xl">Spreads</h2>
                         </div>
-
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12">
-                            {filteredSeasonal.map((product, index) => (
-                                <div key={`seasonal-${index}`} className="group">
-                                    <div className="relative aspect-square bg-[#f5f0ed] mb-6 overflow-visible flex items-center justify-center">
-                                        <img src="/bow.png" alt="" className="absolute -top-10 -left-10 w-32 h-32 -rotate-35 opacity-90 z-10" />
-                                        {product.tag && (
-                                            <div className="absolute top-4 right-4 bg-[#f8aeb2]/80 px-3 py-1 text-[10px] font-poppins font-semibold text-[#86162f] uppercase tracking-wider z-20">
-                                                {product.tag}
-                                            </div>
-                                        )}
-                                        <svg className="w-32 h-32 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="font-seasons text-2xl md:text-3xl text-[#86162f] mb-3">{product.name}</h3>
-                                    <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.description}</p>
-                                </div>
-                            ))}
+                            {filteredSpreads.map((product, index) => renderProductCard(product, index, 'spreads'))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {filteredCakeMixes.length > 0 && (
+                <section id="cake-mixes" className="relative py-16 bg-[#fcf9f8]">
+                    <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
+                        <div className="mb-12 flex justify-between items-end pb-4 border-b border-[#86162f]/10">
+                            <h2 className="font-seasons text-[#86162f] text-3xl">Cake Mixes</h2>
+                        </div>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12">
+                            {filteredCakeMixes.map((product, index) => renderProductCard(product, index, 'mixes'))}
                         </div>
                     </div>
                 </section>

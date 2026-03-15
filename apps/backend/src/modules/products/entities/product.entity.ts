@@ -28,6 +28,9 @@ export class Product {
   @Column({ nullable: true })
   category: string;
 
+  @Column({ nullable: true })
+  tag: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

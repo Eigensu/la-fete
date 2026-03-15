@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronDown, ShoppingCart, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '../context/CartContext';
 
 export default function Navigation() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -12,6 +13,8 @@ export default function Navigation() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [snackfestOpen, setSnackfestOpen] = useState(false);
     const [laFeteAllProductsOpen, setLaFeteAllProductsOpen] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    const { cart, cartTotalCount, cartTotalAmount, updateQuantity } = useCart();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -46,7 +49,7 @@ export default function Navigation() {
 
     const laFeteLinks = [
         { name: 'About Us', href: '/#about' },
-        { name: 'Contact', href: '/#contact' },
+        { name: 'Contact Us', href: '/#contact' },
     ];
 
     return (
@@ -80,14 +83,18 @@ export default function Navigation() {
                             </Link>
                         </div>
 
-                        {/* Order Now Button (Mobile/Tablet scale) */}
+                        {/* Shopping Cart Button */}
                         <div className="flex items-center gap-6">
-                            <a
-                                href="tel:+919867281799"
-                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] border-2 border-[#86162f] px-4 py-1.5 hover:bg-[#86162f] hover:text-white transition-all"
+                            <button
+                                onClick={() => setIsCartOpen(true)}
+                                className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
+                                aria-label="Shopping Cart"
                             >
-                                Order Now
-                            </a>
+                                <ShoppingCart size={24} />
+                                <span className="absolute -top-1 -right-1 bg-[#86162f] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-poppins">
+                                    {cartTotalCount}
+                                </span>
+                            </button>
 
                             {/* Hamburger Menu Toggle */}
                             <button
@@ -110,7 +117,7 @@ export default function Navigation() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed top-0 right-0 h-full z-[55] bg-white w-full md:w-1/2 flex flex-col pt-24 pb-12 px-8 overflow-y-auto shadow-2xl"
+                        className="fixed top-0 right-0 h-full z-[55] bg-[#fcf9f8] w-full md:w-1/2 flex flex-col pt-24 pb-12 px-8 overflow-y-auto shadow-2xl"
                     >
                         {/* Backdrop for desktop */}
                         <div
@@ -124,16 +131,13 @@ export default function Navigation() {
                                     La Fête
                                 </h3>
                                 <div className="flex flex-col gap-4 pl-4 border-l border-[#86162f]/20">
-                                    {laFeteLinks.map((link) => (
-                                        <Link
-                                            key={link.name}
-                                            href={link.href}
-                                            onClick={closeMenu}
-                                            className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
-                                        >
-                                            {link.name}
-                                        </Link>
-                                    ))}
+                                    <Link
+                                        href={laFeteLinks[0].href}
+                                        onClick={closeMenu}
+                                        className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
+                                    >
+                                        {laFeteLinks[0].name}
+                                    </Link>
 
                                     {/* La Fete All Products Dropdown */}
                                     <div className="flex flex-col gap-4">
@@ -162,13 +166,22 @@ export default function Navigation() {
                                                     className="overflow-hidden"
                                                 >
                                                     <div className="flex flex-col gap-3 pl-6">
-                                                        <Link href="/products#diet" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">By Diet</Link>
-                                                        <Link href="/products#cravings" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">By Cravings</Link>
+                                                        <Link href="/products#les-gateaux" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Les Gateaux</Link>
+                                                        <Link href="/products#petit-indulgences" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Petit Indulgences</Link>
+                                                        <Link href="/products#by-diet" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">By Diet</Link>
                                                     </div>
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
                                     </div>
+
+                                    <Link
+                                        href={laFeteLinks[1].href}
+                                        onClick={closeMenu}
+                                        className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
+                                    >
+                                        {laFeteLinks[1].name}
+                                    </Link>
                                 </div>
                             </div>
 
@@ -205,12 +218,9 @@ export default function Navigation() {
                                                     className="overflow-hidden"
                                                 >
                                                     <div className="flex flex-col gap-3 pl-6">
-                                                        <Link href="/products" onClick={closeMenu} className="font-poppins text-base text-[#86162f] font-medium border-b border-[#86162f]/10 pb-1">By Diet</Link>
-
-                                                        <div className="mt-2 flex flex-col gap-2">
-                                                            <Link href="/products" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">New Arrivals</Link>
-                                                            <Link href="/products" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Best Sellers</Link>
-                                                        </div>
+                                                        <Link href="/products#granola" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Granola</Link>
+                                                        <Link href="/products#spreads" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Spreads</Link>
+                                                        <Link href="/products#cake-mixes" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Cake Mixes</Link>
                                                     </div>
                                                 </motion.div>
                                             )}
@@ -227,6 +237,102 @@ export default function Navigation() {
                             </div>
                         </div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Cart Drawer Overlay */}
+            <AnimatePresence>
+                {isCartOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsCartOpen(false)}
+                            className="fixed inset-0 bg-black/40 z-[70] backdrop-blur-sm"
+                        />
+                        {/* Drawer */}
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                            className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[80] shadow-2xl flex flex-col"
+                        >
+                            <div className="flex items-center justify-between p-6 border-b border-[#86162f]/10">
+                                <h2 className="font-seasons text-[#86162f] text-2xl">Your Basket</h2>
+                                <button
+                                    onClick={() => setIsCartOpen(false)}
+                                    className="p-2 text-[#86162f] hover:bg-[#86162f]/5 rounded-full transition-colors"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                                {Object.values(cart).length === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
+                                        <ShoppingCart size={48} className="mb-4" />
+                                        <p className="font-poppins text-lg">Your basket is empty</p>
+                                        <button
+                                            onClick={() => setIsCartOpen(false)}
+                                            className="mt-4 text-[#86162f] font-poppins font-semibold uppercase text-xs tracking-widest border-b border-[#86162f]"
+                                        >
+                                            Start Shopping
+                                        </button>
+                                    </div>
+                                ) : (
+                                    Object.values(cart).map((item) => (
+                                        <div key={item.name} className="flex gap-4 items-start">
+                                            <div className="w-20 h-20 bg-[#f5f0ed] rounded-sm flex items-center justify-center shrink-0">
+                                                <svg className="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                                                </svg>
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-seasons text-[#86162f] text-lg leading-tight mb-1">{item.name}</h4>
+                                                <div className="flex items-center justify-between mt-2">
+                                                    <div className="flex items-center gap-3 bg-[#f5f0ed] px-2 py-1 rounded-sm">
+                                                        <button
+                                                            onClick={() => updateQuantity(item.name, -1)}
+                                                            className="text-[#86162f] hover:opacity-70"
+                                                        >
+                                                            <Minus size={14} />
+                                                        </button>
+                                                        <span className="font-poppins text-sm font-medium w-4 text-center">{item.quantity}</span>
+                                                        <button
+                                                            onClick={() => updateQuantity(item.name, 1)}
+                                                            className="text-[#86162f] hover:opacity-70"
+                                                        >
+                                                            <Plus size={14} />
+                                                        </button>
+                                                    </div>
+                                                    <span className="font-poppins font-semibold text-[#86162f]">₹{item.price * item.quantity}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+
+                            {Object.values(cart).length > 0 && (
+                                <div className="p-8 border-t border-[#86162f]/10 bg-[#fcf9f8]">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <span className="font-poppins text-gray-600 uppercase tracking-widest text-xs">Subtotal</span>
+                                        <span className="font-poppins font-bold text-[#86162f] text-xl">₹{cartTotalAmount}</span>
+                                    </div>
+                                    <Link
+                                        href="/auth"
+                                        onClick={() => setIsCartOpen(false)}
+                                        className="w-full py-4 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white font-poppins text-sm uppercase tracking-widest hover:opacity-90 transition-opacity rounded-sm shadow-xl flex items-center justify-center"
+                                    >
+                                        Checkout
+                                    </Link>
+                                </div>
+                            )}
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </>
