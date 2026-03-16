@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, ChevronDown, ShoppingCart, Plus, Minus } from 'lucide-react';
+import { X, ChevronDown, ShoppingCart, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 
 export default function Navigation() {
     const [isScrolled, setIsScrolled] = useState(false);
-    const [isVisible, setIsVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
+    const [isPastHero, setIsPastHero] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [snackfestOpen, setSnackfestOpen] = useState(false);
     const [laFeteAllProductsOpen, setLaFeteAllProductsOpen] = useState(false);
@@ -22,23 +21,13 @@ export default function Navigation() {
             const heroHeight = window.innerHeight;
 
             setIsScrolled(currentScrollY > 50);
-
-            if (currentScrollY > heroHeight) {
-                if (currentScrollY > lastScrollY && !isMenuOpen) {
-                    setIsVisible(false);
-                } else {
-                    setIsVisible(true);
-                }
-            } else {
-                setIsVisible(true);
-            }
-
-            setLastScrollY(currentScrollY);
+            setIsPastHero(currentScrollY >= heroHeight - 80);
         };
 
+        handleScroll();
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [lastScrollY, isMenuOpen]);
+    }, []);
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const closeMenu = () => {
@@ -55,14 +44,51 @@ export default function Navigation() {
     return (
         <>
             <nav
-                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled || isMenuOpen ? 'bg-white py-3 shadow-sm' : 'py-4'
-                    } ${isVisible ? 'translate-y-0' : '-translate-y-full'
-                    }`}
+                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled || isMenuOpen ? 'bg-white py-3 shadow-sm' : 'py-4'}`}
             >
-                <div className="w-full px-6 sm:px-8 md:px-10 lg:px-12">
-                    <div className="flex items-center justify-between">
-                        {/* Desktop Navigation - Left aligned links */}
-                        <div className="hidden md:flex items-center gap-8">
+                <div className="relative w-full px-6 sm:px-8 md:px-10 lg:px-12">
+                    <div
+                        className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${isPastHero ? 'opacity-100 translate-y-[-50%]' : 'opacity-0 translate-y-[-35%]'}`}
+                        aria-hidden="true"
+                    >
+                        <span className="font-poppins text-[11px] md:text-xs tracking-[0.35em] uppercase text-[#86162f] whitespace-nowrap">
+                            La Fête 365
+                        </span>
+                    </div>
+
+                    {/* Mobile Header: hamburger left, cart right */}
+                    <div className="flex md:hidden items-center justify-between">
+                        <button
+                            onClick={toggleMenu}
+                            className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity focus:outline-none"
+                            aria-label="Toggle Menu"
+                            aria-expanded={isMenuOpen}
+                        >
+                            <span className="relative block w-6 h-5">
+                                <span
+                                    className={`absolute left-0 top-1/2 h-0.5 w-6 bg-[#86162f] transition-all duration-300 ${isMenuOpen ? 'translate-y-0 rotate-45' : '-translate-y-1.5 rotate-0'}`}
+                                />
+                                <span
+                                    className={`absolute left-0 top-1/2 h-0.5 w-6 bg-[#86162f] transition-all duration-300 ${isMenuOpen ? 'translate-y-0 -rotate-45' : 'translate-y-1.5 rotate-0'}`}
+                                />
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => setIsCartOpen(true)}
+                            className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
+                            aria-label="Shopping Cart"
+                        >
+                            <ShoppingCart size={24} />
+                            <span className="absolute -top-1 -right-1 bg-[#86162f] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-poppins">
+                                {cartTotalCount}
+                            </span>
+                        </button>
+                    </div>
+
+                    {/* Desktop Header */}
+                    <div className="hidden md:flex items-center justify-between">
+                        <div className="flex items-center gap-8">
                             <Link
                                 href="/#home"
                                 className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
@@ -83,7 +109,6 @@ export default function Navigation() {
                             </Link>
                         </div>
 
-                        {/* Shopping Cart Button */}
                         <div className="flex items-center gap-6">
                             <button
                                 onClick={() => setIsCartOpen(true)}
@@ -96,13 +121,20 @@ export default function Navigation() {
                                 </span>
                             </button>
 
-                            {/* Hamburger Menu Toggle */}
                             <button
                                 onClick={toggleMenu}
-                                className="p-2 text-[#86162f] hover:opacity-70 transition-opacity focus:outline-none"
+                                className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity focus:outline-none"
                                 aria-label="Toggle Menu"
+                                aria-expanded={isMenuOpen}
                             >
-                                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                                <span className="relative block w-6 h-5">
+                                    <span
+                                        className={`absolute left-0 top-1/2 h-0.5 w-6 bg-[#86162f] transition-all duration-300 ${isMenuOpen ? 'translate-y-0 rotate-45' : '-translate-y-1.5 rotate-0'}`}
+                                    />
+                                    <span
+                                        className={`absolute left-0 top-1/2 h-0.5 w-6 bg-[#86162f] transition-all duration-300 ${isMenuOpen ? 'translate-y-0 -rotate-45' : 'translate-y-1.5 rotate-0'}`}
+                                    />
+                                </span>
                             </button>
                         </div>
                     </div>
