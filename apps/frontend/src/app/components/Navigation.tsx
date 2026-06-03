@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { X, ChevronDown, ShoppingCart, Plus, Minus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 
@@ -14,6 +15,19 @@ export default function Navigation() {
     const [laFeteAllProductsOpen, setLaFeteAllProductsOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { cart, cartTotalCount, cartTotalAmount, updateQuantity } = useCart();
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const token = globalThis.localStorage.getItem('la-fete-access-token');
+        setIsAuthenticated(!!token);
+    }, []);
+
+    const handleLogout = () => {
+        globalThis.localStorage.removeItem('la-fete-access-token');
+        setIsAuthenticated(false);
+        router.push('/');
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -74,16 +88,36 @@ export default function Navigation() {
                             </span>
                         </button>
 
-                        <button
-                            onClick={() => setIsCartOpen(true)}
-                            className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
-                            aria-label="Shopping Cart"
-                        >
-                            <ShoppingCart size={24} />
-                            <span className="absolute -top-1 -right-1 bg-[#86162f] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-poppins">
-                                {cartTotalCount}
-                            </span>
-                        </button>
+                        <div className="flex items-center gap-4">
+                            {isAuthenticated ? (
+                                <button
+                                    onClick={handleLogout}
+                                    className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
+                                    aria-label="Sign Out"
+                                >
+                                    <LogOut size={22} />
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/auth"
+                                    className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
+                                    aria-label="Sign In"
+                                >
+                                    <User size={22} />
+                                </Link>
+                            )}
+
+                            <button
+                                onClick={() => setIsCartOpen(true)}
+                                className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
+                                aria-label="Shopping Cart"
+                            >
+                                <ShoppingCart size={24} />
+                                <span className="absolute -top-1 -right-1 bg-[#86162f] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-poppins">
+                                    {cartTotalCount}
+                                </span>
+                            </button>
+                        </div>
                     </div>
 
                     {/* Desktop Header */}
@@ -110,6 +144,24 @@ export default function Navigation() {
                         </div>
 
                         <div className="flex items-center gap-6">
+                            {isAuthenticated ? (
+                                <button
+                                    onClick={handleLogout}
+                                    className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity flex items-center gap-2"
+                                >
+                                    <LogOut size={18} />
+                                    Sign Out
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/auth"
+                                    className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity flex items-center gap-2"
+                                >
+                                    <User size={18} />
+                                    Sign In
+                                </Link>
+                            )}
+
                             <button
                                 onClick={() => setIsCartOpen(true)}
                                 className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
@@ -354,13 +406,20 @@ export default function Navigation() {
                                         <span className="font-poppins text-gray-600 uppercase tracking-widest text-xs">Subtotal</span>
                                         <span className="font-poppins font-bold text-[#86162f] text-xl">₹{cartTotalAmount}</span>
                                     </div>
-                                    <Link
-                                        href="/auth"
-                                        onClick={() => setIsCartOpen(false)}
+                                    <button
+                                        onClick={() => {
+                                            setIsCartOpen(false);
+                                            const isAuthenticated = typeof window !== 'undefined' && !!globalThis.localStorage.getItem('la-fete-access-token');
+                                            if (isAuthenticated) {
+                                                router.push('/checkout');
+                                            } else {
+                                                router.push('/auth');
+                                            }
+                                        }}
                                         className="w-full py-4 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white font-poppins text-sm uppercase tracking-widest hover:opacity-90 transition-opacity rounded-sm shadow-xl flex items-center justify-center"
                                     >
                                         Checkout
-                                    </Link>
+                                    </button>
                                 </div>
                             )}
                         </motion.div>

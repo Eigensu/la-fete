@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import React from 'react';
 import './globals.css';
 import { CartProvider } from './context/CartContext';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: 'La Fête 365 | Premium Luxury Bakery',
@@ -21,6 +23,7 @@ export default function RootLayout({
       <body className="antialiased">
         <CartProvider>
           {children}
+          <Toaster position="top-center" />
         </CartProvider>
       </body>
     </html>

@@ -4,7 +4,11 @@ import { UserRole } from '../../../common/enums/user-role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  private readonly reflector: Reflector;
+
+  constructor(reflector: Reflector) {
+    this.reflector = reflector;
+  }
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(

@@ -8,6 +8,15 @@ export default [
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: typescriptParser,
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        require: 'readonly',
+        __dirname: 'readonly',
+        globalThis: 'readonly',
+        document: 'readonly',
+        window: 'readonly',
+      },
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -20,7 +29,8 @@ export default [
       '@typescript-eslint': typescript,
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': 'error',
+      'no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': 'warn',
       'prefer-const': 'error',

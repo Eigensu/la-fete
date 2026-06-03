@@ -1,26 +1,47 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User } from '../users/entities/user.entity';
+import { UserSession } from '../users/entities/user-session.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UsersModule } from '../users/users.module';
+import { TokenService } from './token.service';
+import { JwtModuleOptions } from '@nestjs/jwt/dist/interfaces/jwt-module-options.interface';
+import { EmailService } from './email.service';
+import { GoogleStrategy } from './strategies/google.strategy';
+import process from 'process';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserSession]),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRATION || '7d' },
+      signOptions: { expiresIn: process.env.JWT_EXPIRATION || '15m' },
     }),
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    LocalStrategy,
+    TokenService,
+    EmailService,
+    GoogleStrategy,
+    // refresh JwtService provider
+    {
+      provide: 'JWT_REFRESH_SERVICE',
+      useFactory: () => new JwtService({
+        secret: process.env.JWT_REFRESH_SECRET,
+        signOptions: { expiresIn: process.env.JWT_REFRESH_EXPIRATION || '30d' },
+      } as JwtModuleOptions),
+    },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

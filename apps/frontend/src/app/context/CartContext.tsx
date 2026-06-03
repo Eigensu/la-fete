@@ -21,15 +21,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cart, setCart] = useState<Record<string, CartItem>>({});
     const [cartTotalCount, setCartTotalCount] = useState(0);
     const [cartTotalAmount, setCartTotalAmount] = useState(0);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
+        try {
+            const savedCart = globalThis.localStorage.getItem('la-fete-cart');
+            if (savedCart) {
+                setCart(JSON.parse(savedCart));
+            }
+        } catch (error) {
+            console.error('Failed to parse cart from localStorage', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isMounted) {
+            globalThis.localStorage.setItem('la-fete-cart', JSON.stringify(cart));
+        }
+        
         const items = Object.values(cart);
         const count = items.reduce((sum, item) => sum + item.quantity, 0);
         const amount = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
 
         setCartTotalCount(count);
         setCartTotalAmount(amount);
-    }, [cart]);
+    }, [cart, isMounted]);
 
     const updateQuantity = (productName: string, delta: number, price?: number) => {
         setCart(prev => {
