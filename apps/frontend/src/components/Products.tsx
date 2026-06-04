@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Plus, Minus } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '@/context/CartContext';
 
 export default function Products() {
     const { cart, updateQuantity } = useCart();
@@ -14,24 +13,24 @@ export default function Products() {
             name: 'Signature Cakes',
             description: 'Handcrafted layer cakes made with premium ingredients',
             price: 1200,
-            tag: 'Popular'
+            tag: 'Popular',
         },
         {
             name: 'Artisan Brownies',
             description: 'Rich, fudgy brownies without the guilt',
             price: 450,
-            tag: 'Top Rated'
+            tag: 'Top Rated',
         },
         {
             name: 'Gourmet Tarts',
             description: 'Elegant tarts with seasonal fruits and cream',
             price: 850,
-            tag: 'Seasonal'
+            tag: 'Seasonal',
         },
         {
             name: 'Artisan Breads',
             description: 'Freshly baked sourdough and rustic loaves',
-            price: 320
+            price: 320,
         },
     ];
 
@@ -42,9 +41,7 @@ export default function Products() {
                     <p className="text-[#f8aeb2] text-xs md:text-sm uppercase tracking-[0.3em] mb-4 font-poppins font-light">
                         Our Collection
                     </p>
-                    <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl">
-                        Crafted with Care
-                    </h2>
+                    <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl">Crafted with Care</h2>
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
@@ -78,11 +75,10 @@ export default function Products() {
                             <p className="font-poppins text-sm text-gray-600 leading-relaxed mb-6">
                                 {product.description}
                             </p>
-
-                            {/* Hidden on homepage per request */}
                         </div>
                     ))}
                 </div>
+
                 {/* Explore More Button */}
                 <div className="mt-16 text-center">
                     <Link

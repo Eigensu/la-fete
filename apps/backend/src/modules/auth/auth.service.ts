@@ -281,6 +281,7 @@ export class AuthService {
       googleId,
       firstName,
       lastName,
+      phone: '',
       password: await bcrypt.hash(randomBytes(32).toString('hex'), 12),
       emailVerified: true,
     });

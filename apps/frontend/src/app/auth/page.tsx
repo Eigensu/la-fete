@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Phone, User, Apple, Chrome as Google } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getGoogleAuthUrl, login, register } from './auth-api';
+import { getGoogleAuthUrl, login, register } from '@/lib/auth-api';
 
 type FormState = {
   email: string;
@@ -97,15 +97,21 @@ export default function AuthPage() {
           </div>
 
           <div className="text-center mb-6">
-            <h2 className="font-seasons text-[#86162f] text-2xl mb-1">{isLogin ? 'Welcome Back' : 'Join the Circle'}</h2>
-            <p className="font-poppins text-gray-400 text-xs">{isLogin ? 'Sign in to your account' : 'Create an account to continue'}</p>
+            <h2 className="font-seasons text-[#86162f] text-2xl mb-1">
+              {isLogin ? 'Welcome Back' : 'Join the Circle'}
+            </h2>
+            <p className="font-poppins text-gray-400 text-xs">
+              {isLogin ? 'Sign in to your account' : 'Create an account to continue'}
+            </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">First Name</label>
+                  <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">
+                    First Name
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#86162f]/40">
                       <User size={16} />
@@ -122,7 +128,9 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">Last Name</label>
+                  <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">
+                    Last Name
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#86162f]/40">
                       <User size={16} />
@@ -141,7 +149,9 @@ export default function AuthPage() {
             )}
 
             <div className="space-y-1">
-              <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">Email</label>
+              <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">
+                Email
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#86162f]/40">
                   <User size={16} />
@@ -159,7 +169,9 @@ export default function AuthPage() {
 
             {!isLogin && (
               <div className="space-y-1">
-                <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">Phone Number</label>
+                <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">
+                  Phone Number
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#86162f]/40">
                     <Phone size={16} />
@@ -177,7 +189,9 @@ export default function AuthPage() {
             )}
 
             <div className="space-y-1">
-              <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">Password</label>
+              <label className="block font-poppins text-[9px] uppercase tracking-[0.2em] text-gray-400 pl-1">
+                Password
+              </label>
               <input
                 type="password"
                 value={form.password}
@@ -238,7 +252,10 @@ export default function AuthPage() {
           </div>
 
           <div className="mt-10 text-center opacity-40">
-            <Link href="/" className="font-poppins text-[9px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors">
+            <Link
+              href="/"
+              className="font-poppins text-[9px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
+            >
               Privacy & Terms
             </Link>
           </div>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { refreshSession } from '../../auth-api';
+import { refreshSession } from '@/lib/auth-api';
 
 export default function GoogleCallbackPage() {
   const router = useRouter();

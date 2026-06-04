@@ -3,5 +3,7 @@
     { "name": "La Fete", "path": "." },
     { "name": "Recepie", "path": "apps/backend" },
     { "name": "Pastry", "path": "apps/frontend" }
-  ]
+  ],
+  "settings": {
+  }
 }

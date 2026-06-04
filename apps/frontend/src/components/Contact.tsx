@@ -7,12 +7,12 @@ export default function Contact() {
                 <div className="flex flex-col md:flex-row justify-between items-start gap-12 md:gap-24">
                     {/* Left side: Heading, Text, and Button */}
                     <div className="flex-1 text-left">
-                        <h2 className="font-seasons text-3xl md:text-4xl mb-6">
-                            Get in Touch
-                        </h2>
+                        <h2 className="font-seasons text-3xl md:text-4xl mb-6">Get in Touch</h2>
 
                         <p className="font-poppins text-sm md:text-base opacity-90 leading-relaxed mb-6 max-w-xl">
-                            Experience the art of conscious indulgence. Our handcrafted creations are made to order with the finest premium ingredients, ensuring every bite is a celebration of both flavor and mindfulness. Reach out to us for your next celebration or daily luxury.
+                            Experience the art of conscious indulgence. Our handcrafted creations are made to order with
+                            the finest premium ingredients, ensuring every bite is a celebration of both flavor and
+                            mindfulness. Reach out to us for your next celebration or daily luxury.
                         </p>
 
                         <a
@@ -23,7 +23,7 @@ export default function Contact() {
                         </a>
                     </div>
 
-                    {/* Right side: Stacked Contact Info - Center aligned in its column */}
+                    {/* Right side: Stacked Contact Info */}
                     <div className="flex flex-col md:items-center text-center md:text-center gap-6 md:min-w-[300px]">
                         <div>
                             <p className="text-[10px] uppercase tracking-[0.3em] mb-2 opacity-75 font-poppins">Email</p>
@@ -46,7 +46,7 @@ export default function Contact() {
                     </div>
                 </div>
 
-                {/* Footer rearranging to extreme edges */}
+                {/* Footer */}
                 <div className="mt-10 pt-6 border-t border-white/10 w-full flex flex-row justify-between items-center gap-4">
                     <div className="flex flex-col items-start gap-1">
                         <p className="font-seasons text-lg opacity-90">La Fête 365</p>

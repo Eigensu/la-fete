@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '../context/CartContext';
+import { useCart } from '@/context/CartContext';
 
 export default function Navigation() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -211,9 +211,7 @@ export default function Navigation() {
                         <div className="max-w-screen-xl mx-auto w-full flex flex-col gap-12">
                             {/* La Fête Section */}
                             <div>
-                                <h3 className="font-seasons text-[#86162f] text-3xl mb-6">
-                                    La Fête
-                                </h3>
+                                <h3 className="font-seasons text-[#86162f] text-3xl mb-6">La Fête</h3>
                                 <div className="flex flex-col gap-4 pl-4 border-l border-[#86162f]/20">
                                     <Link
                                         href={laFeteLinks[0].href}
@@ -237,7 +235,10 @@ export default function Navigation() {
                                                 onClick={() => setLaFeteAllProductsOpen(!laFeteAllProductsOpen)}
                                                 className="p-1 text-[#86162f] focus:outline-none"
                                             >
-                                                <ChevronDown size={14} className={`transition-transform duration-300 ${laFeteAllProductsOpen ? 'rotate-180' : ''}`} />
+                                                <ChevronDown
+                                                    size={14}
+                                                    className={`transition-transform duration-300 ${laFeteAllProductsOpen ? 'rotate-180' : ''}`}
+                                                />
                                             </button>
                                         </div>
 
@@ -271,11 +272,8 @@ export default function Navigation() {
 
                             {/* Snackfest Section */}
                             <div>
-                                <h3 className="font-seasons text-[#86162f] text-3xl mb-6">
-                                    Snackfest
-                                </h3>
+                                <h3 className="font-seasons text-[#86162f] text-3xl mb-6">Snackfest</h3>
                                 <div className="flex flex-col gap-4 pl-4 border-l border-[#86162f]/20">
-                                    {/* Snackfest All Products Collapsible */}
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-2">
                                             <Link
@@ -289,7 +287,10 @@ export default function Navigation() {
                                                 onClick={() => setSnackfestOpen(!snackfestOpen)}
                                                 className="p-1 text-[#86162f] focus:outline-none"
                                             >
-                                                <ChevronDown size={14} className={`transition-transform duration-300 ${snackfestOpen ? 'rotate-180' : ''}`} />
+                                                <ChevronDown
+                                                    size={14}
+                                                    className={`transition-transform duration-300 ${snackfestOpen ? 'rotate-180' : ''}`}
+                                                />
                                             </button>
                                         </div>
 
@@ -409,8 +410,10 @@ export default function Navigation() {
                                     <button
                                         onClick={() => {
                                             setIsCartOpen(false);
-                                            const isAuthenticated = typeof window !== 'undefined' && !!globalThis.localStorage.getItem('la-fete-access-token');
-                                            if (isAuthenticated) {
+                                            const authenticated =
+                                                typeof window !== 'undefined' &&
+                                                !!globalThis.localStorage.getItem('la-fete-access-token');
+                                            if (authenticated) {
                                                 router.push('/checkout');
                                             } else {
                                                 router.push('/auth');

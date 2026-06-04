@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import { ChevronDown, Plus, Minus } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '@/context/CartContext';
 
 interface Product {
     name: string;
@@ -77,9 +77,7 @@ export default function ProductsPage() {
             <h3 className="font-seasons text-2xl md:text-3xl text-[#86162f] mb-3 min-h-[3.5rem] md:min-h-[4rem] flex items-center">
                 {product.name}
             </h3>
-            <p className="font-poppins text-sm text-gray-600 leading-relaxed mb-6">
-                {product.description}
-            </p>
+            <p className="font-poppins text-sm text-gray-600 leading-relaxed mb-6">{product.description}</p>
             <div className="mt-auto">
                 <div className="flex justify-between items-center mb-4">
                     <span className="font-poppins font-semibold text-[#86162f]">₹{product.price}</span>
@@ -122,9 +120,7 @@ export default function ProductsPage() {
                     <p className="text-white/80 text-xs md:text-sm uppercase tracking-[0.3em] mb-4 font-poppins font-light">
                         Full Menu
                     </p>
-                    <h1 className="font-seasons text-white text-4xl md:text-6xl mb-0">
-                        Our Products
-                    </h1>
+                    <h1 className="font-seasons text-white text-4xl md:text-6xl mb-0">Our Products</h1>
                 </div>
             </div>
 
@@ -136,8 +132,14 @@ export default function ProductsPage() {
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                             className="flex items-center gap-2 px-6 py-2 border border-[#86162f]/20 text-[#86162f] font-poppins text-xs md:text-sm uppercase tracking-wider hover:bg-[#86162f]/5 transition-all"
                         >
-                            Filter Products By: <span className="font-semibold">{filter === 'all' ? 'All' : filter === 'snackfest' ? 'Snackfest' : 'La Fête'}</span>
-                            <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                            Filter Products By:{' '}
+                            <span className="font-semibold">
+                                {filter === 'all' ? 'All' : filter === 'snackfest' ? 'Snackfest' : 'La Fête'}
+                            </span>
+                            <ChevronDown
+                                size={14}
+                                className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`}
+                            />
                         </button>
 
                         {isFilterOpen && (
@@ -167,7 +169,6 @@ export default function ProductsPage() {
                     </div>
                 </div>
             </div>
-
 
             {/* La Fête Sections */}
             {filteredLesGateaux.length > 0 && (

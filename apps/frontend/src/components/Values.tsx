@@ -42,12 +42,10 @@ export default function Values() {
                     <span className="text-[#f8aeb2] font-poppins text-sm uppercase tracking-widest font-semibold">
                         What Makes Us Different
                     </span>
-                    <h2 className="font-seasons text-[#86162f] mt-4 mb-6">
-                        The La Fête Promise
-                    </h2>
+                    <h2 className="font-seasons text-[#86162f] mt-4 mb-6">The La Fête Promise</h2>
                     <p className="text-gray-700 font-poppins text-lg leading-relaxed">
-                        Where flavor, modern design, and mindful living coexist — creating desserts that
-                        celebrate balance and intention.
+                        Where flavor, modern design, and mindful living coexist — creating desserts that celebrate
+                        balance and intention.
                     </p>
                 </div>
 
@@ -60,12 +58,8 @@ export default function Values() {
                         >
                             <div className="relative z-10">
                                 <div className="text-5xl mb-4">{feature.emoji}</div>
-                                <h3 className="font-seasons text-2xl text-[#86162f] mb-3">
-                                    {feature.title}
-                                </h3>
-                                <p className="text-gray-600 font-poppins text-sm leading-relaxed">
-                                    {feature.description}
-                                </p>
+                                <h3 className="font-seasons text-2xl text-[#86162f] mb-3">{feature.title}</h3>
+                                <p className="text-gray-600 font-poppins text-sm leading-relaxed">{feature.description}</p>
                             </div>
 
                             {/* Hover effect */}
@@ -77,19 +71,13 @@ export default function Values() {
                 {/* Quote Section */}
                 <div className="mt-20 text-center max-w-4xl mx-auto">
                     <div className="bg-gradient-to-r from-[#f8aeb2]/20 via-[#fce4e6]/30 to-[#f8aeb2]/20 rounded-3xl p-12 md:p-16">
-                        <svg
-                            className="w-12 h-12 mx-auto mb-6 text-[#86162f]/30"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                        >
+                        <svg className="w-12 h-12 mx-auto mb-6 text-[#86162f]/30" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                         </svg>
                         <p className="font-seasons text-3xl md:text-4xl text-[#86162f] mb-6 leading-relaxed">
                             Artful. Aspirational. Authentic.
                         </p>
-                        <p className="font-poppins text-gray-700 text-lg italic">
-                            — The Creator + The Modern Muse
-                        </p>
+                        <p className="font-poppins text-gray-700 text-lg italic">— The Creator + The Modern Muse</p>
                     </div>
                 </div>
             </div>

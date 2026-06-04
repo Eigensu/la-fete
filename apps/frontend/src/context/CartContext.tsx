@@ -39,17 +39,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (isMounted) {
             globalThis.localStorage.setItem('la-fete-cart', JSON.stringify(cart));
         }
-        
+
         const items = Object.values(cart);
         const count = items.reduce((sum, item) => sum + item.quantity, 0);
-        const amount = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+        const amount = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
         setCartTotalCount(count);
         setCartTotalAmount(amount);
     }, [cart, isMounted]);
 
     const updateQuantity = (productName: string, delta: number, price?: number) => {
-        setCart(prev => {
+        setCart((prev) => {
             const currentItem = prev[productName];
             const currentQty = currentItem ? currentItem.quantity : 0;
             const newQty = Math.max(0, currentQty + delta);
@@ -65,8 +65,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 [productName]: {
                     name: productName,
                     quantity: newQty,
-                    price: price || (currentItem ? currentItem.price : 0)
-                }
+                    price: price || (currentItem ? currentItem.price : 0),
+                },
             };
         });
     };
