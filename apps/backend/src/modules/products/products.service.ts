@@ -1,48 +1,111 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-explicit-any, no-unused-vars, @typescript-eslint/no-unused-vars */
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { Product } from './entities/product.entity';
-import { ProductVariant } from './entities/product-variant.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { UpdateVariantStockDto } from './dto/update-variant-stock.dto';
+import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private productRepository: Repository<Product>,
-    @InjectRepository(ProductVariant)
-    private variantRepository: Repository<ProductVariant>,
+    private readonly productRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
-    const product = this.productRepository.create(createProductDto);
+    const existingSlug = await this.productRepository.findOne({
+      where: { slug: createProductDto.slug },
+      withDeleted: true,
+    });
+    if (existingSlug) {
+      throw new ConflictException('Product with this slug already exists');
+    }
+
+    const category = await this.categoryRepository.findOne({ where: { id: createProductDto.categoryId } });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    const product = this.productRepository.create({
+      ...createProductDto,
+      category,
+    });
     return this.productRepository.save(product);
   }
 
-  async findAll(category?: string, available?: boolean): Promise<Product[]> {
-    const query = this.productRepository
-      .createQueryBuilder('product')
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    category?: string,
+    featured?: boolean,
+    availableOnly = false,
+  ): Promise<PaginatedResponseDto<Product>> {
+    const query = this.productRepository.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.variants', 'variant')
       .orderBy('product.createdAt', 'DESC');
 
+    if (availableOnly) {
+      query.andWhere('product.isAvailable = :isAvailable', { isAvailable: true });
+    }
+
+    if (featured !== undefined) {
+      query.andWhere('product.isFeatured = :featured', { featured });
+    }
+
     if (category) {
-      query.andWhere('product.category = :category', { category });
+      query.andWhere('category.id = :categoryId OR category.slug = :categorySlug', { categoryId: category, categorySlug: category });
     }
 
-    if (available !== undefined) {
-      query.andWhere('product.isAvailable = :available', { available });
+    if (search) {
+      query.andWhere(new Brackets(qb => {
+        qb.where('product.name ILIKE :search', { search: `%${search}%` })
+          .orWhere('product.description ILIKE :search', { search: `%${search}%` })
+          .orWhere('category.name ILIKE :search', { search: `%${search}%` });
+      }));
     }
 
-    return query.getMany();
+    const [items, totalItems] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data: items,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
+      },
+    };
   }
 
-  async findOne(id: string): Promise<Product> {
-    const product = await this.productRepository.findOne({
-      where: { id },
-      relations: ['variants'],
-    });
+  async findOne(idOrSlug: string): Promise<Product> {
+    const query = this.productRepository.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.variants', 'variant');
+
+    // Simple check if it's a UUID
+    const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(idOrSlug);
+
+    if (isUuid) {
+      query.where('product.id = :id', { id: idOrSlug });
+    } else {
+      query.where('product.slug = :slug', { slug: idOrSlug });
+    }
+
+    const product = await query.getOne();
 
     if (!product) {
       throw new NotFoundException('Product not found');
@@ -54,42 +117,32 @@ export class ProductsService {
   async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
     const product = await this.findOne(id);
 
+    if (updateProductDto.slug && updateProductDto.slug !== product.slug) {
+      const existingSlug = await this.productRepository.findOne({
+        where: { slug: updateProductDto.slug },
+        withDeleted: true,
+      });
+      if (existingSlug) {
+        throw new ConflictException('Product with this slug already exists');
+      }
+    }
+
+    if (updateProductDto.categoryId) {
+      const category = await this.categoryRepository.findOne({ where: { id: updateProductDto.categoryId } });
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+      product.category = category;
+    }
+
     Object.assign(product, updateProductDto);
+    delete (product as any).categoryId;
 
     return this.productRepository.save(product);
   }
 
   async remove(id: string): Promise<void> {
     const product = await this.findOne(id);
-    await this.productRepository.remove(product);
-  }
-
-  async updateVariantStock(
-    variantId: string,
-    updateStockDto: UpdateVariantStockDto,
-  ): Promise<ProductVariant> {
-    const variant = await this.variantRepository.findOne({
-      where: { id: variantId },
-    });
-
-    if (!variant) {
-      throw new NotFoundException('Variant not found');
-    }
-
-    variant.stockQuantity = updateStockDto.stockQuantity;
-    return this.variantRepository.save(variant);
-  }
-
-  async findVariantById(variantId: string): Promise<ProductVariant> {
-    const variant = await this.variantRepository.findOne({
-      where: { id: variantId },
-      relations: ['product'],
-    });
-
-    if (!variant) {
-      throw new NotFoundException('Variant not found');
-    }
-
-    return variant;
+    await this.productRepository.softRemove(product);
   }
 }

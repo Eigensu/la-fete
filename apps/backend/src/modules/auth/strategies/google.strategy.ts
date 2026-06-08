@@ -19,19 +19,27 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    const { id, emails, name } = profile;
-    const email = emails && emails[0] && emails[0].value;
-    const firstName = name?.givenName || undefined;
-    const lastName = name?.familyName || undefined;
+    try {
+      console.log('GoogleStrategy validate started');
+      const { id, emails, name } = profile;
+      const email = emails && emails[0] && emails[0].value;
+      const firstName = name?.givenName || undefined;
+      const lastName = name?.familyName || undefined;
 
-    // Delegate to AuthService to handle linking/creation
-    const user = await this.authService.handleGoogleLogin({
-      googleId: id,
-      email,
-      firstName,
-      lastName,
-    });
+      console.log('GoogleStrategy calling handleGoogleLogin for:', email);
+      // Delegate to AuthService to handle linking/creation
+      const user = await this.authService.handleGoogleLogin({
+        googleId: id,
+        email,
+        firstName,
+        lastName,
+      });
 
-    return user;
+      console.log('GoogleStrategy user returned:', user?.id);
+      return user;
+    } catch (error) {
+      console.error('GoogleStrategy validate error:', error);
+      throw error;
+    }
   }
 }

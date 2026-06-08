@@ -1,3 +1,4 @@
+/* eslint-env jest */
 /* global describe, it, expect, jest */
 import { RolesGuard } from './roles.guard';
 import { Reflector } from '@nestjs/core';

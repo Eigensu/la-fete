@@ -260,33 +260,45 @@ export class AuthService {
 
   // Handle google login/linking
   async handleGoogleLogin({ googleId, email, firstName, lastName }: { googleId: string; email: string; firstName?: string; lastName?: string; }) {
-    // 1. Try find by googleId
-    let user = await this.userRepository.findOne({ where: { googleId } });
-    if (user) return user;
-
-    // 2. If email exists, link account
-    if (email) {
-      user = await this.userRepository.findOne({ where: { email } });
+    try {
+      console.log('handleGoogleLogin started for googleId:', googleId, 'email:', email);
+      // 1. Try find by googleId
+      let user = await this.userRepository.findOne({ where: { googleId } });
       if (user) {
-        user.googleId = googleId;
-        user.emailVerified = true;
-        await this.userRepository.save(user);
+        console.log('handleGoogleLogin found by googleId');
         return user;
       }
-    }
 
-    // 3. Create new user
-    const newUser = this.userRepository.create({
-      email,
-      googleId,
-      firstName,
-      lastName,
-      phone: '',
-      password: await bcrypt.hash(randomBytes(32).toString('hex'), 12),
-      emailVerified: true,
-    });
-    await this.userRepository.save(newUser);
-    return newUser;
+      // 2. If email exists, link account
+      if (email) {
+        user = await this.userRepository.findOne({ where: { email } });
+        if (user) {
+          console.log('handleGoogleLogin found by email, linking account');
+          user.googleId = googleId;
+          user.emailVerified = true;
+          await this.userRepository.save(user);
+          return user;
+        }
+      }
+
+      console.log('handleGoogleLogin creating new user');
+      // 3. Create new user
+      const newUser = this.userRepository.create({
+        email,
+        googleId,
+        firstName,
+        lastName,
+        phone: '',
+        password: await bcrypt.hash(randomBytes(32).toString('hex'), 12),
+        emailVerified: true,
+      });
+      await this.userRepository.save(newUser);
+      console.log('handleGoogleLogin new user saved:', newUser.id);
+      return newUser;
+    } catch (error) {
+      console.error('handleGoogleLogin error:', error);
+      throw error;
+    }
   }
 
   async createTokensForUser(user: User) {
