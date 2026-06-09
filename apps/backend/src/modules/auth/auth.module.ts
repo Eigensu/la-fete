@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
@@ -10,7 +10,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UsersModule } from '../users/users.module';
 import { TokenService } from './token.service';
-import { JwtModuleOptions } from '@nestjs/jwt/dist/interfaces/jwt-module-options.interface';
 import { EmailService } from './email.service';
 import { GoogleStrategy } from './strategies/google.strategy';
 import process from 'process';
@@ -33,14 +32,6 @@ import process from 'process';
     TokenService,
     EmailService,
     GoogleStrategy,
-    // refresh JwtService provider
-    {
-      provide: 'JWT_REFRESH_SERVICE',
-      useFactory: () => new JwtService({
-        secret: process.env.JWT_REFRESH_SECRET,
-        signOptions: { expiresIn: process.env.JWT_REFRESH_EXPIRATION || '30d' },
-      } as JwtModuleOptions),
-    },
   ],
   exports: [AuthService],
 })

@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { User } from './user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 
 @Entity('user_sessions')
@@ -7,8 +6,8 @@ export class UserSession {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
-  user: User;
+  @Column({ type: 'uuid' })
+  userId: string;
 
   @Column({ nullable: true })
   @Exclude()

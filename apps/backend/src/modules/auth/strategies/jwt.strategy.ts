@@ -20,6 +20,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
 
+    // Check if tokenVersion matches to invalidate old tokens after logout/password reset
+    if (payload.tokenVersion !== user.tokenVersion) {
+      throw new UnauthorizedException('Token has been revoked');
+    }
+
     return user;
   }
 }

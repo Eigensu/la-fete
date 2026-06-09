@@ -63,8 +63,10 @@ export async function refreshSession() {
 }
 
 export async function logout() {
+  const accessToken = typeof globalThis !== 'undefined' ? globalThis.localStorage?.getItem('la-fete-access-token') : null;
   const response = await fetch('/api/auth/logout', {
     method: 'POST',
+    headers: accessToken ? { 'Authorization': 'Bearer ' + accessToken } : {},
     credentials: 'include',
   });
 

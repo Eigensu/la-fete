@@ -8,11 +8,11 @@ export class AddAuthFields1771008584269 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "emailVerified" boolean NOT NULL DEFAULT false`);
     await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "emailVerificationTokenHash" character varying`);
     await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "passwordResetTokenHash" character varying`);
-    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "passwordResetExpiresAt" TIMESTAMP`);
-    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "lastLoginAt" TIMESTAMP`);
+    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "passwordResetExpiresAt" TIMESTAMP WITH TIME ZONE`);
+    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "lastLoginAt" TIMESTAMP WITH TIME ZONE`);
     await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "tokenVersion" integer NOT NULL DEFAULT 0`);
     await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "failedLoginAttempts" integer NOT NULL DEFAULT 0`);
-    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "lockedUntil" TIMESTAMP`);
+    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN "lockedUntil" TIMESTAMP WITH TIME ZONE`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

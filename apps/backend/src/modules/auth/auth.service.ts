@@ -98,6 +98,7 @@ export class AuthService {
     user.failedLoginAttempts = 0;
     user.lockedUntil = undefined;
     user.lastLoginAt = new Date();
+    await this.userRepository.save(user);
 
     const { accessToken, sessionId } = await this.createAuthSession(user);
 
@@ -122,7 +123,7 @@ export class AuthService {
   }
 
   async createAuthSession(user: User) {
-    const accessToken = this.tokenService.generateAccessToken({ sub: user.id, email: user.email, role: user.role });
+    const accessToken = this.tokenService.generateAccessToken({ sub: user.id, email: user.email, role: user.role, tokenVersion: user.tokenVersion });
 
     const session = await this.sessionRepository.save(
       this.sessionRepository.create({
