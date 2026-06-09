@@ -35,7 +35,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api',
+      path: '/api/v1/auth/refresh',
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -57,7 +57,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api',
+      path: '/api/v1/auth/refresh',
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -71,7 +71,7 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user: any = (req as any).user;
     await this.authService.logout(user.id);
-    res.clearCookie('refresh_token', { path: '/api', domain: process.env.COOKIE_DOMAIN || undefined });
+    res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh', domain: process.env.COOKIE_DOMAIN || undefined });
     return { success: true };
   }
 
@@ -91,7 +91,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api',
+      path: '/api/v1/auth/refresh',
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -143,7 +143,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api',
+      path: '/api/v1/auth/refresh',
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
