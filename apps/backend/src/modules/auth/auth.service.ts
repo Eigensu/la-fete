@@ -96,7 +96,7 @@ export class AuthService {
 
     // success: reset failed attempts
     user.failedLoginAttempts = 0;
-    user.lockedUntil = undefined;
+    user.lockedUntil = null as any; // TypeORM nullable
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);
 
@@ -175,7 +175,7 @@ export class AuthService {
         throw new UnauthorizedException('Refresh token reuse detected');
       }
 
-      const accessToken = this.tokenService.generateAccessToken({ sub: session.user.id, email: session.user.email, role: session.user.role });
+      const accessToken = this.tokenService.generateAccessToken({ sub: session.user.id, email: session.user.email, role: session.user.role, tokenVersion: session.user.tokenVersion });
 
       return { accessToken, sessionId: session.id, userId: session.user.id };
     } catch {
