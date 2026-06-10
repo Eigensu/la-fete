@@ -1,33 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsArray,
-  IsOptional,
-  IsBoolean,
-  ValidateNested,
-  ArrayMinSize,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-
-class CreateVariantDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsNotEmpty()
-  price: number;
-
-  @IsNotEmpty()
-  stockQuantity: number;
-
-  @IsString()
-  @IsOptional()
-  sku?: string;
-
-  @IsBoolean()
-  @IsOptional()
-  isAvailable?: boolean;
-}
+import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsArray, IsUUID } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -36,23 +7,30 @@ export class CreateProductDto {
 
   @IsString()
   @IsNotEmpty()
+  slug: string;
+
+  @IsString()
+  @IsNotEmpty()
   description: string;
 
   @IsArray()
   @IsString({ each: true })
-  images: string[];
+  @IsOptional()
+  images?: string[];
 
   @IsBoolean()
   @IsOptional()
   isAvailable?: boolean;
 
+  @IsBoolean()
+  @IsOptional()
+  isFeatured?: boolean;
+
+  @IsUUID()
+  @IsNotEmpty()
+  categoryId: string;
+
   @IsString()
   @IsOptional()
-  category?: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateVariantDto)
-  @ArrayMinSize(1)
-  variants: CreateVariantDto[];
+  tag?: string;
 }
