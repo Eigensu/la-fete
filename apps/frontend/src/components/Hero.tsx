@@ -30,9 +30,7 @@ export default function Hero() {
                 <div className="relative inline-block">
                     {/* Glow effect behind */}
                     <div className="absolute inset-0 text-[#f8aeb2] blur-2xl opacity-60">
-                        <h1 className="font-seasons text-7xl md:text-8xl lg:text-9xl">
-                            La Fête 365
-                        </h1>
+                        <h1 className="font-seasons text-7xl md:text-8xl lg:text-9xl">La Fête 365</h1>
                     </div>
                     {/* Actual title */}
                     <h1 className="relative font-seasons text-[#86162f] text-7xl md:text-8xl lg:text-9xl mb-6">

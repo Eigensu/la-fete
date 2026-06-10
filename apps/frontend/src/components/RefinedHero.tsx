@@ -9,25 +9,21 @@ export default function RefinedHero() {
 
             <div className="max-w-6xl mx-auto px-8 md:px-16 py-32 md:py-40 relative z-10">
                 <div className="text-center">
-                    {/* Tagline */}
                     <p className="text-[#86162f] text-xs md:text-sm uppercase tracking-[0.3em] mb-12 font-poppins font-light">
                         EST. 2019 · MUMBAI, INDIA
                     </p>
 
-                    {/* HERO - Main brand name */}
                     <h1 className="font-seasons text-[#86162f] text-6xl md:text-8xl lg:text-9xl mb-8 leading-[1.1]">
                         La Fête 365
                     </h1>
 
-                    {/* Tagline */}
                     <h2 className="font-seasons text-[#86162f] text-2xl md:text-3xl lg:text-4xl mb-8 leading-tight">
                         Where Celebration Meets Consciousness
                     </h2>
 
-                    {/* Body text */}
                     <p className="font-poppins text-base md:text-lg text-gray-600 mb-16 max-w-2xl mx-auto leading-relaxed">
-                        A modern luxury bakery redefining indulgence for the conscious generation.
-                        Clean, handmade desserts that deliver pleasure with purpose.
+                        A modern luxury bakery redefining indulgence for the conscious generation. Clean, handmade
+                        desserts that deliver pleasure with purpose.
                     </p>
 
                     {/* CTA Buttons */}

@@ -15,9 +15,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       migrations: [__dirname + '/../migrations/*{.ts,.js}'],
       synchronize: false, // Always false - use migrations
       logging: isDevelopment,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      ssl: isProduction ? { rejectUnauthorized: false } : false,
     };
   }
 }
@@ -30,9 +28,7 @@ export const dataSourceOptions: DataSourceOptions = {
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false,
   logging: true,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 };
 
 const dataSource = new DataSource(dataSourceOptions);
