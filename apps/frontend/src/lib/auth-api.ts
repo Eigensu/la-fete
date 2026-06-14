@@ -6,6 +6,7 @@ export type AuthPayload = {
     email: string;
     firstName?: string;
     lastName?: string;
+    role: string;
   };
 };
 
@@ -75,4 +76,19 @@ export async function logout() {
 
 export function getGoogleAuthUrl() {
   return '/api/auth/google';
+}
+
+export async function fetchUserProfile(token?: string) {
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch('/api/users/profile', {
+    method: 'GET',
+    headers,
+    credentials: 'include',
+  });
+
+  return parseResponse<{ id: string; email: string; firstName?: string; lastName?: string; role: string }>(response);
 }

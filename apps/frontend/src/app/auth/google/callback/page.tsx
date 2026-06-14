@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { refreshSession } from '@/lib/auth-api';
+import { refreshSession, fetchUserProfile } from '@/lib/auth-api';
 
 export default function GoogleCallbackPage() {
   const router = useRouter();
@@ -15,6 +15,11 @@ export default function GoogleCallbackPage() {
       try {
         const result = await refreshSession();
         globalThis.localStorage.setItem('la-fete-access-token', result.accessToken);
+        
+        // Fetch user profile to ensure `la-fete-user` has correct role
+        const userProfile = await fetchUserProfile(result.accessToken);
+        globalThis.localStorage.setItem('la-fete-user', JSON.stringify(userProfile));
+
         setStatus('Signed in successfully');
         toast.success('Signed in successfully');
         router.replace('/');
@@ -23,6 +28,8 @@ export default function GoogleCallbackPage() {
           return;
         }
 
+        globalThis.localStorage.removeItem('la-fete-access-token');
+        globalThis.localStorage.removeItem('la-fete-user');
         const message = error instanceof Error ? error.message : 'Google sign-in failed';
         setStatus(message);
         toast.error(message);

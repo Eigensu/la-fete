@@ -35,7 +35,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api/v1/auth/refresh',
+      path: '/',
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -57,7 +57,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api/v1/auth/refresh',
+      path: '/',
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -71,7 +71,7 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const user: any = (req as any).user;
     await this.authService.logout(user.id);
-    res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh', domain: process.env.COOKIE_DOMAIN || undefined });
+    res.clearCookie('refresh_token', { path: '/', domain: process.env.COOKIE_DOMAIN || undefined });
     return { success: true };
   }
 
@@ -91,7 +91,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api/v1/auth/refresh',
+      path: '/',
       domain: process.env.COOKIE_DOMAIN || undefined,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -131,22 +131,26 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const user: any = req.user;
-    const tokens = await this.authService.createTokensForUser(user);
-    const refreshToken = this.tokenService.generateRefreshToken({
-      sub: user.id,
-      sid: tokens.sessionId,
-      type: 'refresh',
-    });
-    await this.authService.storeRefreshToken(tokens.sessionId, refreshToken);
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/v1/auth/refresh',
-      domain: process.env.COOKIE_DOMAIN || undefined,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-    return res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback`);
+    try {
+      const user: any = req.user;
+      const tokens = await this.authService.createTokensForUser(user);
+      const refreshToken = this.tokenService.generateRefreshToken({
+        sub: user.id,
+        sid: tokens.sessionId,
+        type: 'refresh',
+      });
+      await this.authService.storeRefreshToken(tokens.sessionId, refreshToken);
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        domain: process.env.COOKIE_DOMAIN || undefined,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback`);
+    } catch {
+      throw new Error('Google authentication failed');
+    }
   }
 }

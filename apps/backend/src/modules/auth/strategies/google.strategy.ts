@@ -20,18 +20,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
     const { id, emails, name } = profile;
-    const email = emails && emails[0] && emails[0].value;
+    const email = emails?.[0]?.value;
     const firstName = name?.givenName || undefined;
     const lastName = name?.familyName || undefined;
 
-    // Delegate to AuthService to handle linking/creation
-    const user = await this.authService.handleGoogleLogin({
-      googleId: id,
-      email,
-      firstName,
-      lastName,
-    });
-
-    return user;
+    return this.authService.handleGoogleLogin({ googleId: id, email, firstName, lastName });
   }
 }

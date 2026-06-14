@@ -53,9 +53,41 @@ export default function AuthPage() {
 
       globalThis.localStorage.setItem('la-fete-access-token', payload.accessToken);
       globalThis.localStorage.setItem('la-fete-user', JSON.stringify(payload.user));
+
+      // Attempt Cart Merge if guest cart exists
+      const guestCartStr = globalThis.localStorage.getItem('la-fete-cart');
+      if (guestCartStr) {
+        try {
+          const guestCart = JSON.parse(guestCartStr);
+          const itemsToMerge = Object.values(guestCart).map((item: any) => ({
+            productId: item.productId || item.name, // Fallback if old format
+            quantity: item.quantity,
+          }));
+          
+          if (itemsToMerge.length > 0) {
+            const mergeResponse = await fetch('/api/cart/merge', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${payload.accessToken}`,
+              },
+              body: JSON.stringify({ items: itemsToMerge })
+            });
+            if (mergeResponse.ok) {
+              globalThis.localStorage.removeItem('la-fete-cart');
+            }
+          }
+        } catch (e) {
+          console.error('Cart merge failed', e);
+        }
+      }
+
       toast.success(isLogin ? 'Signed in successfully' : 'Account created successfully');
-      router.push('/');
-      router.refresh();
+      // Adding a small delay to ensure cookies are processed and context refreshes
+      setTimeout(() => {
+        router.push('/');
+        router.refresh();
+      }, 300);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to complete authentication';
       toast.error(message);

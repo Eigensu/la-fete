@@ -75,13 +75,13 @@ export class OrdersService {
         await manager.save(variant);
 
         // Calculate subtotal
-        const itemSubtotal = Number(cartItem.priceAtAdd) * cartItem.quantity;
+        const itemSubtotal = Number(cartItem.unitPrice) * cartItem.quantity;
         subtotal += itemSubtotal;
 
         orderItems.push({
           variant,
           quantity: cartItem.quantity,
-          priceAtPurchase: cartItem.priceAtAdd,
+          priceAtPurchase: cartItem.unitPrice,
           subtotal: itemSubtotal,
         });
       }

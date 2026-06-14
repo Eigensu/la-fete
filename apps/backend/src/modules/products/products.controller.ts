@@ -1,70 +1,76 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-explicit-any, no-unused-vars, @typescript-eslint/no-unused-vars */
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { UpdateVariantStockDto } from './dto/update-variant-stock.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
-@Controller('products')
+@Controller()
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('admin/products')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
-  @Get()
-  findAll(
-    @Query('category') category?: string,
-    @Query('available') available?: string,
-  ) {
-    const isAvailable = available === 'true' ? true : available === 'false' ? false : undefined;
-    return this.productsService.findAll(category, isAvailable);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
-  }
-
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Patch('admin/products/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(id, updateProductDto);
   }
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Delete('admin/products/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
-  async remove(@Param('id') id: string) {
-    await this.productsService.remove(id);
-    return { message: 'Product deleted successfully' };
+  remove(@Param('id') id: string) {
+    return this.productsService.remove(id);
   }
 
-  @Patch('variants/:id/stock')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get('admin/products')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
-  updateVariantStock(
-    @Param('id') variantId: string,
-    @Body() updateStockDto: UpdateVariantStockDto,
+  findAllAdmin(
+    @Query() paginationDto: PaginationDto,
+    @Query('search') search?: string,
+    @Query('category') category?: string,
   ) {
-    return this.productsService.updateVariantStock(variantId, updateStockDto);
+    return this.productsService.findAll(
+      paginationDto.page,
+      paginationDto.limit,
+      search,
+      category,
+      undefined,
+      false, // Admin can see inactive
+    );
+  }
+
+  @Get('products')
+  findAllPublic(
+    @Query() paginationDto: PaginationDto,
+    @Query('search') search?: string,
+    @Query('category') category?: string,
+    @Query('featured') featured?: string,
+  ) {
+    return this.productsService.findAll(
+      paginationDto.page,
+      paginationDto.limit,
+      search,
+      category,
+      featured ? featured === 'true' : undefined,
+      true, // Public only sees available
+    );
+  }
+
+  @Get('products/:id')
+  findOnePublic(@Param('id') idOrSlug: string) {
+    return this.productsService.findOne(idOrSlug);
   }
 }

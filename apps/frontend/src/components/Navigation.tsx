@@ -6,6 +6,15 @@ import { useRouter } from 'next/navigation';
 import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
+import { logout as apiLogout } from '@/lib/auth-api';
+
+function getStoredUserRole(): string | undefined {
+    try {
+        return JSON.parse(globalThis.localStorage?.getItem('la-fete-user') || '{}')?.role;
+    } catch {
+        return undefined;
+    }
+}
 
 export default function Navigation() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -14,7 +23,7 @@ export default function Navigation() {
     const [snackfestOpen, setSnackfestOpen] = useState(false);
     const [laFeteAllProductsOpen, setLaFeteAllProductsOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const { cart, cartTotalCount, cartTotalAmount, updateQuantity } = useCart();
+    const { cart, cartTotalCount, cartTotalAmount, updateQuantity, clearCart } = useCart();
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -23,9 +32,12 @@ export default function Navigation() {
         setIsAuthenticated(!!token);
     }, []);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try { await apiLogout(); } catch { /* session may already be expired */ }
         globalThis.localStorage.removeItem('la-fete-access-token');
+        globalThis.localStorage.removeItem('la-fete-user');
         setIsAuthenticated(false);
+        await clearCart();
         router.push('/');
     };
 
@@ -141,6 +153,14 @@ export default function Navigation() {
                             >
                                 Contact
                             </Link>
+                            {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                <Link
+                                    href="/admin"
+                                    className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity font-bold"
+                                >
+                                    Admin
+                                </Link>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-6">
@@ -267,6 +287,16 @@ export default function Navigation() {
                                     >
                                         {laFeteLinks[1].name}
                                     </Link>
+                                    
+                                    {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                        <Link
+                                            href="/admin"
+                                            onClick={closeMenu}
+                                            className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform font-bold mt-4"
+                                        >
+                                            Admin Dashboard
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
 
