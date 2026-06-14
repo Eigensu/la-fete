@@ -14,7 +14,7 @@ describe('Integration Scenarios', () => {
     });
 
     it('should deny access if user does not have required role', () => {
-      jest.spyOn(reflector, 'get').mockReturnValue([UserRole.ADMIN]);
+      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([UserRole.ADMIN]);
       const context = {
         getHandler: jest.fn(),
         getClass: jest.fn(),
@@ -27,7 +27,7 @@ describe('Integration Scenarios', () => {
     });
 
     it('should allow access if user has required role', () => {
-      jest.spyOn(reflector, 'get').mockReturnValue([UserRole.ADMIN]);
+      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([UserRole.ADMIN]);
       const context = {
         getHandler: jest.fn(),
         getClass: jest.fn(),

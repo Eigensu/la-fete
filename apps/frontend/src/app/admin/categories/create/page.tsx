@@ -57,7 +57,7 @@ export default function CreateCategoryPage() {
                     <label className="block font-poppins text-xs font-medium text-gray-700">Slug *</label>
                     <input 
                         type="text" required value={category.slug}
-                        onChange={e => setCategory({...category, slug: e.target.value.toLowerCase().replace(/\\s+/g, '-')})}
+                        onChange={e => setCategory({...category, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
                         className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
                     />
                 </div>

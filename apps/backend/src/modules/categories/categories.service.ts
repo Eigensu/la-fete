@@ -45,12 +45,13 @@ export class CategoriesService {
   async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
     const category = await this.findOne(id);
 
-    if (updateCategoryDto.slug || updateCategoryDto.name) {
+    const whereClauses: Array<Partial<Category>> = [];
+    if (updateCategoryDto.slug !== undefined) whereClauses.push({ slug: updateCategoryDto.slug });
+    if (updateCategoryDto.name !== undefined) whereClauses.push({ name: updateCategoryDto.name });
+
+    if (whereClauses.length > 0) {
       const existing = await this.categoriesRepository.findOne({
-        where: [
-          { slug: updateCategoryDto.slug },
-          { name: updateCategoryDto.name },
-        ],
+        where: whereClauses,
         withDeleted: true,
       });
 

@@ -12,7 +12,7 @@ export class SchemaUpdate1780657482996 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "products" ADD "categoryId" uuid`);
         await queryRunner.query(`ALTER TABLE "products" ADD "createdById" uuid`);
         await queryRunner.query(`ALTER TABLE "product_variants" ADD "discountPrice" numeric(10,2)`);
-        await queryRunner.query(`ALTER TABLE "product_variants" ADD "weight" numeric(10,2) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "product_variants" ADD "weight" numeric(10,2) NOT NULL DEFAULT '0.01'`);
         await queryRunner.query(`ALTER TABLE "product_variants" ADD "deletedAt" TIMESTAMP`);
         await queryRunner.query(`ALTER TABLE "carts" ADD "createdAt" TIMESTAMP NOT NULL DEFAULT now()`);
         await queryRunner.query(`ALTER TABLE "cart_items" ADD "productId" uuid`);

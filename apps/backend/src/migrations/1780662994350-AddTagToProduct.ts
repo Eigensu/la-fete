@@ -23,6 +23,7 @@ export class AddTagToProduct1780662994350 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "user_sessions" ADD "expiresAt" TIMESTAMP WITH TIME ZONE`);
         await queryRunner.query(`ALTER TABLE "user_sessions" DROP COLUMN "revokedAt"`);
         await queryRunner.query(`ALTER TABLE "user_sessions" ADD "revokedAt" TIMESTAMP WITH TIME ZONE`);
+        await queryRunner.query(`UPDATE "products" SET "slug" = LOWER(REGEXP_REPLACE(name, '[^a-zA-Z0-9]+', '-', 'g')) WHERE "slug" IS NULL`);
         await queryRunner.query(`ALTER TABLE "products" ALTER COLUMN "slug" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "product_variants" ADD CONSTRAINT "UQ_1edbb278083e7043c0d178bbcb5" UNIQUE ("productId", "name")`);
         await queryRunner.query(`ALTER TABLE "user_sessions" ADD CONSTRAINT "FK_55fa4db8406ed66bc7044328427" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
