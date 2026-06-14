@@ -6,6 +6,7 @@ export type AuthPayload = {
     email: string;
     firstName?: string;
     lastName?: string;
+    role: string;
   };
 };
 

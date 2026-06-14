@@ -65,12 +65,17 @@ export default function AuthPage() {
           }));
           
           if (itemsToMerge.length > 0) {
-            await fetch('/api/cart/merge', {
+            const mergeResponse = await fetch('/api/cart/merge', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${payload.accessToken}`,
+              },
               body: JSON.stringify({ items: itemsToMerge })
             });
-            globalThis.localStorage.removeItem('la-fete-cart');
+            if (mergeResponse.ok) {
+              globalThis.localStorage.removeItem('la-fete-cart');
+            }
           }
         } catch (e) {
           console.error('Cart merge failed', e);

@@ -6,6 +6,15 @@ import { useRouter } from 'next/navigation';
 import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
+import { logout as apiLogout } from '@/lib/auth-api';
+
+function getStoredUserRole(): string | undefined {
+    try {
+        return JSON.parse(globalThis.localStorage?.getItem('la-fete-user') || '{}')?.role;
+    } catch {
+        return undefined;
+    }
+}
 
 export default function Navigation() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -24,6 +33,7 @@ export default function Navigation() {
     }, []);
 
     const handleLogout = async () => {
+        try { await apiLogout(); } catch { /* session may already be expired */ }
         globalThis.localStorage.removeItem('la-fete-access-token');
         globalThis.localStorage.removeItem('la-fete-user');
         setIsAuthenticated(false);
@@ -143,7 +153,7 @@ export default function Navigation() {
                             >
                                 Contact
                             </Link>
-                            {isAuthenticated && typeof window !== 'undefined' && JSON.parse(globalThis.localStorage.getItem('la-fete-user') || '{}')?.role === 'ADMIN' && (
+                            {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
                                 <Link
                                     href="/admin"
                                     className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity font-bold"
@@ -278,7 +288,7 @@ export default function Navigation() {
                                         {laFeteLinks[1].name}
                                     </Link>
                                     
-                                    {isAuthenticated && typeof window !== 'undefined' && JSON.parse(globalThis.localStorage.getItem('la-fete-user') || '{}')?.role === 'ADMIN' && (
+                                    {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
                                         <Link
                                             href="/admin"
                                             onClick={closeMenu}

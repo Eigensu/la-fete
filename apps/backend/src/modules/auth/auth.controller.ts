@@ -132,19 +132,14 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     try {
-      console.log('googleAuthRedirect started');
       const user: any = req.user;
-      console.log('googleAuthRedirect user:', user?.id || 'No user');
       const tokens = await this.authService.createTokensForUser(user);
-      console.log('googleAuthRedirect tokens created:', !!tokens);
       const refreshToken = this.tokenService.generateRefreshToken({
         sub: user.id,
         sid: tokens.sessionId,
         type: 'refresh',
       });
-      console.log('googleAuthRedirect refresh token generated');
       await this.authService.storeRefreshToken(tokens.sessionId, refreshToken);
-      console.log('googleAuthRedirect refresh token stored');
       res.cookie('refresh_token', refreshToken, {
         httpOnly: true,
         secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
@@ -153,11 +148,9 @@ export class AuthController {
         domain: process.env.COOKIE_DOMAIN || undefined,
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
-      console.log('googleAuthRedirect cookie set, redirecting');
       return res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback`);
-    } catch (error) {
-      console.error('googleAuthRedirect error:', error);
-      throw error;
+    } catch {
+      throw new Error('Google authentication failed');
     }
   }
 }

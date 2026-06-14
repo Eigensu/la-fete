@@ -28,6 +28,8 @@ export default function GoogleCallbackPage() {
           return;
         }
 
+        globalThis.localStorage.removeItem('la-fete-access-token');
+        globalThis.localStorage.removeItem('la-fete-user');
         const message = error instanceof Error ? error.message : 'Google sign-in failed';
         setStatus(message);
         toast.error(message);

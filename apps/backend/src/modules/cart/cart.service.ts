@@ -286,6 +286,7 @@ export class CartService {
             unitPrice: variant.price,
           });
           await queryRunner.manager.save(newItem);
+          cart.items.push(newItem);
         }
       }
 
@@ -300,6 +301,10 @@ export class CartService {
   }
 
   async decreaseInventoryForOrder(items: { variantId: string, quantity: number }[]): Promise<void> {
+    if (items.some(i => i.quantity <= 0)) {
+      throw new BadRequestException('All item quantities must be greater than 0');
+    }
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
