@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx nest *)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\Aanshuvi Shah\\\\Desktop\\\\Eigensu\\\\LA FETE\\\\la-fete\\\\apps\\\\backend\"; $result = pnpm exec tsc --project tsconfig.build.json; Write-Host \"Exit: $LASTEXITCODE\"; Write-Host $result)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\Aanshuvi Shah\\\\Desktop\\\\Eigensu\\\\LA FETE\\\\la-fete\\\\apps\\\\backend\"; pnpm exec tsc --project tsconfig.build.json --listFiles 2>&1 | Where-Object { $_ -notmatch \"node_modules\" } | Select-Object -First 20)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\Aanshuvi Shah\\\\Desktop\\\\Eigensu\\\\LA FETE\\\\la-fete\\\\apps\\\\backend\"; pnpm exec tsc --project tsconfig.build.json --noEmit false --outDir dist 2>&1; Write-Host \"Exit: $LASTEXITCODE\"; Test-Path \".\\\\dist\\\\main.js\")",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\Aanshuvi Shah\\\\Desktop\\\\Eigensu\\\\LA FETE\\\\la-fete\\\\apps\\\\backend\"; node .\\\\node_modules\\\\typescript\\\\bin\\\\tsc --project tsconfig.build.json 2>&1; Write-Host \"Exit: $LASTEXITCODE\"; Test-Path \".\\\\dist\\\\main.js\")",
+      "PowerShell(Remove-Item \"c:\\\\Users\\\\Aanshuvi Shah\\\\Desktop\\\\Eigensu\\\\LA FETE\\\\la-fete\\\\apps\\\\backend\\\\tsconfig.build.tsbuildinfo\" -Force; Set-Location \"c:\\\\Users\\\\Aanshuvi Shah\\\\Desktop\\\\Eigensu\\\\LA FETE\\\\la-fete\\\\apps\\\\backend\"; pnpm run build 2>&1; Write-Host \"Exit: $LASTEXITCODE\"; Test-Path \".\\\\dist\\\\main.js\")"
+    ]
+  }
+}

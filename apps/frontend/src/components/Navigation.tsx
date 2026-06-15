@@ -20,8 +20,7 @@ export default function Navigation() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isPastHero, setIsPastHero] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [snackfestOpen, setSnackfestOpen] = useState(false);
-    const [laFeteAllProductsOpen, setLaFeteAllProductsOpen] = useState(false);
+    const [shopAllOpen, setShopAllOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { cart, cartTotalCount, cartTotalAmount, updateQuantity, clearCart } = useCart();
     const router = useRouter();
@@ -58,14 +57,8 @@ export default function Navigation() {
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const closeMenu = () => {
         setIsMenuOpen(false);
-        setSnackfestOpen(false);
-        setLaFeteAllProductsOpen(false);
+        setShopAllOpen(false);
     };
-
-    const laFeteLinks = [
-        { name: 'About Us', href: '/#about' },
-        { name: 'Contact Us', href: '/#contact' },
-    ];
 
     return (
         <>
@@ -228,127 +221,78 @@ export default function Navigation() {
                             className="hidden md:block fixed inset-0 bg-black/20 -z-10 cursor-pointer"
                             onClick={closeMenu}
                         />
-                        <div className="max-w-screen-xl mx-auto w-full flex flex-col gap-12">
-                            {/* La Fête Section */}
-                            <div>
-                                <h3 className="font-seasons text-[#86162f] text-3xl mb-6">La Fête</h3>
-                                <div className="flex flex-col gap-4 pl-4 border-l border-[#86162f]/20">
-                                    <Link
-                                        href={laFeteLinks[0].href}
-                                        onClick={closeMenu}
-                                        className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
-                                    >
-                                        {laFeteLinks[0].name}
-                                    </Link>
+                        <div className="max-w-screen-xl mx-auto w-full flex flex-col gap-6">
+                            <div className="flex flex-col gap-6 pl-4 border-l border-[#86162f]/20">
+                                <Link href="/" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Home</Link>
+                                <Link href="/#about" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">About</Link>
 
-                                    {/* La Fete All Products Dropdown */}
-                                    <div className="flex flex-col gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <Link
-                                                href="/products"
-                                                onClick={closeMenu}
-                                                className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
-                                            >
-                                                All Products
-                                            </Link>
-                                            <button
-                                                onClick={() => setLaFeteAllProductsOpen(!laFeteAllProductsOpen)}
-                                                className="p-1 text-[#86162f] focus:outline-none"
-                                            >
-                                                <ChevronDown
-                                                    size={14}
-                                                    className={`transition-transform duration-300 ${laFeteAllProductsOpen ? 'rotate-180' : ''}`}
-                                                />
-                                            </button>
-                                        </div>
-
-                                        <AnimatePresence>
-                                            {laFeteAllProductsOpen && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <div className="flex flex-col gap-3 pl-6">
-                                                        <Link href="/products#les-gateaux" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Les Gateaux</Link>
-                                                        <Link href="/products#petit-indulgences" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Petit Indulgences</Link>
-                                                        <Link href="/products#by-diet" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">By Diet</Link>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-
-                                    <Link
-                                        href={laFeteLinks[1].href}
-                                        onClick={closeMenu}
-                                        className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
-                                    >
-                                        {laFeteLinks[1].name}
-                                    </Link>
-                                    
-                                    {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                {/* Shop All with collapsible submenu */}
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center gap-3">
                                         <Link
-                                            href="/admin"
+                                            href="/products"
                                             onClick={closeMenu}
-                                            className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform font-bold mt-4"
+                                            className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform"
                                         >
-                                            Admin Dashboard
+                                            Shop All
                                         </Link>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Snackfest Section */}
-                            <div>
-                                <h3 className="font-seasons text-[#86162f] text-3xl mb-6">Snackfest</h3>
-                                <div className="flex flex-col gap-4 pl-4 border-l border-[#86162f]/20">
-                                    <div className="flex flex-col gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <Link
-                                                href="/products"
-                                                onClick={closeMenu}
-                                                className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
-                                            >
-                                                All Products
-                                            </Link>
-                                            <button
-                                                onClick={() => setSnackfestOpen(!snackfestOpen)}
-                                                className="p-1 text-[#86162f] focus:outline-none"
-                                            >
-                                                <ChevronDown
-                                                    size={14}
-                                                    className={`transition-transform duration-300 ${snackfestOpen ? 'rotate-180' : ''}`}
-                                                />
-                                            </button>
-                                        </div>
-
-                                        <AnimatePresence>
-                                            {snackfestOpen && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <div className="flex flex-col gap-3 pl-6">
-                                                        <Link href="/products#granola" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Granola</Link>
-                                                        <Link href="/products#spreads" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Spreads</Link>
-                                                        <Link href="/products#cake-mixes" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Cake Mixes</Link>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
+                                        <button
+                                            onClick={() => setShopAllOpen(!shopAllOpen)}
+                                            className="p-1 text-[#86162f] focus:outline-none"
+                                        >
+                                            <ChevronDown
+                                                size={18}
+                                                className={`transition-transform duration-300 ${shopAllOpen ? 'rotate-180' : ''}`}
+                                            />
+                                        </button>
                                     </div>
-                                </div>
-                            </div>
 
-                            {/* Bottom Brand Info */}
-                            <div className="mt-auto pt-10 border-t border-[#86162f]/10">
-                                <p className="font-poppins text-[#86162f]/60 text-xs uppercase tracking-widest">
-                                    EST. 2019 · MUMBAI
-                                </p>
+                                    <AnimatePresence>
+                                        {shopAllOpen && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="flex flex-col gap-5 pl-6">
+                                                    {/* Cakes */}
+                                                    <div className="flex flex-col gap-2">
+                                                        <span className="font-poppins text-xs uppercase tracking-widest text-[#86162f]/40">Cakes</span>
+                                                        <Link href="/products/whole-wheat" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Whole Wheat</Link>
+                                                        <Link href="/products/vegan-sugar-free" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Vegan &amp; Sugar Free</Link>
+                                                        <Link href="/products/gf-sugar-free" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">GF &amp; Sugar Free</Link>
+                                                        <Link href="/products/liquor-infused" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Liquor-infused Whole Wheat</Link>
+                                                    </div>
+
+                                                    {/* Petite Indulgence */}
+                                                    <div className="flex flex-col gap-2">
+                                                        <span className="font-poppins text-xs uppercase tracking-widest text-[#86162f]/40">Petite Indulgence</span>
+                                                        <Link href="/products/tea-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tea Cakes</Link>
+                                                        <Link href="/products/tub-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tub Cakes</Link>
+                                                    </div>
+
+                                                    <Link href="/products/bestsellers" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Bestsellers</Link>
+                                                    <Link href="/products/special" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Special</Link>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                <Link href="/hampers" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Hampers</Link>
+                                <Link href="/#celebrate" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Celebrate with Us</Link>
+                                <Link href="/#contact" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Contact Us</Link>
+
+                                {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                    <Link
+                                        href="/admin"
+                                        onClick={closeMenu}
+                                        className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform font-bold mt-4"
+                                    >
+                                        Admin Dashboard
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </motion.div>

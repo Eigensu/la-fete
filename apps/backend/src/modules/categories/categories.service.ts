@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -44,7 +44,7 @@ export class CategoriesService {
   async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
     const category = await this.findOne(id);
 
-    const whereClauses: Array<Partial<Category>> = [];
+    const whereClauses: FindOptionsWhere<Category>[] = [];
     if (updateCategoryDto.slug !== undefined) whereClauses.push({ slug: updateCategoryDto.slug });
     if (updateCategoryDto.name !== undefined) whereClauses.push({ name: updateCategoryDto.name });
 
