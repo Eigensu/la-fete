@@ -49,9 +49,8 @@ export default function OrderTrackingPage() {
   ];
 
   // We are mapping DeliveryStatus / OrderStatus loosely for mock UI
-  const currentStepIndex = steps.findIndex(s => s.key === trackingInfo.status) !== -1 
-    ? steps.findIndex(s => s.key === trackingInfo.status) 
-    : 1;
+  const foundIndex = steps.findIndex(s => s.key === trackingInfo.status);
+  const currentStepIndex = foundIndex !== -1 ? foundIndex : 0;
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">

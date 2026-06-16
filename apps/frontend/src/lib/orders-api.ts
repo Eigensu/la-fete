@@ -77,6 +77,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
           globalThis.localStorage.removeItem('la-fete-access-token');
           globalThis.localStorage.removeItem('la-fete-user');
           window.location.href = '/auth';
+          throw new Error('Session expired');
         }
       }
     } catch (e) {
@@ -84,6 +85,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
         globalThis.localStorage.removeItem('la-fete-access-token');
         globalThis.localStorage.removeItem('la-fete-user');
         window.location.href = '/auth';
+        throw new Error('Session expired');
       }
     }
   }

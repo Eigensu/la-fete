@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Address } from './entities/address.entity';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
@@ -10,19 +10,22 @@ export class AddressesService {
   constructor(
     @InjectRepository(Address)
     private addressRepository: Repository<Address>,
+    private dataSource: DataSource,
   ) {}
 
   async create(userId: string, createAddressDto: CreateAddressDto) {
-    if (createAddressDto.isDefault) {
-      await this.addressRepository.update({ user: { id: userId } }, { isDefault: false });
-    }
+    return await this.dataSource.transaction(async (manager) => {
+      if (createAddressDto.isDefault) {
+        await manager.update(Address, { user: { id: userId } }, { isDefault: false });
+      }
 
-    const address = this.addressRepository.create({
-      ...createAddressDto,
-      user: { id: userId },
+      const address = manager.create(Address, {
+        ...createAddressDto,
+        user: { id: userId },
+      });
+
+      return manager.save(address);
     });
-
-    return this.addressRepository.save(address);
   }
 
   async findAll(userId: string) {
@@ -41,14 +44,19 @@ export class AddressesService {
   }
 
   async update(id: string, userId: string, updateAddressDto: UpdateAddressDto) {
-    const address = await this.findOne(id, userId);
+    return await this.dataSource.transaction(async (manager) => {
+      const address = await manager.findOne(Address, {
+        where: { id, user: { id: userId } },
+      });
+      if (!address) throw new NotFoundException('Address not found');
 
-    if (updateAddressDto.isDefault) {
-      await this.addressRepository.update({ user: { id: userId } }, { isDefault: false });
-    }
+      if (updateAddressDto.isDefault) {
+        await manager.update(Address, { user: { id: userId } }, { isDefault: false });
+      }
 
-    Object.assign(address, updateAddressDto);
-    return this.addressRepository.save(address);
+      Object.assign(address, updateAddressDto);
+      return manager.save(address);
+    });
   }
 
   async remove(id: string, userId: string) {
@@ -58,9 +66,15 @@ export class AddressesService {
   }
 
   async setDefault(id: string, userId: string) {
-    const address = await this.findOne(id, userId);
-    await this.addressRepository.update({ user: { id: userId } }, { isDefault: false });
-    address.isDefault = true;
-    return this.addressRepository.save(address);
+    return await this.dataSource.transaction(async (manager) => {
+      const address = await manager.findOne(Address, {
+        where: { id, user: { id: userId } },
+      });
+      if (!address) throw new NotFoundException('Address not found');
+
+      await manager.update(Address, { user: { id: userId } }, { isDefault: false });
+      address.isDefault = true;
+      return manager.save(address);
+    });
   }
 }

@@ -15,26 +15,32 @@ export default function AdminOrdersPage() {
   const statuses = ['PENDING', 'CONFIRMED', 'BAKING', 'READY', 'DISPATCHED', 'DELIVERED', 'CANCELLED'];
 
   useEffect(() => {
-    fetchOrders();
-  }, [search, statusFilter]);
+    let ignore = false;
+    
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const data = await getAdminOrders(statusFilter, search);
+        if (!ignore) {
+          setOrders(data);
+        }
+      } catch (err) {
+        if (!ignore) toast.error('Failed to load admin orders');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const data = await getAdminOrders(statusFilter, search);
-      setOrders(data);
-    } catch (err) {
-      toast.error('Failed to load admin orders');
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchOrders();
+    return () => { ignore = true; };
+  }, [search, statusFilter]);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
       await updateAdminOrderStatus(orderId, newStatus);
       toast.success('Order status updated');
-      fetchOrders();
+      const data = await getAdminOrders(statusFilter, search);
+      setOrders(data);
     } catch (err: any) {
       toast.error(err.message || 'Failed to update status');
     }

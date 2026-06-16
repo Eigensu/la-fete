@@ -59,11 +59,16 @@ export default function AuthPage() {
       if (guestCartStr) {
         try {
           const guestCart = JSON.parse(guestCartStr);
-          const itemsToMerge = Object.values(guestCart).map((item: any) => ({
-            productId: item.productId || item.name, // Fallback if old format
-            variantId: item.variantId || item.productId || item.name, // Fallback
-            quantity: item.quantity,
-          }));
+          const itemsToMerge = Object.values(guestCart).map((item: any) => {
+            const mergeItem: any = {
+              productId: item.productId || item.name,
+              quantity: item.quantity,
+            };
+            if (item.variantId) {
+              mergeItem.variantId = item.variantId;
+            }
+            return mergeItem;
+          });
           
           if (itemsToMerge.length > 0) {
             const mergeResponse = await fetch('/api/cart/merge', {

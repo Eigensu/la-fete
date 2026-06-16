@@ -109,7 +109,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if ((isLoading && !isAuthenticated) || isCartLoading) {
+  if (isLoading || isCartLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fcf9f8]">
         <div className="animate-spin w-8 h-8 border-4 border-[#86162f] border-t-transparent rounded-full"></div>
@@ -172,15 +172,18 @@ export default function CheckoutPage() {
                     <p className="text-sm text-gray-500 font-poppins">No saved addresses found. Please add a new one.</p>
                   ) : (
                     addresses.map(addr => (
-                      <div 
+                      <button 
                         key={addr.id} 
+                        type="button"
+                        role="radio"
+                        aria-checked={selectedAddressId === addr.id}
                         onClick={() => setSelectedAddressId(addr.id)}
-                        className={`p-4 border rounded cursor-pointer transition-colors ${selectedAddressId === addr.id ? 'border-[#86162f] bg-[#86162f]/5' : 'border-gray-200 hover:border-[#86162f]/50'}`}
+                        className={`w-full text-left p-4 border rounded cursor-pointer transition-colors ${selectedAddressId === addr.id ? 'border-[#86162f] bg-[#86162f]/5' : 'border-gray-200 hover:border-[#86162f]/50'}`}
                       >
                         <p className="font-semibold text-sm">{addr.fullName} <span className="text-gray-400 font-normal">({addr.label})</span></p>
                         <p className="text-xs text-gray-600 mt-1">{addr.addressLine1}, {addr.city}, {addr.state} - {addr.pincode}</p>
                         <p className="text-xs text-gray-600">{addr.phone}</p>
-                      </div>
+                      </button>
                     ))
                   )}
                 </div>
@@ -197,14 +200,17 @@ export default function CheckoutPage() {
                   slots.map(slot => {
                     const d = new Date(slot.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
                     return (
-                      <div 
+                      <button 
                         key={slot.id} 
+                        type="button"
+                        role="radio"
+                        aria-checked={selectedSlotId === slot.id}
                         onClick={() => setSelectedSlotId(slot.id)}
-                        className={`p-4 border rounded cursor-pointer transition-colors ${selectedSlotId === slot.id ? 'border-[#86162f] bg-[#86162f]/5' : 'border-gray-200 hover:border-[#86162f]/50'}`}
+                        className={`w-full text-left p-4 border rounded cursor-pointer transition-colors ${selectedSlotId === slot.id ? 'border-[#86162f] bg-[#86162f]/5' : 'border-gray-200 hover:border-[#86162f]/50'}`}
                       >
                         <p className="font-semibold text-sm">{d}</p>
                         <p className="text-xs text-gray-600">{slot.startTime} - {slot.endTime}</p>
-                      </div>
+                      </button>
                     );
                   })
                 )}

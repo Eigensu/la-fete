@@ -35,10 +35,10 @@ export default function Navigation() {
 
     const handleLogout = async () => {
         try { await apiLogout(); } catch { /* session may already be expired */ }
+        await clearCart();
         globalThis.localStorage.removeItem('la-fete-access-token');
         globalThis.localStorage.removeItem('la-fete-user');
         setIsAuthenticated(false);
-        await clearCart();
         router.push('/');
     };
 

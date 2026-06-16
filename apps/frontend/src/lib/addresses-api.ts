@@ -17,17 +17,47 @@ export type AddressInput = Omit<Address, 'id' | 'isDefault'> & { isDefault?: boo
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const token = typeof globalThis !== 'undefined' ? globalThis.localStorage?.getItem('la-fete-access-token') : null;
   
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     ...options,
     headers,
     credentials: 'include',
+    cache: 'no-store',
   });
+
+  if (response.status === 401) {
+    try {
+      const refreshRes = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+      if (refreshRes.ok) {
+        const refreshData = await refreshRes.json();
+        const newToken = refreshData.accessToken;
+        if (typeof globalThis !== 'undefined') {
+          globalThis.localStorage.setItem('la-fete-access-token', newToken);
+        }
+        headers['Authorization'] = `Bearer ${newToken}`;
+        response = await fetch(url, { ...options, headers, credentials: 'include', cache: 'no-store' });
+      } else {
+        if (typeof globalThis !== 'undefined') {
+          globalThis.localStorage.removeItem('la-fete-access-token');
+          globalThis.localStorage.removeItem('la-fete-user');
+          window.location.href = '/auth';
+          throw new Error('Session expired');
+        }
+      }
+    } catch (e) {
+      if (typeof globalThis !== 'undefined') {
+        globalThis.localStorage.removeItem('la-fete-access-token');
+        globalThis.localStorage.removeItem('la-fete-user');
+        window.location.href = '/auth';
+        throw new Error('Session expired');
+      }
+    }
+  }
 
   const contentType = response.headers.get('content-type') || '';
   const body = contentType.includes('application/json') ? await response.json() : null;

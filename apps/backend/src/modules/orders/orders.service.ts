@@ -46,20 +46,11 @@ export class OrdersService {
 
     // Start transaction
     return await this.dataSource.transaction(async (manager) => {
-      // 1. Phase 1 Mock: Bypass strict lockAndValidateSlot and dynamically insert mock slot if it doesn't exist
-      let slot = await manager.findOne(DeliverySlot, { where: { id: deliverySlotId } });
-      if (!slot) {
-        slot = manager.create(DeliverySlot, {
-          id: deliverySlotId,
-          date: new Date(),
-          startTime: '10:00:00',
-          endTime: '12:00:00',
-          currentBookings: 0,
-          maxCapacity: 10,
-          isActive: true,
-        });
-        await manager.save(slot);
-      }
+      // 1. Validate and lock delivery slot
+      const slot = await this.deliveryService.lockAndValidateSlot(
+        deliverySlotId,
+        manager,
+      );
 
       // 2. Validate and lock product variants
       const orderItems = [];
