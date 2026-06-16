@@ -13,7 +13,7 @@ interface Product {
     description: string;
     category?: { slug: string; name: string };
     isFeatured?: boolean;
-    variants?: { price: number; discountPrice?: number }[];
+    variants?: { id: string; price: number; discountPrice?: number }[];
     price?: number; // fallback
 }
 
@@ -106,7 +106,7 @@ export default function ProductsPage() {
                     ) : (
                         <button
                             className="w-full py-3 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white font-poppins text-xs uppercase tracking-widest hover:opacity-90 transition-opacity rounded-sm shadow-md"
-                            onClick={() => updateQuantity(product.name, 1, price)}
+                            onClick={() => updateQuantity(product.name, 1, price, product.id, product.variants?.[0]?.id)}
                         >
                             Add to Cart
                         </button>

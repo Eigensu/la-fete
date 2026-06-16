@@ -57,7 +57,8 @@ export class DeliveryService {
   }
 
   async estimateDelivery(latitude: number, longitude: number) {
-    return this.borzoService.estimateDelivery(latitude, longitude);
+    // Phase 1 Mock Delivery Estimate
+    return { estimatedCost: 150 };
   }
 
   async bookDelivery(orderId: string) {
@@ -72,33 +73,6 @@ export class DeliveryService {
       throw new NotFoundException('Order not found');
     }
 
-    // Create Borzo delivery
-    const borzoDelivery = await this.borzoService.createDelivery({
-      orderId: order.id,
-      pickupAddress: {
-        name: 'La Fête Kitchen',
-        phone: process.env.STORE_PHONE || '+91XXXXXXXXXX',
-        address: process.env.STORE_ADDRESS || 'La Fête Kitchen, Mumbai',
-        city: 'Mumbai',
-        pincode: '400001',
-        latitude: parseFloat(process.env.STORE_LATITUDE || '19.0760'),
-        longitude: parseFloat(process.env.STORE_LONGITUDE || '72.8777'),
-      },
-      deliveryAddress: {
-        name: `${order.user.firstName} ${order.user.lastName}`,
-        phone: order.user.phone,
-        address: order.deliveryAddress.street,
-        city: order.deliveryAddress.city,
-        pincode: order.deliveryAddress.pincode,
-        latitude: order.deliveryAddress.latitude,
-        longitude: order.deliveryAddress.longitude,
-      },
-      packageDetails: {
-        weight: 2,
-        description: 'Premium Cake',
-      },
-    });
-
     // Create or update delivery record
     let delivery = await this.deliveryRepository.findOne({
       where: { order: { id: orderId } },
@@ -110,10 +84,12 @@ export class DeliveryService {
       });
     }
 
-    delivery.borzoOrderId = borzoDelivery.borzoOrderId;
-    delivery.trackingUrl = borzoDelivery.trackingUrl;
-    delivery.actualCost = borzoDelivery.actualCost;
-    delivery.status = DeliveryStatus.SEARCHING;
+    delivery.borzoOrderId = `mock_borzo_${Date.now()}`;
+    delivery.trackingUrl = `/orders/${orderId}/track`; // Mock tracking URL
+    delivery.actualCost = 150;
+    delivery.status = DeliveryStatus.ASSIGNED;
+    delivery.courierName = 'Mock Courier';
+    delivery.courierPhone = '+91 99999 99999';
 
     await this.deliveryRepository.save(delivery);
 
@@ -125,17 +101,18 @@ export class DeliveryService {
       where: { order: { id: orderId } },
     });
 
-    if (!delivery || !delivery.borzoOrderId) {
+    if (!delivery) {
       throw new NotFoundException('Delivery not found');
     }
 
-    const trackingInfo = await this.borzoService.trackDelivery(
-      delivery.borzoOrderId,
-    );
-
     return {
       delivery,
-      trackingInfo,
+      trackingInfo: {
+        status: delivery.status,
+        courierName: delivery.courierName || 'Mock Courier',
+        courierPhone: delivery.courierPhone || '+91 9999999999',
+        trackingUrl: delivery.trackingUrl || '#',
+      },
     };
   }
 
