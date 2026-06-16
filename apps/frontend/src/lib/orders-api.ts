@@ -1,0 +1,148 @@
+export interface OrderVariant {
+  id: string;
+  name: string;
+  product?: {
+    name: string;
+  };
+}
+
+export interface OrderItem {
+  id: string;
+  quantity: number;
+  priceAtPurchase: number;
+  subtotal: number;
+  variant: OrderVariant;
+}
+
+export interface OrderAddress {
+  id: string;
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  status: string;
+  totalAmount: number;
+  deliveryFee: number;
+  subtotal: number;
+  createdAt: string;
+  items: OrderItem[];
+  deliveryAddress?: OrderAddress;
+}
+
+export interface CreateOrderPayload {
+  deliverySlotId: string;
+  deliveryAddressId: string;
+  customMessage?: string;
+  isGift?: boolean;
+  specialInstructions?: string;
+}
+
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = typeof globalThis !== 'undefined' ? globalThis.localStorage?.getItem('la-fete-access-token') : null;
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  let response = await fetch(url, {
+    ...options,
+    headers,
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (response.status === 401) {
+    try {
+      const refreshRes = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+      if (refreshRes.ok) {
+        const refreshData = await refreshRes.json();
+        const newToken = refreshData.accessToken;
+        if (typeof globalThis !== 'undefined') {
+          globalThis.localStorage.setItem('la-fete-access-token', newToken);
+        }
+        headers['Authorization'] = `Bearer ${newToken}`;
+        response = await fetch(url, { ...options, headers, credentials: 'include', cache: 'no-store' });
+      } else {
+        if (typeof globalThis !== 'undefined') {
+          globalThis.localStorage.removeItem('la-fete-access-token');
+          globalThis.localStorage.removeItem('la-fete-user');
+          window.location.href = '/auth';
+        }
+      }
+    } catch (e) {
+      if (typeof globalThis !== 'undefined') {
+        globalThis.localStorage.removeItem('la-fete-access-token');
+        globalThis.localStorage.removeItem('la-fete-user');
+        window.location.href = '/auth';
+      }
+    }
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  const body = contentType.includes('application/json') ? await response.json() : null;
+
+  if (!response.ok) {
+    throw new Error(body?.message || 'Request failed');
+  }
+
+  return body;
+}
+
+export async function createOrder(payload: CreateOrderPayload): Promise<{ order: Order; payment: any }> {
+  return fetchWithAuth('/api/orders', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getOrders(): Promise<Order[]> {
+  return fetchWithAuth('/api/orders');
+}
+
+export async function getOrder(id: string): Promise<Order> {
+  return fetchWithAuth(`/api/orders/${id}`);
+}
+
+export async function getAdminOrder(id: string): Promise<Order> {
+  return fetchWithAuth(`/api/admin/orders/${id}`);
+}
+
+export async function getAdminOrders(status?: string, search?: string): Promise<Order[]> {
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  if (search) params.append('search', search);
+
+  const url = `/api/admin/orders${params.toString() ? '?' + params.toString() : ''}`;
+  return fetchWithAuth(url);
+}
+
+export async function updateAdminOrderStatus(id: string, status: string): Promise<Order> {
+  return fetchWithAuth(`/api/admin/orders/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function trackOrder(orderId: string): Promise<any> {
+  return fetchWithAuth(`/api/delivery/track/${orderId}`);
+}
+
+export async function getDeliverySlots(): Promise<any[]> {
+  // Phase 1 Mock Delivery Slots - Using strict v4 UUIDs to satisfy backend validation
+  return [
+    { id: '85b3eb50-016c-486d-ab10-7212f84b6f00', date: new Date().toISOString(), startTime: '2:00 PM', endTime: '4:00 PM' },
+    { id: '8c77e07f-e231-4045-812d-606d20f69a53', date: new Date().toISOString(), startTime: '4:00 PM', endTime: '6:00 PM' },
+    { id: 'a8b27f29-231a-4710-85f8-8ef74423ad43', date: new Date().toISOString(), startTime: '6:00 PM', endTime: '8:00 PM' },
+    { id: 'bf011406-03c0-4375-8153-6ef38cd735f4', date: new Date(Date.now() + 86400000).toISOString(), startTime: '10:00 AM', endTime: '12:00 PM' }
+  ];
+}

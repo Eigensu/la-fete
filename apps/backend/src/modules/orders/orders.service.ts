@@ -10,10 +10,15 @@ import { OrderItem } from './entities/order-item.entity';
 import { CartService } from '../cart/cart.service';
 import { ProductsService } from '../products/products.service';
 import { DeliveryService } from '../delivery/delivery.service';
+import { DeliverySlot } from '../delivery/entities/delivery-slot.entity';
+import { Delivery } from '../delivery/entities/delivery.entity';
 import { PaymentsService } from '../payments/payments.service';
+import { Cart } from '../cart/entities/cart.entity';
+import { CartItem } from '../cart/entities/cart-item.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderStatus } from '../../common/enums/order-status.enum';
+import { DeliveryStatus } from '../../common/enums/delivery-status.enum';
 
 @Injectable()
 export class OrdersService {
@@ -41,11 +46,20 @@ export class OrdersService {
 
     // Start transaction
     return await this.dataSource.transaction(async (manager) => {
-      // 1. Lock and validate delivery slot
-      const slot = await this.deliveryService.lockAndValidateSlot(
-        deliverySlotId,
-        manager,
-      );
+      // 1. Phase 1 Mock: Bypass strict lockAndValidateSlot and dynamically insert mock slot if it doesn't exist
+      let slot = await manager.findOne(DeliverySlot, { where: { id: deliverySlotId } });
+      if (!slot) {
+        slot = manager.create(DeliverySlot, {
+          id: deliverySlotId,
+          date: new Date(),
+          startTime: '10:00:00',
+          endTime: '12:00:00',
+          currentBookings: 0,
+          maxCapacity: 10,
+          isActive: true,
+        });
+        await manager.save(slot);
+      }
 
       // 2. Validate and lock product variants
       const orderItems = [];
@@ -140,8 +154,8 @@ export class OrdersService {
       slot.currentBookings += 1;
       await manager.save(slot);
 
-      // 8. Create Razorpay order
-      const razorpayOrder = await this.paymentsService.createRazorpayOrder(
+      // 8. Create Mock Payment
+      const paymentRecord = await this.paymentsService.createMockPayment(
         savedOrder.id,
         totalAmount,
         orderNumber,
@@ -149,7 +163,28 @@ export class OrdersService {
       );
 
       // 9. Clear cart
-      await this.cartService.clearCart(userId);
+      const cartItemRepo = manager.getRepository(CartItem);
+      const cartRepo = manager.getRepository(Cart);
+      const cartToClear = await cartRepo.findOne({
+        where: { user: { id: userId } },
+        relations: ['items']
+      });
+      if (cartToClear && cartToClear.items.length > 0) {
+        await cartItemRepo.remove(cartToClear.items);
+      }
+
+      // 10. Book mock delivery
+      const deliveryRepo = manager.getRepository(Delivery);
+      const delivery = deliveryRepo.create({
+        order: savedOrder,
+        borzoOrderId: `mock_borzo_${Date.now()}`,
+        trackingUrl: `/orders/${savedOrder.id}/track`,
+        actualCost: 150,
+        status: DeliveryStatus.ASSIGNED,
+        courierName: 'Mock Courier',
+        courierPhone: '+91 99999 99999',
+      });
+      await deliveryRepo.save(delivery);
 
       // Return order with payment details
       return {
@@ -157,7 +192,7 @@ export class OrdersService {
           where: { id: savedOrder.id },
           relations: ['items', 'items.variant', 'items.variant.product', 'deliverySlot', 'deliveryAddress'],
         }),
-        payment: razorpayOrder,
+        payment: paymentRecord,
       };
     });
   }
@@ -170,10 +205,54 @@ export class OrdersService {
     });
   }
 
+  async findAllAdmin(status?: string, search?: string): Promise<Order[]> {
+    const query = this.orderRepository.createQueryBuilder('order')
+      .leftJoinAndSelect('order.user', 'user')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.variant', 'variant')
+      .leftJoinAndSelect('variant.product', 'product')
+      .leftJoinAndSelect('order.deliverySlot', 'deliverySlot')
+      .leftJoinAndSelect('order.deliveryAddress', 'deliveryAddress')
+      .orderBy('order.createdAt', 'DESC');
+
+    if (status) {
+      query.andWhere('order.status = :status', { status });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(order.orderNumber ILIKE :search OR user.firstName ILIKE :search OR user.lastName ILIKE :search OR user.email ILIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    return query.getMany();
+  }
+
   async findOne(userId: string, orderId: string): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { id: orderId, user: { id: userId } },
       relations: [
+        'items',
+        'items.variant',
+        'items.variant.product',
+        'deliverySlot',
+        'deliveryAddress',
+      ],
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return order;
+  }
+
+  async findOneAdmin(orderId: string): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: [
+        'user',
         'items',
         'items.variant',
         'items.variant.product',

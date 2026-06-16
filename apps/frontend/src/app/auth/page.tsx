@@ -61,6 +61,7 @@ export default function AuthPage() {
           const guestCart = JSON.parse(guestCartStr);
           const itemsToMerge = Object.values(guestCart).map((item: any) => ({
             productId: item.productId || item.name, // Fallback if old format
+            variantId: item.variantId || item.productId || item.name, // Fallback
             quantity: item.quantity,
           }));
           
@@ -85,8 +86,7 @@ export default function AuthPage() {
       toast.success(isLogin ? 'Signed in successfully' : 'Account created successfully');
       // Adding a small delay to ensure cookies are processed and context refreshes
       setTimeout(() => {
-        router.push('/');
-        router.refresh();
+        globalThis.window.location.href = '/';
       }, 300);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to complete authentication';

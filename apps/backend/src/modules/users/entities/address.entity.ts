@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -21,18 +22,30 @@ export class Address {
   label: string;
 
   @Column()
-  street: string;
+  fullName: string;
+
+  @Column()
+  phone: string;
+
+  @Column()
+  addressLine1: string;
+
+  @Column({ nullable: true })
+  addressLine2: string;
 
   @Column()
   city: string;
 
   @Column()
+  state: string;
+
+  @Column()
   pincode: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
   latitude: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
   longitude: number;
 
   @Column({ nullable: true })
@@ -41,6 +54,9 @@ export class Address {
   @Column({ default: false })
   isDefault: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
 }
