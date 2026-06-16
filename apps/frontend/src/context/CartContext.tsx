@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface CartItem {
     id?: string;
     productId?: string;
+    variantId?: string;
     name: string;
     quantity: number;
     price: number;
