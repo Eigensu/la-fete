@@ -15,6 +15,20 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_STORE_EMAIL: process.env.NEXT_PUBLIC_STORE_EMAIL,
     NEXT_PUBLIC_STORE_PHONE: process.env.NEXT_PUBLIC_STORE_PHONE,
   },
+  async redirects() {
+    return [
+      {
+        source: '/products/liquor-infused',
+        destination: '/products/boozy-whole-wheat',
+        permanent: true,
+      },
+      {
+        source: '/products/liquor-infused/:slug',
+        destination: '/products/boozy-whole-wheat/:slug',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

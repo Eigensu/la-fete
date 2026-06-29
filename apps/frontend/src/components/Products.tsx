@@ -7,7 +7,7 @@ const NAV_COLLECTIONS = [
   'whole-wheat',
   'vegan-sugar-free',
   'gf-sugar-free',
-  'liquor-infused',
+  'boozy-whole-wheat',
   'tea-cakes',
   'tub-cakes',
 ] as const;
