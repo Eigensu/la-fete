@@ -8,7 +8,7 @@ export default function Hero() {
             {/* Background Image */}
             <div className="absolute inset-0">
                 <Image
-                    src="/wallpaper.jpg"
+                    src="/wallpaper1.jpg"
                     alt="La Fête Bakery"
                     fill
                     priority
