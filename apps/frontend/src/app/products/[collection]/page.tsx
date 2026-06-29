@@ -10,6 +10,15 @@ import { useCart } from '@/context/CartContext';
 
 const CARD_BG = '#f8aeb2';
 
+const REDUNDANT_TAGS: Record<string, string[]> = {
+  'whole-wheat':      ['Whole Wheat'],
+  'vegan-sugar-free': ['Vegan', 'Sugar Free'],
+  'gf-sugar-free':    ['Gluten Free', 'Sugar Free'],
+  'boozy-whole-wheat': ['Whole Wheat'],
+  'tea-cakes':        ['Tea Cake'],
+  'tub-cakes':        ['Whole Wheat', 'Tub Cake'],
+};
+
 function ProductCard({
   product,
   collectionSlug,
@@ -30,17 +39,27 @@ function ProductCard({
           className="relative aspect-[5/6] flex flex-col justify-end p-5 overflow-hidden"
           style={{ background: CARD_BG }}
         >
-          {/* All tags stacked top-right */}
-          <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-            <span className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
-              {product.format}
-            </span>
-            {product.dietary.map(d => (
-              <span key={d} className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
-                {d}
-              </span>
-            ))}
-          </div>
+          {/* All tags stacked top-right — skip tags implied by the collection */}
+          {(() => {
+            const hidden = REDUNDANT_TAGS[collectionSlug] ?? [];
+            const visibleDietary = product.dietary.filter(d => !hidden.includes(d));
+            const showFormat = !hidden.includes(product.format);
+            if (!showFormat && visibleDietary.length === 0) return null;
+            return (
+              <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                {showFormat && (
+                  <span className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
+                    {product.format}
+                  </span>
+                )}
+                {visibleDietary.map(d => (
+                  <span key={d} className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
+                    {d}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
 
           <div className="w-8 h-px bg-[#86162f]/25 mb-3" />
           <p className="font-poppins text-[9px] uppercase tracking-[0.25em] text-[#86162f]/55 mb-1">{product.flavour}</p>

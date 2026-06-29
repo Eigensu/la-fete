@@ -18,7 +18,6 @@ function getStoredUserRole(): string | undefined {
 
 export default function Navigation() {
     const [isScrolled, setIsScrolled] = useState(false);
-    const [isPastHero, setIsPastHero] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [shopAllOpen, setShopAllOpen] = useState(false);
     const [snackfestOpen, setSnackfestOpen] = useState(false);
@@ -45,11 +44,7 @@ export default function Navigation() {
 
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            const heroHeight = window.innerHeight;
-
-            setIsScrolled(currentScrollY > 50);
-            setIsPastHero(currentScrollY >= heroHeight - 80);
+            setIsScrolled(window.scrollY > 50);
         };
 
         handleScroll();
@@ -72,15 +67,6 @@ export default function Navigation() {
                 className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled || isMenuOpen ? 'bg-white py-3 shadow-sm' : 'py-4'}`}
             >
                 <div className="relative w-full px-6 sm:px-8 md:px-10 lg:px-12">
-                    <div
-                        className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${isPastHero ? 'opacity-100 translate-y-[-50%]' : 'opacity-0 translate-y-[-35%]'}`}
-                        aria-hidden="true"
-                    >
-                        <span className="font-poppins text-[11px] md:text-xs tracking-[0.35em] uppercase text-[#86162f] whitespace-nowrap">
-                            La Fête 365
-                        </span>
-                    </div>
-
                     {/* Mobile Header: hamburger left, cart right */}
                     <div className="flex md:hidden items-center justify-between">
                         <button
@@ -133,47 +119,47 @@ export default function Navigation() {
 
                     {/* Desktop Header */}
                     <div className="hidden md:flex items-center justify-between">
-                        <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-4 lg:gap-6 xl:gap-8">
                             <Link
                                 href="/#home"
-                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                                className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
                                 Home
                             </Link>
                             <Link
                                 href="/#about"
-                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                                className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
                                 About Us
                             </Link>
                             <Link
                                 href="/products"
-                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                                className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
                                 Products
                             </Link>
                             <Link
                                 href="/hampers"
-                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                                className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
                                 Hampers
                             </Link>
                             <Link
-                                href="/#celebrate"
-                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                                href="/celebrate"
+                                className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
                                 Celebrate with Us
                             </Link>
                             <Link
-                                href="/#contact"
-                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                                href="/contact"
+                                className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
                                 Contact
                             </Link>
                             {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
                                 <Link
                                     href="/admin"
-                                    className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity font-bold"
+                                    className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity font-bold"
                                 >
                                     Admin
                                 </Link>
@@ -317,7 +303,7 @@ export default function Navigation() {
                                                         <Link href="/products/whole-wheat" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Whole Wheat</Link>
                                                         <Link href="/products/vegan-sugar-free" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Vegan &amp; Sugar Free</Link>
                                                         <Link href="/products/gf-sugar-free" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">GF &amp; Sugar Free</Link>
-                                                        <Link href="/products/liquor-infused" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Liquor-infused Whole Wheat</Link>
+                                                        <Link href="/products/boozy-whole-wheat" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Boozy Whole Wheat</Link>
                                                     </div>
 
                                                     {/* Petite Indulgence */}
@@ -336,8 +322,8 @@ export default function Navigation() {
                                 </div>
 
                                 <Link href="/hampers" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Hampers</Link>
-                                <Link href="/#celebrate" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Celebrate with Us</Link>
-                                <Link href="/#contact" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Contact Us</Link>
+                                <Link href="/celebrate" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Celebrate with Us</Link>
+                                <Link href="/contact" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">Contact Us</Link>
 
                                 {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
                                     <Link

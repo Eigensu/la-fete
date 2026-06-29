@@ -380,13 +380,6 @@ export default function ProductPage({
                       }`}
                     >
                       {w.weight}
-                      <span
-                        className={`ml-1.5 text-[10px] ${
-                          selectedWeight === w.weight ? 'text-white/65' : 'text-gray-400'
-                        }`}
-                      >
-                        ₹{w.price.toLocaleString('en-IN')}
-                      </span>
                     </button>
                   ))}
                 </div>
