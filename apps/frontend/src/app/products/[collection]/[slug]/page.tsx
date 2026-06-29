@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, ReactNode } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -94,7 +94,7 @@ function DietaryBadge({ tag }: { tag: string }) {
   );
 }
 
-function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
+function Accordion({ title, children }: { title: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border border-[#86162f]/15 mb-3">
@@ -195,7 +195,7 @@ export default function ProductPage({
   const { cart, updateQuantity } = useCart();
 
   // ── Not found ───────────────────────────────────────────────────────────
-  if (!product) {
+  if (!product || !product.collections.includes(collection)) {
     return (
       <main className="min-h-screen bg-white flex flex-col">
         <Navigation />
@@ -234,9 +234,7 @@ export default function ProductPage({
   const healthBenefits = deriveHealthBenefits(product);
 
   function handleAddToCart() {
-    for (let i = 0; i < quantity; i++) {
-      updateQuantity(cartKey, 1, currentPrice ?? 0);
-    }
+    updateQuantity(cartKey, quantity, currentPrice ?? 0);
     setQuantity(1);
   }
 

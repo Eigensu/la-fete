@@ -102,6 +102,7 @@ export const ALL_PRODUCTS: Product[] = [
   {
     id: 'ww-1', slug: '465-dutch-truffle-cake',
     name: '46.5% Dutch Truffle Cake', flavour: 'Chocolate', dietary: ['Whole Wheat'], format: 'Whole Cake',
+    featured: true,
     collections: ['whole-wheat', 'tub-cakes'],
     shortDescription: 'A deeply rich chocolate cake with Dutch truffle notes and a moist whole wheat crumb.',
     availableWeights: WW, sweetenerOptions: SW_WW,
@@ -138,6 +139,7 @@ export const ALL_PRODUCTS: Product[] = [
   {
     id: 'ww-5', slug: 'sea-salt-caramel-hazelnut-praline-dark-chocolate',
     name: 'Sea Salt Caramel Hazelnut Praline Dark Chocolate', flavour: 'Chocolate', dietary: ['Whole Wheat'], format: 'Whole Cake',
+    featured: true,
     collections: ['whole-wheat', 'tub-cakes'],
     shortDescription: 'Salty-sweet perfection: dark chocolate, hazelnut praline, and a sea salt caramel finish.',
     availableWeights: WW_P, sweetenerOptions: SW_WW,
@@ -203,6 +205,7 @@ export const ALL_PRODUCTS: Product[] = [
   {
     id: 'vs-1', slug: 'vegan-dark-chocolate-cake',
     name: 'Vegan Dark Chocolate Cake', flavour: 'Chocolate', dietary: ['Vegan', 'Sugar Free'], format: 'Whole Cake',
+    featured: true,
     collections: ['vegan-sugar-free'],
     shortDescription: 'A fully plant-based dark chocolate cake — no dairy, no eggs, no refined sugar, no compromise.',
     availableWeights: VEGAN, sweetenerOptions: SW_VEGAN,
@@ -250,6 +253,7 @@ export const ALL_PRODUCTS: Product[] = [
   {
     id: 'gf-1', slug: 'classic-gooey-dark-chocolate-cake',
     name: 'Classic Gooey Dark Chocolate Cake', flavour: 'Chocolate', dietary: ['Gluten Free', 'Sugar Free'], format: 'Whole Cake',
+    featured: true,
     collections: ['gf-sugar-free'],
     shortDescription: 'Our most classic gluten-free cake — dense, gooey, and intensely chocolatey.',
     availableWeights: GF, sweetenerOptions: SW_GF,
@@ -338,6 +342,7 @@ export const ALL_PRODUCTS: Product[] = [
   {
     id: 'tc-4', slug: 'banana-bread',
     name: 'Banana Bread', flavour: 'Fruity', dietary: ['Whole Wheat'], format: 'Tea Cake',
+    featured: true,
     collections: ['tea-cakes'],
     shortDescription: 'Our signature whole wheat banana bread — moist, lightly sweet, and endlessly snackable.',
     serves: 'Serves 4–6',
@@ -390,6 +395,7 @@ export const ALL_PRODUCTS: Product[] = [
   {
     id: 'tb-4', slug: 'lotus-biscoff-cream-cheese',
     name: 'Lotus Biscoff Cream Cheese', flavour: 'Chocolate', dietary: ['Whole Wheat'], format: 'Tub Cake',
+    featured: true,
     collections: ['tub-cakes'],
     shortDescription: 'Biscoff spread and cream cheese swirled over a whole wheat base — the crowd pleaser.',
     serves: 'Serves 2–3',

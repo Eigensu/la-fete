@@ -4,7 +4,7 @@ import { useState, use } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { getProductsByCollection, COLLECTION_META, uniqueValues, Product } from '@/lib/products-data';
+import { getProductsByCollection, COLLECTION_META, uniqueValues, Product, getLowestPrice } from '@/lib/products-data';
 import { ChevronDown, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 
@@ -67,7 +67,7 @@ function ProductCard({
         </div>
       ) : (
         <button
-          onClick={() => updateQuantity(product.name, 1, 0)}
+          onClick={() => updateQuantity(product.name, 1, getLowestPrice(product) ?? 0)}
           className="w-full py-3 bg-[#86162f] text-white font-poppins text-[10px] uppercase tracking-widest hover:bg-[#a82043] transition-colors"
         >
           Add to Cart

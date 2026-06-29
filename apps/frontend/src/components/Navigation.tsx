@@ -238,6 +238,8 @@ export default function Navigation() {
                                         </Link>
                                         <button
                                             onClick={() => setShopAllOpen(!shopAllOpen)}
+                                            aria-expanded={shopAllOpen}
+                                            aria-controls="shop-all-submenu"
                                             className="p-1 text-[#86162f] focus:outline-none"
                                         >
                                             <ChevronDown
@@ -250,6 +252,7 @@ export default function Navigation() {
                                     <AnimatePresence>
                                         {shopAllOpen && (
                                             <motion.div
+                                                id="shop-all-submenu"
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
