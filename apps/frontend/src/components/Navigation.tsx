@@ -153,6 +153,18 @@ export default function Navigation() {
                                 Products
                             </Link>
                             <Link
+                                href="/hampers"
+                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                            >
+                                Hampers
+                            </Link>
+                            <Link
+                                href="/#celebrate"
+                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                            >
+                                Celebrate with Us
+                            </Link>
+                            <Link
                                 href="/#contact"
                                 className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
@@ -289,34 +301,6 @@ export default function Navigation() {
                                             />
                                         </button>
                                     </div>
-                                        <AnimatePresence>
-                                            {laFeteAllProductsOpen && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <div className="flex flex-col gap-3 pl-6">
-                                                        <Link href="/products#les-gateaux" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Les Gateaux</Link>
-                                                        <Link href="/products#petit-indulgences" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Petit Indulgences</Link>
-                                                        <Link href="/products#by-diet" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">By Diet</Link>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-
-                                    <Link
-                                        href={laFeteLinks[1].href}
-                                        onClick={closeMenu}
-                                        className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
-                                    >
-                                        {laFeteLinks[1].name}
-                                    </Link>
-                                </div>
-                            </div>
-
                                     <AnimatePresence>
                                         {shopAllOpen && (
                                             <motion.div
@@ -364,6 +348,7 @@ export default function Navigation() {
                                         Admin Dashboard
                                     </Link>
                                 )}
+                            </div>
                             {/* Mobile User Profile Menu */}
                             {isAuthenticated && (
                                 <div>
