@@ -19,6 +19,42 @@ export class PaymentsService {
     private razorpayService: RazorpayService,
   ) {}
 
+  async createMockPayment(
+    orderId: string,
+    amount: number,
+    receipt: string,
+    manager?: EntityManager,
+  ) {
+    const repo = manager ? manager.getRepository(Payment) : this.paymentRepository;
+
+    const payment = repo.create({
+      order: { id: orderId },
+      razorpayOrderId: `mock_order_${Date.now()}`,
+      razorpayPaymentId: `mock_payment_${Date.now()}`,
+      razorpaySignature: `mock_signature_${Date.now()}`,
+      amount,
+      currency: 'INR',
+      status: PaymentStatus.CAPTURED,
+    });
+
+    await repo.save(payment);
+
+    // Auto-confirm the order for mock flow
+    const orderRepo = manager
+      ? manager.getRepository('Order')
+      : this.paymentRepository.manager.getRepository('Order');
+    
+    await orderRepo.update({ id: orderId }, { status: OrderStatus.CONFIRMED });
+
+    return {
+      success: true,
+      paymentId: payment.id,
+      amount,
+      currency: 'INR',
+      status: 'PAID'
+    };
+  }
+
   async createRazorpayOrder(
     orderId: string,
     amount: number,

@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface CartItem {
     id?: string;
     productId?: string;
+    variantId?: string;
     name: string;
     quantity: number;
     price: number;
@@ -12,13 +13,70 @@ interface CartItem {
 
 interface CartContextType {
     cart: Record<string, CartItem>;
-    updateQuantity: (productIdentifier: string, delta: number, price?: number) => Promise<void>;
+    updateQuantity: (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string) => Promise<void>;
     cartTotalCount: number;
     cartTotalAmount: number;
     clearCart: () => Promise<void>;
+    reloadCart: () => Promise<void>;
+    isCartLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
+    const token = typeof globalThis !== 'undefined' ? globalThis.localStorage?.getItem('la-fete-access-token') : null;
+    
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...options.headers,
+    };
+
+    let response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include',
+        cache: 'no-store',
+    });
+
+    if (response.status === 401) {
+        try {
+            const refreshRes = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+            if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                const newToken = refreshData.accessToken;
+                if (typeof globalThis !== 'undefined') {
+                    globalThis.localStorage.setItem('la-fete-access-token', newToken);
+                }
+                headers['Authorization'] = `Bearer ${newToken}`;
+                response = await fetch(url, { ...options, headers, credentials: 'include', cache: 'no-store' });
+            } else {
+                if (typeof globalThis !== 'undefined') {
+                    globalThis.localStorage.removeItem('la-fete-access-token');
+                    globalThis.localStorage.removeItem('la-fete-user');
+                    window.location.href = '/auth';
+                    throw new Error('Session expired');
+                }
+            }
+        } catch (e) {
+            if (typeof globalThis !== 'undefined') {
+                globalThis.localStorage.removeItem('la-fete-access-token');
+                globalThis.localStorage.removeItem('la-fete-user');
+                window.location.href = '/auth';
+                throw new Error('Session expired');
+            }
+        }
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    const body = contentType.includes('application/json') ? await response.json() : null;
+
+    if (!response.ok) {
+        throw new Error(body?.message || 'Request failed');
+    }
+
+    return body;
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cart, setCart] = useState<Record<string, CartItem>>({});
@@ -26,50 +84,49 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cartTotalAmount, setCartTotalAmount] = useState(0);
     const [isMounted, setIsMounted] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isCartLoading, setIsCartLoading] = useState(true);
+
+    const initCart = async () => {
+        const token = globalThis.localStorage.getItem('la-fete-access-token');
+        setIsAuthenticated(!!token);
+        
+        if (token) {
+            // Fetch from backend
+            try {
+                const data = await fetchWithAuth('/api/cart');
+                const backendCart: Record<string, CartItem> = {};
+                if (data && data.cart && data.cart.items) {
+                    data.cart.items.forEach((item: any) => {
+                        backendCart[item.product.name] = {
+                            id: item.id,
+                            productId: item.product.id,
+                            variantId: item.variant?.id,
+                            name: item.product.name,
+                            quantity: item.quantity,
+                            price: parseFloat(item.unitPrice),
+                        };
+                    });
+                }
+                setCart(backendCart);
+            } catch (err) {
+                console.error('Failed to fetch backend cart', err);
+            }
+        } else {
+            // Guest cart
+            try {
+                const savedCart = globalThis.localStorage.getItem('la-fete-cart');
+                if (savedCart) {
+                    setCart(JSON.parse(savedCart));
+                }
+            } catch (error) {
+                console.error('Failed to parse cart from localStorage', error);
+            }
+        }
+        setIsCartLoading(false);
+    };
 
     useEffect(() => {
         setIsMounted(true);
-        const user = globalThis.localStorage.getItem('la-fete-user');
-        setIsAuthenticated(!!user);
-
-        const initCart = async () => {
-            if (user) {
-                // Fetch from backend
-                try {
-                    const res = await fetch('/api/cart');
-                    if (res.ok) {
-                        const data = await res.json();
-                        const backendCart: Record<string, CartItem> = {};
-                        if (data && data.items) {
-                            data.items.forEach((item: any) => {
-                                // Maps using product name as key for frontend compatibility
-                                backendCart[item.product.name] = {
-                                    id: item.id,
-                                    productId: item.product.id,
-                                    name: item.product.name,
-                                    quantity: item.quantity,
-                                    price: parseFloat(item.unitPrice),
-                                };
-                            });
-                        }
-                        setCart(backendCart);
-                    }
-                } catch (err) {
-                    console.error('Failed to fetch backend cart', err);
-                }
-            } else {
-                // Guest cart
-                try {
-                    const savedCart = globalThis.localStorage.getItem('la-fete-cart');
-                    if (savedCart) {
-                        setCart(JSON.parse(savedCart));
-                    }
-                } catch (error) {
-                    console.error('Failed to parse cart from localStorage', error);
-                }
-            }
-        };
-
         initCart();
     }, []);
 
@@ -86,71 +143,94 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCartTotalAmount(amount);
     }, [cart, isMounted, isAuthenticated]);
 
-    const updateQuantity = async (productIdentifier: string, delta: number, price?: number) => {
+    const updateQuantity = async (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string) => {
         const currentItem = cart[productIdentifier];
         const currentQty = currentItem ? currentItem.quantity : 0;
         const newQty = Math.max(0, currentQty + delta);
 
         if (isAuthenticated) {
             try {
+                let responseData;
                 // If resolving to delete
                 if (newQty === 0 && currentItem?.id) {
-                    await fetch(`/api/cart/items/${currentItem.id}`, { method: 'DELETE' });
+                    responseData = await fetchWithAuth(`/api/cart/items/${currentItem.id}`, { method: 'DELETE' });
                 } 
                 // If adding new item
-                else if (!currentItem) {
-                    // For backend APIs we technically need the productId. 
-                    // This assumes the API or a frontend hook has mapped productIdentifier correctly.
-                    await fetch('/api/cart/items', {
+                else if (!currentItem && newQty > 0) {
+                    responseData = await fetchWithAuth('/api/cart/items', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            productId: productIdentifier, // Frontend must pass productId instead of name if authenticated
+                            productId: productId || productIdentifier,
+                            variantId: variantId,
                             quantity: newQty 
                         })
                     });
                 }
                 // If updating existing item
                 else if (currentItem?.id) {
-                    await fetch(`/api/cart/items/${currentItem.id}`, {
+                    responseData = await fetchWithAuth(`/api/cart/items/${currentItem.id}`, {
                         method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ quantity: newQty })
                     });
                 }
                 
-                // Optimistic UI update
-                updateLocalState(productIdentifier, newQty, price);
+                // Sync UI entirely with Backend state
+                if (responseData) {
+                    const backendCart: Record<string, CartItem> = {};
+                    const itemsToMap = responseData.cart ? responseData.cart.items : responseData.items;
+                    if (itemsToMap) {
+                        itemsToMap.forEach((item: any) => {
+                            backendCart[item.product.name] = {
+                                id: item.id,
+                                productId: item.product.id,
+                                variantId: item.variant?.id,
+                                name: item.product.name,
+                                quantity: item.quantity,
+                                price: parseFloat(item.unitPrice),
+                            };
+                        });
+                    }
+                    setCart(backendCart);
+                }
             } catch (err) {
                 console.error('Backend cart update failed', err);
             }
         } else {
-            updateLocalState(productIdentifier, newQty, price);
+            updateLocalState(productIdentifier, newQty, price, productId, variantId);
         }
     };
 
-    const updateLocalState = (productIdentifier: string, newQty: number, price?: number) => {
+    const updateLocalState = (productIdentifier: string, newQty: number, price?: number, productId?: string, variantId?: string) => {
         setCart((prev) => {
             if (newQty === 0) {
                 const newCart = { ...prev };
                 delete newCart[productIdentifier];
                 return newCart;
             }
-            return {
-                ...prev,
-                [productIdentifier]: {
-                    ...prev[productIdentifier],
+
+            const newCart = { ...prev };
+            if (!newCart[productIdentifier]) {
+                newCart[productIdentifier] = {
+                    productId: productId || productIdentifier,
+                    variantId: variantId,
                     name: productIdentifier,
                     quantity: newQty,
-                    price: price || (prev[productIdentifier] ? prev[productIdentifier].price : 0),
-                },
-            };
+                    price: price || 0,
+                };
+            } else {
+                newCart[productIdentifier].quantity = newQty;
+            }
+            return newCart;
         });
-    }
+    };
 
     const clearCart = async () => {
         if (isAuthenticated) {
-            await fetch('/api/cart', { method: 'DELETE' });
+            try {
+                await fetchWithAuth('/api/cart', { method: 'DELETE' });
+            } catch (err) {
+                console.error('Failed to clear backend cart', err);
+            }
         } else {
             globalThis.localStorage.removeItem('la-fete-cart');
         }
@@ -158,7 +238,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <CartContext.Provider value={{ cart, updateQuantity, cartTotalCount, cartTotalAmount, clearCart }}>
+        <CartContext.Provider value={{ cart, updateQuantity, cartTotalCount, cartTotalAmount, clearCart, reloadCart: initCart, isCartLoading }}>
             {children}
         </CartContext.Provider>
     );

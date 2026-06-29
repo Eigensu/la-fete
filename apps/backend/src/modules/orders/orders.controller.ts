@@ -36,14 +36,4 @@ export class OrdersController {
   findOne(@CurrentUser() user: User, @Param('id') id: string) {
     return this.ordersService.findOne(user.id, id);
   }
-
-  @Patch(':id/status')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
-  updateStatus(
-    @Param('id') id: string,
-    @Body() updateStatusDto: UpdateOrderStatusDto,
-  ) {
-    return this.ordersService.updateStatus(id, updateStatusDto);
-  }
 }

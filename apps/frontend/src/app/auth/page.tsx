@@ -59,10 +59,16 @@ export default function AuthPage() {
       if (guestCartStr) {
         try {
           const guestCart = JSON.parse(guestCartStr);
-          const itemsToMerge = Object.values(guestCart).map((item: any) => ({
-            productId: item.productId || item.name, // Fallback if old format
-            quantity: item.quantity,
-          }));
+          const itemsToMerge = Object.values(guestCart).map((item: any) => {
+            const mergeItem: any = {
+              productId: item.productId || item.name,
+              quantity: item.quantity,
+            };
+            if (item.variantId) {
+              mergeItem.variantId = item.variantId;
+            }
+            return mergeItem;
+          });
           
           if (itemsToMerge.length > 0) {
             const mergeResponse = await fetch('/api/cart/merge', {
@@ -85,8 +91,7 @@ export default function AuthPage() {
       toast.success(isLogin ? 'Signed in successfully' : 'Account created successfully');
       // Adding a small delay to ensure cookies are processed and context refreshes
       setTimeout(() => {
-        router.push('/');
-        router.refresh();
+        globalThis.window.location.href = '/';
       }, 300);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to complete authentication';

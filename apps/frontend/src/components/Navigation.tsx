@@ -21,6 +21,9 @@ export default function Navigation() {
     const [isPastHero, setIsPastHero] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [shopAllOpen, setShopAllOpen] = useState(false);
+    const [snackfestOpen, setSnackfestOpen] = useState(false);
+    const [laFeteAllProductsOpen, setLaFeteAllProductsOpen] = useState(false);
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { cart, cartTotalCount, cartTotalAmount, updateQuantity, clearCart } = useCart();
     const router = useRouter();
@@ -33,10 +36,10 @@ export default function Navigation() {
 
     const handleLogout = async () => {
         try { await apiLogout(); } catch { /* session may already be expired */ }
+        await clearCart();
         globalThis.localStorage.removeItem('la-fete-access-token');
         globalThis.localStorage.removeItem('la-fete-user');
         setIsAuthenticated(false);
-        await clearCart();
         router.push('/');
     };
 
@@ -58,6 +61,9 @@ export default function Navigation() {
     const closeMenu = () => {
         setIsMenuOpen(false);
         setShopAllOpen(false);
+        setSnackfestOpen(false);
+        setLaFeteAllProductsOpen(false);
+        setProfileMenuOpen(false);
     };
 
     return (
@@ -96,11 +102,11 @@ export default function Navigation() {
                         <div className="flex items-center gap-4">
                             {isAuthenticated ? (
                                 <button
-                                    onClick={handleLogout}
+                                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                                     className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity"
-                                    aria-label="Sign Out"
+                                    aria-label="Profile Menu"
                                 >
-                                    <LogOut size={22} />
+                                    <User size={22} />
                                 </button>
                             ) : (
                                 <Link
@@ -141,6 +147,12 @@ export default function Navigation() {
                                 About Us
                             </Link>
                             <Link
+                                href="/products"
+                                className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
+                            >
+                                Products
+                            </Link>
+                            <Link
                                 href="/#contact"
                                 className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
                             >
@@ -158,13 +170,42 @@ export default function Navigation() {
 
                         <div className="flex items-center gap-6">
                             {isAuthenticated ? (
-                                <button
-                                    onClick={handleLogout}
-                                    className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity flex items-center gap-2"
-                                >
-                                    <LogOut size={18} />
-                                    Sign Out
-                                </button>
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                                        className="font-poppins text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity flex items-center gap-2"
+                                    >
+                                        <User size={18} />
+                                        Profile
+                                    </button>
+                                    <AnimatePresence>
+                                        {profileMenuOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 10 }}
+                                                className="absolute right-0 top-full mt-4 w-48 bg-white shadow-xl border border-[#86162f]/10 rounded-sm overflow-hidden flex flex-col py-2"
+                                            >
+                                                <Link href="/profile" onClick={closeMenu} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 text-left">My Profile</Link>
+                                                <Link href="/orders" onClick={closeMenu} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 text-left">Order History</Link>
+                                                <Link href="/orders" onClick={closeMenu} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 text-left">Track Orders</Link>
+                                                <Link href="/profile/addresses" onClick={closeMenu} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 text-left">Saved Addresses</Link>
+                                                {typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                                    <>
+                                                        <div className="border-t border-[#86162f]/10 my-1"></div>
+                                                        <Link href="/admin" onClick={closeMenu} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 font-semibold text-left">Admin Dashboard</Link>
+                                                        <Link href="/admin/orders" onClick={closeMenu} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 text-left">Orders Management</Link>
+                                                        <Link href="/admin/products" onClick={closeMenu} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 text-left">Products & Categories</Link>
+                                                    </>
+                                                )}
+                                                <div className="border-t border-[#86162f]/10 my-1"></div>
+                                                <button onClick={handleLogout} className="px-4 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 flex items-center gap-2 text-left">
+                                                    <LogOut size={14} /> Sign Out
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                             ) : (
                                 <Link
                                     href="/auth"
@@ -248,6 +289,33 @@ export default function Navigation() {
                                             />
                                         </button>
                                     </div>
+                                        <AnimatePresence>
+                                            {laFeteAllProductsOpen && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="flex flex-col gap-3 pl-6">
+                                                        <Link href="/products#les-gateaux" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Les Gateaux</Link>
+                                                        <Link href="/products#petit-indulgences" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">Petit Indulgences</Link>
+                                                        <Link href="/products#by-diet" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/70 hover:text-[#86162f]">By Diet</Link>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+
+                                    <Link
+                                        href={laFeteLinks[1].href}
+                                        onClick={closeMenu}
+                                        className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
+                                    >
+                                        {laFeteLinks[1].name}
+                                    </Link>
+                                </div>
+                            </div>
 
                                     <AnimatePresence>
                                         {shopAllOpen && (
@@ -296,6 +364,36 @@ export default function Navigation() {
                                         Admin Dashboard
                                     </Link>
                                 )}
+                            {/* Mobile User Profile Menu */}
+                            {isAuthenticated && (
+                                <div>
+                                    <h3 className="font-seasons text-[#86162f] text-3xl mb-6">My Account</h3>
+                                    <div className="flex flex-col gap-4 pl-4 border-l border-[#86162f]/20">
+                                        <Link href="/profile" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">My Profile</Link>
+                                        <Link href="/orders" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Order History</Link>
+                                        <Link href="/orders" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Track Orders</Link>
+                                        <Link href="/profile/addresses" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Saved Addresses</Link>
+                                        {typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                            <>
+                                                <div className="h-px bg-[#86162f]/20 w-8 my-2"></div>
+                                                <Link href="/admin" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform font-bold">Admin Dashboard</Link>
+                                                <Link href="/admin/orders" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Orders Management</Link>
+                                                <Link href="/admin/products" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Products & Categories</Link>
+                                            </>
+                                        )}
+                                        <div className="h-px bg-[#86162f]/20 w-8 my-2"></div>
+                                        <button onClick={handleLogout} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform flex items-center gap-2 text-left">
+                                            <LogOut size={18} /> Sign Out
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Bottom Brand Info */}
+                            <div className="mt-auto pt-10 border-t border-[#86162f]/10">
+                                <p className="font-poppins text-[#86162f]/60 text-xs uppercase tracking-widest">
+                                    EST. 2019 · MUMBAI
+                                </p>
                             </div>
                         </div>
                     </motion.div>
