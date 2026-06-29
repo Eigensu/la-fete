@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import { ChevronDown } from 'lucide-react';
@@ -25,32 +25,41 @@ interface FormState {
 }
 
 function SelectField({
+  id,
   label,
   options,
   value,
   onChange,
 }: {
+  id: string;
   label: string;
   options: string[];
   value: string;
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none bg-white border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors pr-10"
-      >
-        <option value="" disabled>{label}</option>
-        {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
-        ))}
-      </select>
-      <ChevronDown
-        size={14}
-        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#86162f]/40 pointer-events-none"
-      />
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/50">
+        {label}
+      </label>
+      <div className="relative">
+        <select
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full appearance-none bg-white border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors pr-10"
+        >
+          <option value="" disabled>Select…</option>
+          {options.map((o) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+        <ChevronDown
+          size={14}
+          aria-hidden="true"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#86162f]/40 pointer-events-none"
+        />
+      </div>
     </div>
   );
 }
@@ -69,11 +78,11 @@ export default function ContactPage() {
     return (value: string) => setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     // Simulate submission — wire to backend/email service when ready
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => globalThis.setTimeout(r, 1200));
     setSubmitting(false);
     setSubmitted(true);
   }
@@ -122,43 +131,59 @@ export default function ContactPage() {
                 {/* Personal details */}
                 <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/40 mb-1">About You</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="name" className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/50">Full Name</label>
+                    <input
+                      id="name"
+                      required
+                      type="text"
+                      placeholder="Full Name"
+                      value={form.name}
+                      onChange={(e) => set('name')(e.target.value)}
+                      className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="email" className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/50">Email Address</label>
+                    <input
+                      id="email"
+                      required
+                      type="email"
+                      placeholder="Email Address"
+                      value={form.email}
+                      onChange={(e) => set('email')(e.target.value)}
+                      className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="phone" className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/50">Phone Number</label>
                   <input
-                    required
-                    type="text"
-                    placeholder="Full Name"
-                    value={form.name}
-                    onChange={(e) => set('name')(e.target.value)}
-                    className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors"
-                  />
-                  <input
-                    required
-                    type="email"
-                    placeholder="Email Address"
-                    value={form.email}
-                    onChange={(e) => set('email')(e.target.value)}
+                    id="phone"
+                    type="tel"
+                    placeholder="Phone Number"
+                    value={form.phone}
+                    onChange={(e) => set('phone')(e.target.value)}
                     className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors"
                   />
                 </div>
-                <input
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={form.phone}
-                  onChange={(e) => set('phone')(e.target.value)}
-                  className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors"
-                />
 
                 <div className="w-full h-px bg-[#86162f]/8 my-2" />
 
                 {/* Event details */}
                 <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/40 mb-1">Your Event</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <SelectField label="Event Type" options={EVENT_TYPES} value={form.eventType} onChange={set('eventType')} />
-                  <input
-                    type="date"
-                    value={form.eventDate}
-                    onChange={(e) => set('eventDate')(e.target.value)}
-                    className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-400 focus:outline-none focus:border-[#86162f]/60 transition-colors"
-                  />
+                  <SelectField id="eventType" label="Event Type" options={EVENT_TYPES} value={form.eventType} onChange={set('eventType')} />
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="eventDate" className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/50">Event Date</label>
+                    <input
+                      id="eventDate"
+                      type="date"
+                      value={form.eventDate}
+                      onChange={(e) => set('eventDate')(e.target.value)}
+                      className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-400 focus:outline-none focus:border-[#86162f]/60 transition-colors"
+                    />
+                  </div>
                 </div>
 
                 <div className="w-full h-px bg-[#86162f]/8 my-2" />
@@ -166,23 +191,27 @@ export default function ContactPage() {
                 {/* Cake preferences */}
                 <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/40 mb-1">Your Cake</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <SelectField label="Cake Size / Serves" options={CAKE_SIZES} value={form.cakeSize} onChange={set('cakeSize')} />
-                  <SelectField label="Dietary Preference" options={DIETARY_PREFS} value={form.dietary} onChange={set('dietary')} />
-                  <SelectField label="Flavour Direction" options={FLAVOURS} value={form.flavour} onChange={set('flavour')} />
-                  <SelectField label="Budget Range" options={BUDGETS} value={form.budget} onChange={set('budget')} />
+                  <SelectField id="cakeSize" label="Cake Size / Serves" options={CAKE_SIZES} value={form.cakeSize} onChange={set('cakeSize')} />
+                  <SelectField id="dietary" label="Dietary Preference" options={DIETARY_PREFS} value={form.dietary} onChange={set('dietary')} />
+                  <SelectField id="flavour" label="Flavour Direction" options={FLAVOURS} value={form.flavour} onChange={set('flavour')} />
+                  <SelectField id="budget" label="Budget Range" options={BUDGETS} value={form.budget} onChange={set('budget')} />
                 </div>
 
                 <div className="w-full h-px bg-[#86162f]/8 my-2" />
 
                 {/* Message */}
                 <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/40 mb-1">Anything else?</p>
-                <textarea
-                  rows={5}
-                  placeholder="Tell us about your vision — flavour combinations, design ideas, allergens, or anything else we should know."
-                  value={form.message}
-                  onChange={(e) => set('message')(e.target.value)}
-                  className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors resize-none"
-                />
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="message" className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/50">Additional Notes</label>
+                  <textarea
+                    id="message"
+                    rows={5}
+                    placeholder="Tell us about your vision — flavour combinations, design ideas, allergens, or anything else we should know."
+                    value={form.message}
+                    onChange={(e) => set('message')(e.target.value)}
+                    className="border border-[#86162f]/20 px-4 py-3.5 font-poppins text-sm text-gray-700 focus:outline-none focus:border-[#86162f]/60 transition-colors resize-none"
+                  />
+                </div>
 
                 <button
                   type="submit"

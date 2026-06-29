@@ -120,6 +120,7 @@ function FeaturedHamper({ hamper }: { hamper: Hamper }) {
       <div className="relative md:w-5/12 bg-[#f8aeb2] flex flex-col justify-between p-8 md:p-12 min-h-[220px] md:min-h-0 overflow-hidden shrink-0">
         {/* Giant background number */}
         <span
+          aria-hidden="true"
           className="absolute right-0 bottom-0 font-seasons text-white/20 select-none pointer-events-none leading-none"
           style={{ fontSize: 'clamp(100px, 14vw, 180px)', lineHeight: 0.82 }}
         >
@@ -277,6 +278,7 @@ export default function HampersPage() {
               <button
                 key={occ}
                 onClick={() => setActiveOccasion(occ)}
+                aria-pressed={activeOccasion === occ}
                 className={`shrink-0 px-5 py-2 font-poppins text-[10px] uppercase tracking-widest border transition-all duration-200 ${
                   activeOccasion === occ
                     ? 'bg-[#86162f] text-white border-[#86162f]'
