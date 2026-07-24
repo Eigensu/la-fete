@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getAdminOrder, Order } from '@/lib/orders-api';
+import { toTitleCase } from '@/utils/format';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Package, Truck } from 'lucide-react';
@@ -60,10 +61,17 @@ export default function AdminOrderDetailsPage() {
                 <div key={item.id} className="py-4 flex justify-between items-center">
                   <div>
                     <p className="font-medium">
-                      {item.variant.product?.name} 
+                      {toTitleCase(item.variant.product?.name)} 
                       {item.variant.name !== 'Default' && ` - ${item.variant.name}`}
                     </p>
                     <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                    {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                        <div className="mt-1 text-xs text-gray-400 space-y-0.5 border-l-2 border-gray-200 pl-2">
+                            {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
+                            {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
+                            {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                        </div>
+                    )}
                   </div>
                   <p className="font-semibold">₹{Number(item.subtotal).toLocaleString()}</p>
                 </div>

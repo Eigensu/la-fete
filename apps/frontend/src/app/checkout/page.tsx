@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { ArrowLeft, Plus } from 'lucide-react';
+import { toTitleCase } from '@/utils/format';
 import Link from 'next/link';
 import { getAddresses, Address, createAddress } from '@/lib/addresses-api';
 import { getDeliverySlots, createOrder } from '@/lib/orders-api';
@@ -223,8 +224,8 @@ export default function CheckoutPage() {
             <div className="space-y-4 mb-6">
               {Object.entries(cart).map(([variantId, item]) => (
                 <div key={variantId} className="flex justify-between font-poppins text-sm">
-                  <span>
-                    {item.name} x {item.quantity}
+                  <span className="font-poppins text-xs text-gray-700 w-2/3 truncate">
+                    {toTitleCase(item.name)} x {item.quantity}
                   </span>
                   <span>₹{item.price * item.quantity}</span>
                 </div>

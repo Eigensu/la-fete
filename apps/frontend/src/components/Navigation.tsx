@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toTitleCase } from '@/utils/format';
 import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
@@ -422,7 +423,7 @@ export default function Navigation() {
                                                 </svg>
                                             </div>
                                             <div className="flex-1">
-                                                <h4 className="font-seasons text-[#86162f] text-lg leading-tight mb-1">{item.name}</h4>
+                                                <h4 className="font-seasons text-[#86162f] text-lg leading-tight mb-1">{toTitleCase(item.name)}</h4>
                                                 <div className="flex items-center justify-between mt-2">
                                                     <div className="flex items-center gap-3 bg-[#f5f0ed] px-2 py-1 rounded-sm">
                                                         <button

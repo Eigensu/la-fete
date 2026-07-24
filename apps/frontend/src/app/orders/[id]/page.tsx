@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getOrder, Order } from '@/lib/orders-api';
+import { toTitleCase } from '@/utils/format';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Package, Truck } from 'lucide-react';
@@ -63,7 +64,7 @@ export default function OrderDetailsPage() {
                 <div key={item.id} className="py-4 flex justify-between items-center">
                   <div>
                     <p className="font-medium">
-                      {item.variant.product?.name} 
+                      {toTitleCase(item.variant.product?.name)} 
                       {item.variant.name !== 'Default' && ` - ${item.variant.name}`}
                     </p>
                     <p className="text-sm text-gray-500">Qty: {item.quantity}</p>

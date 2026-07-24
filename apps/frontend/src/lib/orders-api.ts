@@ -12,6 +12,11 @@ export interface OrderItem {
   priceAtPurchase: number;
   subtotal: number;
   variant: OrderVariant;
+  sweetener?: string;
+  cakeTopper?: boolean;
+  topperText?: string;
+  cakeMessage?: boolean;
+  messageText?: string;
 }
 
 export interface OrderAddress {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getAdminProducts, deleteAdminProduct } from '@/lib/admin-api';
 import { Plus, Edit2, Trash2, Search, Filter, Package } from 'lucide-react';
+import { toTitleCase } from '@/utils/format';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
@@ -109,13 +110,13 @@ export default function AdminProductsPage() {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-gray-100 rounded-sm overflow-hidden flex items-center justify-center shrink-0">
                                                     {product.images && product.images.length > 0 ? (
-                                                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                                                        <img src={product.images[0]} alt={toTitleCase(product.name)} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <Package size={20} className="text-gray-400" />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium text-gray-900">{product.name}</div>
+                                                    <div className="font-medium text-gray-900">{toTitleCase(product.name)}</div>
                                                     <div className="text-xs text-gray-500">{product.slug}</div>
                                                 </div>
                                             </div>
@@ -151,7 +152,7 @@ export default function AdminProductsPage() {
                                                     <Edit2 size={16} />
                                                 </Link>
                                                 <button 
-                                                    onClick={() => handleDelete(product.id, product.name)}
+                                                    onClick={() => handleDelete(product.id, toTitleCase(product.name))}
                                                     className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-sm transition-colors"
                                                 >
                                                     <Trash2 size={16} />

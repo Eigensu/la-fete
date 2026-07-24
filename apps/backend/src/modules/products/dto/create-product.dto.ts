@@ -33,4 +33,41 @@ export class CreateProductDto {
   @IsString()
   @IsOptional()
   tag?: string;
+
+  @IsString()
+  @IsOptional()
+  format?: string;
+
+  @IsString()
+  @IsOptional()
+  dietaryTags?: string;
+
+  @IsString()
+  @IsOptional()
+  otherTags?: string;
+
+  @IsString()
+  @IsOptional()
+  ingredients?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  sweetenerOptions?: string[];
+
+  @IsString()
+  @IsOptional()
+  shelfLife?: string;
+
+  @IsString()
+  @IsOptional()
+  allergyInformation?: string;
+
+  @IsString()
+  @IsOptional()
+  deliveryInstructions?: string;
+
+  @IsString()
+  @IsOptional()
+  nutritionalHighlight?: string;
 }
