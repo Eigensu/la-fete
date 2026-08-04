@@ -117,7 +117,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
       if (cakeTopper) currentPrice += 100;
       if (cakeMessage) currentPrice += 100;
       if (selectedSweetener) {
-          const match = selectedSweetener.match(/\(\+₹(\d+)\)/);
+          const match = selectedSweetener.match(/\(\+\D*(\d+)\)/);
           if (match) currentPrice += parseInt(match[1], 10);
       }
   }

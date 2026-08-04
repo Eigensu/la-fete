@@ -145,11 +145,11 @@ export async function trackOrder(orderId: string): Promise<any> {
 }
 
 export async function getDeliverySlots(): Promise<any[]> {
-  // Phase 1 Mock Delivery Slots - Using strict v4 UUIDs to satisfy backend validation
-  return [
-    { id: '85b3eb50-016c-486d-ab10-7212f84b6f00', date: new Date().toISOString(), startTime: '2:00 PM', endTime: '4:00 PM' },
-    { id: '8c77e07f-e231-4045-812d-606d20f69a53', date: new Date().toISOString(), startTime: '4:00 PM', endTime: '6:00 PM' },
-    { id: 'a8b27f29-231a-4710-85f8-8ef74423ad43', date: new Date().toISOString(), startTime: '6:00 PM', endTime: '8:00 PM' },
-    { id: 'bf011406-03c0-4375-8153-6ef38cd735f4', date: new Date(Date.now() + 86400000).toISOString(), startTime: '10:00 AM', endTime: '12:00 PM' }
-  ];
+  try {
+    const res = await fetchWithAuth('/api/delivery/slots');
+    return res;
+  } catch (err) {
+    console.error('Error fetching delivery slots:', err);
+    return [];
+  }
 }

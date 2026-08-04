@@ -67,7 +67,7 @@ export class CartService {
         if (item.cakeTopper) expectedPrice += 100;
         if (item.cakeMessage) expectedPrice += 100;
         if (item.sweetener) {
-           const match = item.sweetener.match(/\(\+₹(\d+)\)/);
+           const match = item.sweetener.match(/\(\+\D*(\d+)\)/);
            if (match) expectedPrice += parseInt(match[1], 10);
         }
 
@@ -152,7 +152,7 @@ export class CartService {
     if (dto.cakeTopper) expectedPrice += 100;
     if (dto.cakeMessage) expectedPrice += 100;
     if (dto.sweetener) {
-        const match = dto.sweetener.match(/\(\+₹(\d+)\)/);
+        const match = dto.sweetener.match(/\(\+\D*(\d+)\)/);
         if (match) expectedPrice += parseInt(match[1], 10);
     }
 
@@ -218,7 +218,7 @@ export class CartService {
     if (item.cakeTopper) expectedPrice += 100;
     if (item.cakeMessage) expectedPrice += 100;
     if (item.sweetener) {
-        const match = item.sweetener.match(/\(\+₹(\d+)\)/);
+        const match = item.sweetener.match(/\(\+\D*(\d+)\)/);
         if (match) expectedPrice += parseInt(match[1], 10);
     }
 
@@ -312,7 +312,7 @@ export class CartService {
         if (item.cakeTopper) expectedPrice += 100;
         if (item.cakeMessage) expectedPrice += 100;
         if (item.sweetener) {
-            const match = (item.sweetener as string).match(/\(\+₹(\d+)\)/);
+            const match = (item.sweetener as string).match(/\(\+\D*(\d+)\)/);
             if (match) expectedPrice += parseInt(match[1], 10);
         }
         

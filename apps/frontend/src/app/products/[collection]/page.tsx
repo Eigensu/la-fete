@@ -88,7 +88,10 @@ function ProductCard({
         </div>
       ) : (
         <button
-          onClick={() => updateQuantity(product.name, 1, getLowestPrice(product) ?? 0)}
+          onClick={() => {
+            const variantId = product.variants?.[0]?.id;
+            updateQuantity(product.name, 1, getLowestPrice(product) ?? 0, product.id, variantId);
+          }}
           className="w-full py-3 bg-[#86162f] text-white font-poppins text-[10px] uppercase tracking-widest hover:bg-[#a82043] transition-colors"
         >
           Add to Cart
@@ -157,21 +160,21 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
   }, []);
   
   const getCollectionProducts = (slug: string) => {
-    const formatMap: Record<string, string> = {
-      'whole-wheat': 'whole wheat cake',
-      'vegan-sugar-free': 'vegan cake',
-      'gf-sugar-free': 'gluten free cake',
-      'boozy-whole-wheat': 'boozy',
-      'tea-cakes': 'tea cake',
-      'tub-cakes': 'tub cake',
-    };
-    const format = formatMap[slug];
-    if (!format) return [];
-    
-    if (format === 'boozy') {
+    if (slug === 'boozy-whole-wheat') {
       return allProducts.filter(p => p.name.toLowerCase().includes('whiskey') || p.name.toLowerCase().includes('bailey'));
+    } else if (slug === 'tea-cakes') {
+      return allProducts.filter(p => p.format?.toLowerCase() === 'tea cake');
+    } else if (slug === 'tub-cakes') {
+      return allProducts.filter(p => p.format?.toLowerCase() === 'tub cake');
+    } else if (slug === 'whole-wheat') {
+      return allProducts.filter(p => (p as any).dietaryTags?.toLowerCase().includes('whole wheat') && p.format?.toLowerCase() !== 'tub cake' && p.format?.toLowerCase() !== 'tea cake' && !p.name.toLowerCase().includes('whiskey') && !p.name.toLowerCase().includes('bailey'));
+    } else if (slug === 'vegan-sugar-free') {
+      return allProducts.filter(p => (p as any).dietaryTags?.toLowerCase().includes('vegan'));
+    } else if (slug === 'gf-sugar-free') {
+      return allProducts.filter(p => (p as any).dietaryTags?.toLowerCase().includes('gluten'));
     }
-    return allProducts.filter(p => p.format?.toLowerCase() === format);
+    
+    return [];
   };
 
   const allInCollection = meta ? getCollectionProducts(collection) : [];

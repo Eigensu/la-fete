@@ -96,6 +96,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(!!token);
         
         if (token) {
+            // Merge guest cart if it exists
+            try {
+                const guestCartRaw = globalThis.localStorage.getItem('la-fete-cart');
+                if (guestCartRaw) {
+                    const guestCart = JSON.parse(guestCartRaw);
+                    const itemsToMerge = Object.values(guestCart).map((item: any) => ({
+                        productId: item.productId || item.id,
+                        variantId: item.variantId,
+                        quantity: item.quantity,
+                        sweetener: item.sweetener,
+                        cakeTopper: item.cakeTopper,
+                        topperText: item.topperText,
+                        cakeMessage: item.cakeMessage,
+                        messageText: item.messageText,
+                    }));
+                    if (itemsToMerge.length > 0) {
+                        const mergeResponse = await fetchWithAuth('/api/cart/merge', {
+                            method: 'POST',
+                            body: JSON.stringify({ items: itemsToMerge })
+                        });
+                        if (mergeResponse) {
+                            globalThis.localStorage.removeItem('la-fete-cart');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to merge guest cart', err);
+            }
+
             // Fetch from backend
             try {
                 const data = await fetchWithAuth('/api/cart');

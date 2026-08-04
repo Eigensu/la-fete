@@ -224,9 +224,18 @@ export default function CheckoutPage() {
             <div className="space-y-4 mb-6">
               {Object.entries(cart).map(([variantId, item]) => (
                 <div key={variantId} className="flex justify-between font-poppins text-sm">
-                  <span className="font-poppins text-xs text-gray-700 w-2/3 truncate">
-                    {toTitleCase(item.name)} x {item.quantity}
-                  </span>
+                  <div className="w-2/3 pr-2">
+                    <span className="font-poppins text-xs text-gray-700 block truncate">
+                      {toTitleCase(item.name)} x {item.quantity}
+                    </span>
+                    {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                      <div className="text-[10px] text-gray-500 mt-1 space-y-0.5">
+                        {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
+                        {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
+                        {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                      </div>
+                    )}
+                  </div>
                   <span>₹{item.price * item.quantity}</span>
                 </div>
               ))}

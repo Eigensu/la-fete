@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Package, Truck } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import Navigation from '@/components/Navigation';
 
 export default function OrderDetailsPage() {
   const params = useParams();
@@ -40,8 +41,10 @@ export default function OrderDetailsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4">
-      <Link href="/orders" className="flex items-center gap-2 text-gray-600 hover:text-black mb-6">
+    <>
+      <Navigation />
+      <div className="max-w-5xl mx-auto py-8 px-4">
+        <Link href="/orders" className="flex items-center gap-2 text-gray-600 hover:text-black mt-8 mb-6">
         <ArrowLeft size={16} /> Back to Orders
       </Link>
 
@@ -67,7 +70,14 @@ export default function OrderDetailsPage() {
                       {toTitleCase(item.variant.product?.name)} 
                       {item.variant.name !== 'Default' && ` - ${item.variant.name}`}
                     </p>
-                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                    <p className="text-sm text-gray-500 mb-1">Qty: {item.quantity}</p>
+                    {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                      <div className="text-xs text-gray-500 space-y-0.5">
+                        {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
+                        {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
+                        {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                      </div>
+                    )}
                   </div>
                   <p className="font-semibold">₹{Number(item.subtotal).toLocaleString()}</p>
                 </div>
@@ -120,5 +130,6 @@ export default function OrderDetailsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -17,13 +17,32 @@ function generateSlug(str: string) {
 export default async function ProductsPage() {
   const products = await fetchProducts();
 
-  // Group by format dynamically
-  const formatGroups = products.reduce((acc, p) => {
-    const f = p.format ? toTitleCase(p.format) : 'Other';
-    if (!acc[f]) acc[f] = [];
-    acc[f].push(p);
-    return acc;
-  }, {} as Record<string, Product[]>);
+  const categories = [
+    { title: 'Whole Wheat', slug: 'whole-wheat' },
+    { title: 'Vegan & Sugar Free', slug: 'vegan-sugar-free' },
+    { title: 'GF & Sugar Free', slug: 'gf-sugar-free' },
+    { title: 'Boozy Whole Wheat', slug: 'boozy-whole-wheat' },
+    { title: 'Tea Cakes', slug: 'tea-cakes' },
+    { title: 'Tub Cakes', slug: 'tub-cakes' }
+  ];
+
+  const categoryGroups = categories.map(cat => {
+    let groupProducts: Product[] = [];
+    if (cat.slug === 'boozy-whole-wheat') {
+      groupProducts = products.filter(p => p.name.toLowerCase().includes('whiskey') || p.name.toLowerCase().includes('bailey'));
+    } else if (cat.slug === 'tea-cakes') {
+      groupProducts = products.filter(p => p.format?.toLowerCase() === 'tea cake');
+    } else if (cat.slug === 'tub-cakes') {
+      groupProducts = products.filter(p => p.format?.toLowerCase() === 'tub cake');
+    } else if (cat.slug === 'whole-wheat') {
+      groupProducts = products.filter(p => p.dietaryTags?.toLowerCase().includes('whole wheat') && p.format?.toLowerCase() !== 'tub cake' && p.format?.toLowerCase() !== 'tea cake' && !p.name.toLowerCase().includes('whiskey') && !p.name.toLowerCase().includes('bailey'));
+    } else if (cat.slug === 'vegan-sugar-free') {
+      groupProducts = products.filter(p => p.dietaryTags?.toLowerCase().includes('vegan'));
+    } else if (cat.slug === 'gf-sugar-free') {
+      groupProducts = products.filter(p => p.dietaryTags?.toLowerCase().includes('gluten'));
+    }
+    return { ...cat, products: groupProducts };
+  }).filter(group => group.products.length > 0);
 
   return (
     <main className="min-h-screen bg-white">
@@ -36,24 +55,21 @@ export default async function ProductsPage() {
       </div>
 
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24 py-16">
-        {Object.keys(formatGroups).map((format) => {
-          const groupProducts = formatGroups[format];
-          const formatSlug = generateSlug(format);
-          
+        {categoryGroups.map((group) => {
           return (
-            <section key={format} className="mb-20">
+            <section key={group.slug} className="mb-20">
               <div className="flex items-start justify-between mb-5 border-b border-[#86162f]/10 pb-3">
-                <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl">{format}</h2>
+                <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl">{group.title}</h2>
                 <Link 
-                  href={`/products/category/${formatSlug}`}
+                  href={`/products/${group.slug}`}
                   className="shrink-0 ml-8 mt-3 font-poppins text-[10px] uppercase tracking-widest text-[#86162f] hover:text-[#a82043] transition-colors"
                 >
                   Show All Products &rarr;
                 </Link>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-                {groupProducts.slice(0, 3).map(p => (
-                  <ProductCard key={p.id} product={p} collectionSlug={p.category?.slug || 'products'} />
+                {group.products.slice(0, 3).map(p => (
+                  <ProductCard key={p.id} product={p} collectionSlug={group.slug} />
                 ))}
               </div>
             </section>

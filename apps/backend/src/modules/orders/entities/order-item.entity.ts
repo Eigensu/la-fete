@@ -30,18 +30,18 @@ export class OrderItem {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   subtotal: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   sweetener: string | null;
 
   @Column({ default: false })
   cakeTopper: boolean;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   topperText: string | null;
 
   @Column({ default: false })
   cakeMessage: boolean;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   messageText: string | null;
 }
