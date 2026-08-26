@@ -56,7 +56,6 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetchProducts(`?category=${collection}`).then(data => {
     fetchProducts(`category=${collection}`).then(data => {
       setProducts(data);
       setLoading(false);
