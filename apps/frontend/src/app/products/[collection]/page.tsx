@@ -1,14 +1,21 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { getProductsByCollection, COLLECTION_META, uniqueValues, Product, getLowestPrice } from '@/lib/products-data';
+import { COLLECTION_META } from '@/lib/products-data';
+import { fetchProducts, Product } from '@/lib/products-api';
 import { ChevronDown, Plus, Minus } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { toTitleCase } from '@/utils/format';
+import ProductCard from '@/components/ProductCard';
 
 const CARD_BG = '#f8aeb2';
+
+function uniqueValues(products: Product[], key: keyof Product): string[] {
+  const values = products.map(p => p[key]).flat().filter(Boolean) as string[];
+  return Array.from(new Set(values)).sort();
+}
 
 const REDUNDANT_TAGS: Record<string, string[]> = {
   'whole-wheat':      ['Whole Wheat'],
@@ -19,123 +26,20 @@ const REDUNDANT_TAGS: Record<string, string[]> = {
   'tub-cakes':        ['Whole Wheat', 'Tub Cake'],
 };
 
-function ProductCard({
-  product,
-  collectionSlug,
-}: {
-  product: Product;
-  collectionSlug: string;
-}) {
-  const { cart, updateQuantity } = useCart();
-  const cartItem = cart[product.name];
-
-  return (
-    <div className="flex flex-col">
-      <Link
-        href={`/products/${collectionSlug}/${product.slug}`}
-        className="block mb-3"
-      >
-        <div
-          className="relative aspect-[5/6] flex flex-col justify-end p-5 overflow-hidden"
-          style={{ background: CARD_BG }}
-        >
-          {/* All tags stacked top-right — skip tags implied by the collection */}
-          {(() => {
-            const hidden = REDUNDANT_TAGS[collectionSlug] ?? [];
-            const visibleDietary = product.dietary.filter(d => !hidden.includes(d));
-            const showFormat = !hidden.includes(product.format);
-            if (!showFormat && visibleDietary.length === 0) return null;
-            return (
-              <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-                {showFormat && (
-                  <span className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
-                    {product.format}
-                  </span>
-                )}
-                {visibleDietary.map(d => (
-                  <span key={d} className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
-                    {d}
-                  </span>
-                ))}
-              </div>
-            );
-          })()}
-
-          <div className="w-8 h-px bg-[#86162f]/25 mb-3" />
-          <p className="font-poppins text-[9px] uppercase tracking-[0.25em] text-[#86162f]/55 mb-1">{product.flavour}</p>
-          <h3 className="font-seasons text-[#86162f] text-xl md:text-2xl leading-snug">{product.name}</h3>
-        </div>
-      </Link>
-
-      {/* Cart controls */}
-      {cartItem && cartItem.quantity > 0 ? (
-        <div className="flex items-center justify-between border border-[#86162f]/20">
-          <button
-            onClick={() => updateQuantity(product.name, -1)}
-            className="p-3 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
-          >
-            <Minus size={14} />
-          </button>
-          <span className="font-poppins text-sm text-[#86162f]">{cartItem.quantity}</span>
-          <button
-            onClick={() => updateQuantity(product.name, 1)}
-            className="p-3 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
-          >
-            <Plus size={14} />
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => updateQuantity(product.name, 1, getLowestPrice(product) ?? 0)}
-          className="w-full py-3 bg-[#86162f] text-white font-poppins text-[10px] uppercase tracking-widest hover:bg-[#a82043] transition-colors"
-        >
-          Add to Cart
-        </button>
-      )}
-    </div>
-  );
-}
-
-function FilterDropdown({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: string[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
+function FilterDropdown({ label, options, value, onChange }: { label: string, options: string[], value: string, onChange: (val: string) => void }) {
   return (
     <div className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 border border-[#86162f]/20 text-[#86162f] font-poppins text-[10px] uppercase tracking-wider hover:bg-[#86162f]/5 transition-all"
+      <select 
+        value={value} 
+        onChange={e => onChange(e.target.value)}
+        className="appearance-none bg-transparent border border-[#86162f]/20 pl-3 pr-8 py-1.5 font-poppins text-[10px] uppercase tracking-widest text-[#86162f] outline-none focus:border-[#86162f]/50 transition-colors cursor-pointer"
       >
-        {label}: <span className="font-semibold">{value || 'All'}</span>
-        <ChevronDown size={11} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && (
-        <div className="absolute top-full left-0 mt-1 min-w-[150px] bg-white border border-[#86162f]/20 shadow-xl z-20">
-          <button
-            onClick={() => { onChange(''); setOpen(false); }}
-            className={`w-full text-left px-4 py-2.5 font-poppins text-xs hover:bg-[#86162f]/5 transition-colors ${!value ? 'text-[#86162f] font-semibold' : 'text-gray-500'}`}
-          >
-            All
-          </button>
-          {options.map(opt => (
-            <button
-              key={opt}
-              onClick={() => { onChange(opt); setOpen(false); }}
-              className={`w-full text-left px-4 py-2.5 font-poppins text-xs hover:bg-[#86162f]/5 transition-colors ${value === opt ? 'text-[#86162f] font-semibold' : 'text-gray-500'}`}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
+        <option value="">{label}</option>
+        {options.map(opt => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+      <ChevronDown size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#86162f]/50 pointer-events-none" />
     </div>
   );
 }
@@ -144,18 +48,36 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
   const { collection } = use(params);
   const meta = COLLECTION_META[collection];
 
-  const allInCollection = meta ? getProductsByCollection(collection) : [];
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetchProducts(`?category=${collection}`).then(data => {
+    fetchProducts(`category=${collection}`).then(data => {
+      setProducts(data);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setError('Failed to load products. Please try again later.');
+      setLoading(false);
+    });
+  }, [collection]);
+
   const [flavourFilter, setFlavourFilter]   = useState('');
   const [dietaryFilter, setDietaryFilter]   = useState('');
   const [formatFilter,  setFormatFilter]    = useState('');
 
-  const flavours  = uniqueValues(allInCollection, 'flavour');
-  const dietaries = uniqueValues(allInCollection, 'dietary');
-  const formats   = uniqueValues(allInCollection, 'format');
+  const flavours  = uniqueValues(products, 'subcategory');
+  const dietaries = uniqueValues(products, 'dietaryTags');
+  const formats   = uniqueValues(products, 'format');
 
-  const filtered = allInCollection.filter(p => {
-    if (flavourFilter  && p.flavour !== flavourFilter)          return false;
-    if (dietaryFilter  && !p.dietary.includes(dietaryFilter))   return false;
+  const filtered = products.filter(p => {
+    if (flavourFilter  && p.subcategory !== flavourFilter)          return false;
+    if (dietaryFilter  && !(p.dietaryTags || '').includes(dietaryFilter))   return false;
     if (formatFilter   && p.format  !== formatFilter)           return false;
     return true;
   });
@@ -178,7 +100,7 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
     );
   }
 
-  const isEmpty = allInCollection.length === 0;
+  const isEmpty = products.length === 0;
 
   return (
     <main className="min-h-screen bg-white">
@@ -200,7 +122,18 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
           <span className="text-[#86162f]">{meta.title}</span>
         </div>
 
-        {isEmpty ? (
+        {loading ? (
+          <div className="py-32 text-center text-[#86162f]">Loading products...</div>
+        ) : error ? (
+          <div className="py-32 text-center">
+            <h2 className="font-seasons text-[#86162f] text-3xl md:text-4xl mb-4">
+              Unable to load products
+            </h2>
+            <p className="font-poppins text-gray-400 text-sm max-w-sm mx-auto">
+              {error}
+            </p>
+          </div>
+        ) : isEmpty ? (
           <div className="py-32 text-center">
             <p className="font-poppins text-xs uppercase tracking-widest text-[#f8aeb2] mb-4">Coming Soon</p>
             <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl mb-4">
@@ -238,7 +171,7 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
             {/* Grid */}
             {filtered.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 pb-24">
-                {filtered.map(p => <ProductCard key={p.id} product={p} collectionSlug={collection} />)}
+                {filtered.map(p => <ProductCard key={p.id} product={p} collectionSlug={collection} redundantTags={REDUNDANT_TAGS[collection]} />)}
               </div>
             ) : (
               <div className="py-24 text-center font-poppins text-sm text-gray-400">

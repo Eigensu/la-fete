@@ -43,6 +43,7 @@ export class ProductsService {
     limit = 10,
     search?: string,
     category?: string,
+    subcategory?: string,
     featured?: boolean,
     availableOnly = false,
   ): Promise<PaginatedResponseDto<Product>> {
@@ -60,7 +61,15 @@ export class ProductsService {
     }
 
     if (category) {
-      query.andWhere('category.id = :categoryId OR category.slug = :categorySlug', { categoryId: category, categorySlug: category });
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category)) {
+        query.andWhere('category.id = :categoryId', { categoryId: category });
+      } else {
+        query.andWhere('category.slug = :categorySlug', { categorySlug: category });
+      }
+    }
+
+    if (subcategory) {
+      query.andWhere('product.subcategory = :subcategory', { subcategory });
     }
 
     if (search) {
