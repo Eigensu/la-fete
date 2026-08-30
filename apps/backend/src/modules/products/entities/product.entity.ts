@@ -65,4 +65,31 @@ export class Product {
     cascade: true,
   })
   variants: ProductVariant[];
+
+  @Column({ default: '' })
+  format: string;
+
+  @Column({ nullable: true })
+  dietaryTags: string;
+
+  @Column({ nullable: true })
+  otherTags: string;
+
+  @Column({ type: 'text', nullable: true })
+  ingredients: string;
+
+  @Column({ type: 'simple-json', nullable: true })
+  sweetenerOptions: string[];
+
+  @Column({ type: 'text', nullable: true })
+  shelfLife: string;
+
+  @Column({ type: 'text', nullable: true })
+  allergyInformation: string;
+
+  @Column({ type: 'text', nullable: true })
+  deliveryInstructions: string;
+
+  @Column({ type: 'text', nullable: true })
+  nutritionalHighlight: string;
 }

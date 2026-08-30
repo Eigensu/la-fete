@@ -9,11 +9,16 @@ interface CartItem {
     name: string;
     quantity: number;
     price: number;
+    sweetener?: string;
+    cakeTopper?: boolean;
+    topperText?: string;
+    cakeMessage?: boolean;
+    messageText?: string;
 }
 
 interface CartContextType {
     cart: Record<string, CartItem>;
-    updateQuantity: (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string) => Promise<void>;
+    updateQuantity: (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, customizations?: Partial<CartItem>) => Promise<void>;
     cartTotalCount: number;
     cartTotalAmount: number;
     clearCart: () => Promise<void>;
@@ -91,19 +96,61 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(!!token);
         
         if (token) {
+            // Merge guest cart if it exists
+            try {
+                const guestCartRaw = globalThis.localStorage.getItem('la-fete-cart');
+                if (guestCartRaw) {
+                    const guestCart = JSON.parse(guestCartRaw);
+                    const itemsToMerge = Object.values(guestCart).map((item: any) => ({
+                        productId: item.productId || item.id,
+                        variantId: item.variantId,
+                        quantity: item.quantity,
+                        sweetener: item.sweetener,
+                        cakeTopper: item.cakeTopper,
+                        topperText: item.topperText,
+                        cakeMessage: item.cakeMessage,
+                        messageText: item.messageText,
+                    }));
+                    if (itemsToMerge.length > 0) {
+                        const mergeResponse = await fetchWithAuth('/api/cart/merge', {
+                            method: 'POST',
+                            body: JSON.stringify({ items: itemsToMerge })
+                        });
+                        if (mergeResponse) {
+                            globalThis.localStorage.removeItem('la-fete-cart');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to merge guest cart', err);
+            }
+
             // Fetch from backend
             try {
                 const data = await fetchWithAuth('/api/cart');
                 const backendCart: Record<string, CartItem> = {};
                 if (data && data.cart && data.cart.items) {
                     data.cart.items.forEach((item: any) => {
-                        backendCart[item.product.name] = {
+                        const productIdentifier = [
+                            item.product.name,
+                            item.variant?.name,
+                            item.sweetener,
+                            item.cakeTopper ? 'Topper' : null,
+                            item.cakeMessage ? 'Message' : null
+                        ].filter(Boolean).join(' · ');
+
+                        backendCart[productIdentifier] = {
                             id: item.id,
                             productId: item.product.id,
                             variantId: item.variant?.id,
                             name: item.product.name,
                             quantity: item.quantity,
                             price: parseFloat(item.unitPrice),
+                            sweetener: item.sweetener,
+                            cakeTopper: item.cakeTopper,
+                            topperText: item.topperText,
+                            cakeMessage: item.cakeMessage,
+                            messageText: item.messageText,
                         };
                     });
                 }
@@ -143,7 +190,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCartTotalAmount(amount);
     }, [cart, isMounted, isAuthenticated]);
 
-    const updateQuantity = async (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string) => {
+    const updateQuantity = async (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, customizations?: Partial<CartItem>) => {
         const currentItem = cart[productIdentifier];
         const currentQty = currentItem ? currentItem.quantity : 0;
         const newQty = Math.max(0, currentQty + delta);
@@ -162,7 +209,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                         body: JSON.stringify({ 
                             productId: productId || productIdentifier,
                             variantId: variantId,
-                            quantity: newQty 
+                            quantity: newQty,
+                            sweetener: customizations?.sweetener,
+                            cakeTopper: customizations?.cakeTopper,
+                            topperText: customizations?.topperText,
+                            cakeMessage: customizations?.cakeMessage,
+                            messageText: customizations?.messageText,
                         })
                     });
                 }
@@ -170,7 +222,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 else if (currentItem?.id) {
                     responseData = await fetchWithAuth(`/api/cart/items/${currentItem.id}`, {
                         method: 'PATCH',
-                        body: JSON.stringify({ quantity: newQty })
+                        body: JSON.stringify({ 
+                            quantity: newQty,
+                            sweetener: customizations?.sweetener,
+                            cakeTopper: customizations?.cakeTopper,
+                            topperText: customizations?.topperText,
+                            cakeMessage: customizations?.cakeMessage,
+                            messageText: customizations?.messageText,
+                        })
                     });
                 }
                 
@@ -180,13 +239,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                     const itemsToMap = responseData.cart ? responseData.cart.items : responseData.items;
                     if (itemsToMap) {
                         itemsToMap.forEach((item: any) => {
-                            backendCart[item.product.name] = {
+                            const pIdentifier = [
+                                item.product.name,
+                                item.variant?.name,
+                                item.sweetener,
+                                item.cakeTopper ? 'Topper' : null,
+                                item.cakeMessage ? 'Message' : null
+                            ].filter(Boolean).join(' · ');
+
+                            backendCart[pIdentifier] = {
                                 id: item.id,
                                 productId: item.product.id,
                                 variantId: item.variant?.id,
                                 name: item.product.name,
                                 quantity: item.quantity,
                                 price: parseFloat(item.unitPrice),
+                                sweetener: item.sweetener,
+                                cakeTopper: item.cakeTopper,
+                                topperText: item.topperText,
+                                cakeMessage: item.cakeMessage,
+                                messageText: item.messageText,
                             };
                         });
                     }
@@ -196,11 +268,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 console.error('Backend cart update failed', err);
             }
         } else {
-            updateLocalState(productIdentifier, newQty, price, productId, variantId);
+            updateLocalState(productIdentifier, newQty, price, productId, variantId, customizations);
         }
     };
 
-    const updateLocalState = (productIdentifier: string, newQty: number, price?: number, productId?: string, variantId?: string) => {
+    const updateLocalState = (productIdentifier: string, newQty: number, price?: number, productId?: string, variantId?: string, customizations?: Partial<CartItem>) => {
         setCart((prev) => {
             if (newQty === 0) {
                 const newCart = { ...prev };
@@ -213,9 +285,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 newCart[productIdentifier] = {
                     productId: productId || productIdentifier,
                     variantId: variantId,
-                    name: productIdentifier,
+                    name: productIdentifier.split(' · ')[0],
                     quantity: newQty,
                     price: price || 0,
+                    sweetener: customizations?.sweetener,
+                    cakeTopper: customizations?.cakeTopper,
+                    topperText: customizations?.topperText,
+                    cakeMessage: customizations?.cakeMessage,
+                    messageText: customizations?.messageText,
                 };
             } else {
                 newCart[productIdentifier].quantity = newQty;

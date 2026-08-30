@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import { Package, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
+import Navigation from '@/components/Navigation';
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +27,10 @@ export default function OrdersPage() {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Order History</h1>
+    <>
+      <Navigation />
+      <div className="max-w-5xl mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mt-8 mb-8">Order History</h1>
 
       {loading ? (
         <div className="space-y-4">
@@ -69,5 +73,6 @@ export default function OrdersPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

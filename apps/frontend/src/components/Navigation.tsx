@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toTitleCase } from '@/utils/format';
 import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
@@ -402,7 +403,7 @@ export default function Navigation() {
                             </div>
 
                             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-                                {Object.values(cart).length === 0 ? (
+                                {Object.entries(cart).length === 0 ? (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
                                         <ShoppingCart size={48} className="mb-4" />
                                         <p className="font-poppins text-lg">Your basket is empty</p>
@@ -414,26 +415,33 @@ export default function Navigation() {
                                         </button>
                                     </div>
                                 ) : (
-                                    Object.values(cart).map((item) => (
-                                        <div key={item.name} className="flex gap-4 items-start">
+                                    Object.entries(cart).map(([cartKey, item]) => (
+                                        <div key={cartKey} className="flex gap-4 items-start">
                                             <div className="w-20 h-20 bg-[#f5f0ed] rounded-sm flex items-center justify-center shrink-0">
                                                 <svg className="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
                                                 </svg>
                                             </div>
                                             <div className="flex-1">
-                                                <h4 className="font-seasons text-[#86162f] text-lg leading-tight mb-1">{item.name}</h4>
+                                                <h4 className="font-seasons text-[#86162f] text-lg leading-tight mb-1">{toTitleCase(item.name)}</h4>
+                                                {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                                                    <div className="text-xs text-gray-500 mb-2 font-poppins space-y-0.5">
+                                                        {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
+                                                        {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
+                                                        {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                                                    </div>
+                                                )}
                                                 <div className="flex items-center justify-between mt-2">
                                                     <div className="flex items-center gap-3 bg-[#f5f0ed] px-2 py-1 rounded-sm">
                                                         <button
-                                                            onClick={() => updateQuantity(item.name, -1)}
+                                                            onClick={() => updateQuantity(cartKey, -1)}
                                                             className="text-[#86162f] hover:opacity-70"
                                                         >
                                                             <Minus size={14} />
                                                         </button>
                                                         <span className="font-poppins text-sm font-medium w-4 text-center">{item.quantity}</span>
                                                         <button
-                                                            onClick={() => updateQuantity(item.name, 1)}
+                                                            onClick={() => updateQuantity(cartKey, 1)}
                                                             className="text-[#86162f] hover:opacity-70"
                                                         >
                                                             <Plus size={14} />

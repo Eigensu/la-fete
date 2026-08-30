@@ -38,6 +38,21 @@ export class CartItem {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   unitPrice: number;
 
+  @Column({ type: 'varchar', nullable: true })
+  sweetener: string | null;
+
+  @Column({ default: false })
+  cakeTopper: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  topperText: string | null;
+
+  @Column({ default: false })
+  cakeMessage: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  messageText: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

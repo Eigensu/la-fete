@@ -21,7 +21,6 @@ export interface Product {
   serves?: string;
   availableWeights?: WeightOption[];
   sweetenerOptions?: string[];
-  variants?: any[];
 }
 
 export interface CollectionMeta {
@@ -96,21 +95,6 @@ export function uniqueValues(products: Product[], key: 'flavour' | 'format' | 'd
   });
   return [...new Set(vals)].sort();
 }
-
-const WW: WeightOption[]       = [{ weight: '500g', price: 780  }, { weight: '1kg', price: 1450 }, { weight: '1.5kg', price: 2080 }, { weight: '2kg', price: 2700 }];
-const WW_P: WeightOption[]     = [{ weight: '500g', price: 850  }, { weight: '1kg', price: 1580 }, { weight: '1.5kg', price: 2280 }, { weight: '2kg', price: 2950 }];
-const VEGAN: WeightOption[]    = [{ weight: '500g', price: 900  }, { weight: '1kg', price: 1700 }, { weight: '1.5kg', price: 2450 }];
-const GF: WeightOption[]       = [{ weight: '500g', price: 950  }, { weight: '1kg', price: 1800 }];
-const LIQUOR: WeightOption[]   = [{ weight: '500g', price: 1000 }, { weight: '1kg', price: 1900 }];
-const TEA: WeightOption[]      = [{ weight: '350g', price: 280  }, { weight: '500g', price: 380  }];
-const TUB: WeightOption[]      = [{ weight: '350g', price: 480  }, { weight: '500g', price: 680  }];
-
-const SW_WW     = ['Jaggery', 'Date', 'Coconut Jaggery', 'Cane Sugar'];
-const SW_VEGAN  = ['Jaggery', 'Date Sugar', 'Coconut Sugar'];
-const SW_GF     = ['Jaggery', 'Date Sugar'];
-const SW_LIQUOR = ['Jaggery', 'Cane Sugar'];
-const SW_TUB    = ['Jaggery', 'Cane Sugar'];
-
 export const ALL_PRODUCTS: Product[] = [
   // ── WHOLE WHEAT ─────────────────────────────────────────────────────────
   {
@@ -436,3 +420,33 @@ export function getProductsByCollection(slug: string): Product[] {
   return ALL_PRODUCTS.filter(p => p.collections.includes(slug));
 }
 
+export function getProductBySlug(slug: string): Product | undefined {
+  return ALL_PRODUCTS.find(p => p.slug === slug);
+}
+
+export function getSimilarProducts(product: Product, limit = 6): Product[] {
+  const fromSameCollection = ALL_PRODUCTS.filter(
+    p => p.id !== product.id && p.collections.some(c => product.collections.includes(c))
+  );
+  if (fromSameCollection.length >= limit) return fromSameCollection.slice(0, limit);
+
+  const extra = ALL_PRODUCTS.filter(
+    p => p.id !== product.id &&
+    !fromSameCollection.find(x => x.id === p.id) &&
+    p.format === product.format
+  );
+  return [...fromSameCollection, ...extra].slice(0, limit);
+}
+
+export function getLowestPrice(product: Product): number | null {
+  if (!product.availableWeights?.length) return null;
+  return Math.min(...product.availableWeights.map(w => w.price));
+}
+
+export function uniqueValues(products: Product[], key: 'flavour' | 'format' | 'dietary'): string[] {
+  const vals = products.flatMap(p => {
+    const v = p[key];
+    return Array.isArray(v) ? v : [v];
+  });
+  return [...new Set(vals)].sort();
+}

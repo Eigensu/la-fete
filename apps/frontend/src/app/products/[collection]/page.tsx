@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { getProductsByCollection, COLLECTION_META, uniqueValues, Product, getLowestPrice } from '@/lib/products-data';
+import { COLLECTION_META, uniqueValues, Product, getLowestPrice } from '@/lib/products-data';
+import { fetchProducts } from '@/lib/products-api';
 import { ChevronDown, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { toTitleCase } from '@/utils/format';
 
 const CARD_BG = '#f8aeb2';
 
@@ -63,7 +65,7 @@ function ProductCard({
 
           <div className="w-8 h-px bg-[#86162f]/25 mb-3" />
           <p className="font-poppins text-[9px] uppercase tracking-[0.25em] text-[#86162f]/55 mb-1">{product.flavour}</p>
-          <h3 className="font-seasons text-[#86162f] text-xl md:text-2xl leading-snug">{product.name}</h3>
+          <h3 className="font-seasons text-[#86162f] text-xl md:text-2xl leading-snug">{toTitleCase(product.name)}</h3>
         </div>
       </Link>
 
@@ -86,7 +88,10 @@ function ProductCard({
         </div>
       ) : (
         <button
-          onClick={() => updateQuantity(product.name, 1, getLowestPrice(product) ?? 0)}
+          onClick={() => {
+            const variantId = product.variants?.[0]?.id;
+            updateQuantity(product.name, 1, getLowestPrice(product) ?? 0, product.id, variantId);
+          }}
           className="w-full py-3 bg-[#86162f] text-white font-poppins text-[10px] uppercase tracking-widest hover:bg-[#a82043] transition-colors"
         >
           Add to Cart
@@ -144,7 +149,35 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
   const { collection } = use(params);
   const meta = COLLECTION_META[collection];
 
-  const allInCollection = meta ? getProductsByCollection(collection) : [];
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts().then((data) => {
+      setAllProducts(data as any);
+      setLoading(false);
+    });
+  }, []);
+  
+  const getCollectionProducts = (slug: string) => {
+    if (slug === 'boozy-whole-wheat') {
+      return allProducts.filter(p => p.name.toLowerCase().includes('whiskey') || p.name.toLowerCase().includes('bailey'));
+    } else if (slug === 'tea-cakes') {
+      return allProducts.filter(p => p.format?.toLowerCase() === 'tea cake');
+    } else if (slug === 'tub-cakes') {
+      return allProducts.filter(p => p.format?.toLowerCase() === 'tub cake');
+    } else if (slug === 'whole-wheat') {
+      return allProducts.filter(p => (p as any).dietaryTags?.toLowerCase().includes('whole wheat') && p.format?.toLowerCase() !== 'tub cake' && p.format?.toLowerCase() !== 'tea cake' && !p.name.toLowerCase().includes('whiskey') && !p.name.toLowerCase().includes('bailey'));
+    } else if (slug === 'vegan-sugar-free') {
+      return allProducts.filter(p => (p as any).dietaryTags?.toLowerCase().includes('vegan'));
+    } else if (slug === 'gf-sugar-free') {
+      return allProducts.filter(p => (p as any).dietaryTags?.toLowerCase().includes('gluten'));
+    }
+    
+    return [];
+  };
+
+  const allInCollection = meta ? getCollectionProducts(collection) : [];
   const [flavourFilter, setFlavourFilter]   = useState('');
   const [dietaryFilter, setDietaryFilter]   = useState('');
   const [formatFilter,  setFormatFilter]    = useState('');
@@ -200,7 +233,9 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
           <span className="text-[#86162f]">{meta.title}</span>
         </div>
 
-        {isEmpty ? (
+        {loading ? (
+          <div className="py-32 text-center text-[#86162f]">Loading products...</div>
+        ) : isEmpty ? (
           <div className="py-32 text-center">
             <p className="font-poppins text-xs uppercase tracking-widest text-[#f8aeb2] mb-4">Coming Soon</p>
             <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl mb-4">
