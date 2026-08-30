@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { getProductsByCollection, COLLECTION_META } from '@/lib/products-data';
+import { COLLECTION_META } from '@/lib/products-data';
+import { fetchProducts, Product } from '@/lib/products-api';
+import { toTitleCase } from '@/utils/format';
 
 const CARD_BG = '#f8aeb2';
 
@@ -12,11 +14,32 @@ const NAV_COLLECTIONS = [
   'tub-cakes',
 ] as const;
 
-export default function Products() {
+export default async function Products() {
+  const allProducts = await fetchProducts();
+  
+  const getProductForCollection = (slug: string) => {
+    // Map the local slug to the corresponding format in the DB
+    const formatMap: Record<string, string> = {
+      'whole-wheat': 'whole wheat cake',
+      'vegan-sugar-free': 'vegan cake',
+      'gf-sugar-free': 'gluten free cake',
+      'boozy-whole-wheat': 'boozy', // Just picking one if it exists or matches keywords
+      'tea-cakes': 'tea cake',
+      'tub-cakes': 'tub cake',
+    };
+    const format = formatMap[slug];
+    if (!format) return null;
+    
+    if (format === 'boozy') {
+      return allProducts.find(p => p.name.toLowerCase().includes('whiskey') || p.name.toLowerCase().includes('bailey')) || null;
+    }
+    return allProducts.find(p => p.format?.toLowerCase() === format) || null;
+  };
+
   const items = NAV_COLLECTIONS.map(slug => ({
     slug,
     meta: COLLECTION_META[slug],
-    product: getProductsByCollection(slug)[0] ?? null,
+    product: getProductForCollection(slug),
   }));
 
   return (
@@ -57,22 +80,22 @@ export default function Products() {
 
                     {/* Dietary tags — top right */}
                     <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-                      {product.dietary.slice(0, 2).map(d => (
+                      {product.dietaryTags?.split(',').slice(0, 2).map(d => (
                         <span
-                          key={d}
+                          key={d.trim()}
                           className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5"
                         >
-                          {d}
+                          {d.trim()}
                         </span>
                       ))}
                     </div>
 
                     <div className="w-8 h-px bg-[#86162f]/25 mb-3" />
                     <p className="font-poppins text-[9px] uppercase tracking-[0.25em] text-[#86162f]/55 mb-1">
-                      {product.flavour}
+                      {product.category?.name || 'Cake'}
                     </p>
                     <h3 className="font-seasons text-[#86162f] text-xl md:text-2xl leading-snug">
-                      {product.name}
+                      {toTitleCase(product.name)}
                     </h3>
                   </div>
                 </Link>

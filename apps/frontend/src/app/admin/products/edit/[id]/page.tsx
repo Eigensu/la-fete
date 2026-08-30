@@ -23,7 +23,16 @@ export default function EditProductPage() {
         images: '',
         isAvailable: true,
         isFeatured: false,
-        tag: ''
+        tag: '',
+        format: '',
+        dietaryTags: '',
+        otherTags: '',
+        ingredients: '',
+        sweetenerOptions: '',
+        shelfLife: '',
+        allergyInformation: '',
+        deliveryInstructions: '',
+        nutritionalHighlight: ''
     });
 
     const [variants, setVariants] = useState<any[]>([]);
@@ -44,7 +53,16 @@ export default function EditProductPage() {
                     images: p.images ? p.images.join(', ') : '',
                     isAvailable: p.isAvailable,
                     isFeatured: p.isFeatured,
-                    tag: p.tag || ''
+                    tag: p.tag || '',
+                    format: p.format || '',
+                    dietaryTags: p.dietaryTags || '',
+                    otherTags: p.otherTags || '',
+                    ingredients: p.ingredients || '',
+                    sweetenerOptions: p.sweetenerOptions ? p.sweetenerOptions.join(', ') : '',
+                    shelfLife: p.shelfLife || '',
+                    allergyInformation: p.allergyInformation || '',
+                    deliveryInstructions: p.deliveryInstructions || '',
+                    nutritionalHighlight: p.nutritionalHighlight || ''
                 });
                 setVariants(p.variants || []);
             } else {
@@ -67,7 +85,8 @@ export default function EditProductPage() {
                 ...product,
                 slug: product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
                 categoryId: product.categoryId || undefined,
-                images: product.images ? product.images.split(',').map(s => s.trim()) : []
+                images: product.images ? product.images.split(',').map(s => s.trim()) : [],
+                sweetenerOptions: product.sweetenerOptions ? product.sweetenerOptions.split(',').map(s => s.trim()) : []
             };
             
             await updateAdminProduct(productId, productData);
@@ -192,6 +211,101 @@ export default function EditProductPage() {
                             <input 
                                 type="text" value={product.tag}
                                 onChange={e => setProduct({...product, tag: e.target.value})}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Format</label>
+                            <input 
+                                type="text" 
+                                value={product.format}
+                                onChange={e => setProduct({...product, format: e.target.value})}
+                                placeholder="e.g. Whole Wheat Cake"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Dietary Tags (comma separated)</label>
+                            <input 
+                                type="text" 
+                                value={product.dietaryTags}
+                                onChange={e => setProduct({...product, dietaryTags: e.target.value})}
+                                placeholder="e.g. Vegan, Gluten Free"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Other Tags (comma separated)</label>
+                            <input 
+                                type="text" 
+                                value={product.otherTags}
+                                onChange={e => setProduct({...product, otherTags: e.target.value})}
+                                placeholder="e.g. Bestseller"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Ingredients</label>
+                            <textarea 
+                                rows={2}
+                                value={product.ingredients}
+                                onChange={e => setProduct({...product, ingredients: e.target.value})}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Sweetener Options (comma separated)</label>
+                            <input 
+                                type="text" 
+                                value={product.sweetenerOptions}
+                                onChange={e => setProduct({...product, sweetenerOptions: e.target.value})}
+                                placeholder="e.g. Jaggery, Monk Fruit (+200)"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Shelf Life & Serving Instructions</label>
+                            <input 
+                                type="text" 
+                                value={product.shelfLife}
+                                onChange={e => setProduct({...product, shelfLife: e.target.value})}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Allergy Information</label>
+                            <input 
+                                type="text" 
+                                value={product.allergyInformation}
+                                onChange={e => setProduct({...product, allergyInformation: e.target.value})}
+                                placeholder="e.g. Nuts, Dairy"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Delivery Instructions</label>
+                            <input 
+                                type="text" 
+                                value={product.deliveryInstructions}
+                                onChange={e => setProduct({...product, deliveryInstructions: e.target.value})}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
+                            />
+                        </div>
+                        <div className="md:col-span-2 space-y-2">
+                            <label className="block font-poppins text-xs font-medium text-gray-700">Nutritional Highlights</label>
+                            <textarea 
+                                rows={2}
+                                value={product.nutritionalHighlight || ''}
+                                onChange={e => setProduct({...product, nutritionalHighlight: e.target.value})}
+                                placeholder="e.g. High Protein • Vitamin E • Omega-3 Rich Flaxseed"
                                 className="w-full px-4 py-2 border border-gray-200 rounded-sm font-poppins text-sm focus:outline-none focus:border-[#86162f]/30"
                             />
                         </div>

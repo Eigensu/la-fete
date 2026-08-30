@@ -88,6 +88,11 @@ export class OrdersService {
           quantity: cartItem.quantity,
           priceAtPurchase: cartItem.unitPrice,
           subtotal: itemSubtotal,
+          sweetener: cartItem.sweetener,
+          cakeTopper: cartItem.cakeTopper,
+          topperText: cartItem.topperText,
+          cakeMessage: cartItem.cakeMessage,
+          messageText: cartItem.messageText,
         });
       }
 
@@ -137,6 +142,11 @@ export class OrdersService {
           quantity: item.quantity,
           priceAtPurchase: item.priceAtPurchase,
           subtotal: item.subtotal,
+          sweetener: item.sweetener,
+          cakeTopper: item.cakeTopper,
+          topperText: item.topperText,
+          cakeMessage: item.cakeMessage,
+          messageText: item.messageText,
         });
         await manager.save(orderItem);
       }

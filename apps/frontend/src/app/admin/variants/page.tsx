@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { getAdminProducts } from '@/lib/admin-api';
-import { Package, Search } from 'lucide-react';
+import { Package, Search, Plus, Pencil, Trash2 } from 'lucide-react';
+import { toTitleCase } from '@/utils/format';
 import toast from 'react-hot-toast';
 
 export default function AdminVariantsPage() {
@@ -84,14 +85,16 @@ export default function AdminVariantsPage() {
                                 ))
                             ) : filteredVariants.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">No variants found.</td>
+                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                        No variants found matching your search.
+                                    </td>
                                 </tr>
                             ) : (
                                 filteredVariants.map((v) => (
                                     <tr key={v.id} className="hover:bg-[#fcf9f8]/50 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-gray-900">{v.name}</td>
-                                        <td className="px-6 py-4 text-gray-500">{v.product.name}</td>
-                                        <td className="px-6 py-4 font-mono text-xs text-gray-500">{v.sku}</td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{v.sku}</td>
+                                        <td className="px-6 py-4 text-gray-500">{toTitleCase(v.product.name)}</td>
+                                        <td className="px-6 py-4 text-gray-500">{v.name}</td>
                                         <td className="px-6 py-4 text-right">
                                             {v.discountPrice ? (
                                                 <div>

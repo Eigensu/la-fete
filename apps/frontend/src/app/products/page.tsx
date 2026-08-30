@@ -1,66 +1,49 @@
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { COLLECTION_META, getProductsByCollection, Product } from '@/lib/products-data';
+import { fetchProducts, Product } from '@/lib/products-api';
+import ProductCard from '@/components/ProductCard';
 
-const CARD_BG = '#f8aeb2';
-
-const REDUNDANT_TAGS: Record<string, string[]> = {
-  'whole-wheat':      ['Whole Wheat'],
-  'vegan-sugar-free': ['Vegan', 'Sugar Free'],
-  'gf-sugar-free':    ['Gluten Free', 'Sugar Free'],
-  'boozy-whole-wheat': ['Whole Wheat'],
-  'tea-cakes':        ['Tea Cake'],
-  'tub-cakes':        ['Whole Wheat', 'Tub Cake'],
-};
-
-function ProductCard({ product, collectionSlug }: { product: Product; collectionSlug: string }) {
-  return (
-    <div className="flex flex-col group">
-      <Link href={`/products/${collectionSlug}/${product.slug}`} className="block">
-        <div
-          className="relative aspect-[5/6] flex flex-col justify-end p-5 overflow-hidden"
-          style={{ background: CARD_BG }}
-        >
-          {/* All tags stacked top-right — skip tags implied by the collection */}
-          {(() => {
-            const hidden = REDUNDANT_TAGS[collectionSlug] ?? [];
-            const visibleDietary = product.dietary.filter(d => !hidden.includes(d));
-            const showFormat = !hidden.includes(product.format);
-            if (!showFormat && visibleDietary.length === 0) return null;
-            return (
-              <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-                {showFormat && (
-                  <span className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
-                    {product.format}
-                  </span>
-                )}
-                {visibleDietary.map(d => (
-                  <span key={d} className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
-                    {d}
-                  </span>
-                ))}
-              </div>
-            );
-          })()}
-
-          <div className="w-8 h-px bg-[#86162f]/25 mb-3" />
-          <p className="font-poppins text-[9px] uppercase tracking-[0.25em] text-[#86162f]/55 mb-1">
-            {product.flavour}
-          </p>
-          <h3 className="font-seasons text-[#86162f] text-xl md:text-2xl leading-snug">
-            {product.name}
-          </h3>
-        </div>
-      </Link>
-    </div>
-  );
+function toTitleCase(str: string) {
+  return str.replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
 }
 
-const CAKE_COLLECTIONS    = ['whole-wheat', 'vegan-sugar-free', 'gf-sugar-free', 'boozy-whole-wheat'] as const;
-const PETITE_COLLECTIONS  = ['tea-cakes', 'tub-cakes'] as const;
+function generateSlug(str: string) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+}
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await fetchProducts();
+
+  const categories = [
+    { title: 'Whole Wheat', slug: 'whole-wheat' },
+    { title: 'Vegan & Sugar Free', slug: 'vegan-sugar-free' },
+    { title: 'GF & Sugar Free', slug: 'gf-sugar-free' },
+    { title: 'Boozy Whole Wheat', slug: 'boozy-whole-wheat' },
+    { title: 'Tea Cakes', slug: 'tea-cakes' },
+    { title: 'Tub Cakes', slug: 'tub-cakes' }
+  ];
+
+  const categoryGroups = categories.map(cat => {
+    let groupProducts: Product[] = [];
+    if (cat.slug === 'boozy-whole-wheat') {
+      groupProducts = products.filter(p => p.name.toLowerCase().includes('whiskey') || p.name.toLowerCase().includes('bailey'));
+    } else if (cat.slug === 'tea-cakes') {
+      groupProducts = products.filter(p => p.format?.toLowerCase() === 'tea cake');
+    } else if (cat.slug === 'tub-cakes') {
+      groupProducts = products.filter(p => p.format?.toLowerCase() === 'tub cake');
+    } else if (cat.slug === 'whole-wheat') {
+      groupProducts = products.filter(p => p.dietaryTags?.toLowerCase().includes('whole wheat') && p.format?.toLowerCase() !== 'tub cake' && p.format?.toLowerCase() !== 'tea cake' && !p.name.toLowerCase().includes('whiskey') && !p.name.toLowerCase().includes('bailey'));
+    } else if (cat.slug === 'vegan-sugar-free') {
+      groupProducts = products.filter(p => p.dietaryTags?.toLowerCase().includes('vegan'));
+    } else if (cat.slug === 'gf-sugar-free') {
+      groupProducts = products.filter(p => p.dietaryTags?.toLowerCase().includes('gluten'));
+    }
+    return { ...cat, products: groupProducts };
+  }).filter(group => group.products.length > 0);
+
   return (
     <main className="min-h-screen bg-white">
       <Navigation />
@@ -71,72 +54,27 @@ export default function ProductsPage() {
         <h1 className="font-seasons text-white text-5xl md:text-7xl">Our Products</h1>
       </div>
 
-      <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24">
-
-        {/* ── CAKES ─────────────────────────────────────────────── */}
-        <div className="pt-20 pb-4 flex items-center gap-6">
-          <span className="font-poppins text-[10px] uppercase tracking-[0.4em] text-[#86162f]/40">Cakes</span>
-          <div className="flex-1 h-px bg-[#86162f]/10" />
-        </div>
-
-        {CAKE_COLLECTIONS.map((slug) => {
-          const meta     = COLLECTION_META[slug];
-          const products = getProductsByCollection(slug);
+      <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24 py-16">
+        {categoryGroups.map((group) => {
           return (
-            <section key={slug} className="mb-20">
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl">{meta.title}</h2>
-                  <p className="font-poppins text-xs text-gray-400 mt-2 max-w-sm leading-relaxed">{meta.description}</p>
-                </div>
-                {products.length > 0 && (
-                  <Link
-                    href={`/products/${slug}`}
-                    className="shrink-0 ml-8 mt-3 font-poppins text-[10px] uppercase tracking-widest text-[#86162f] border-b border-[#86162f]/30 hover:border-[#86162f] transition-colors pb-0.5"
-                  >
-                    See Full Collection ({products.length}) →
-                  </Link>
-                )}
+            <section key={group.slug} className="mb-20">
+              <div className="flex items-start justify-between mb-5 border-b border-[#86162f]/10 pb-3">
+                <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl">{group.title}</h2>
+                <Link 
+                  href={`/products/${group.slug}`}
+                  className="shrink-0 ml-8 mt-3 font-poppins text-[10px] uppercase tracking-widest text-[#86162f] hover:text-[#a82043] transition-colors"
+                >
+                  Show All Products &rarr;
+                </Link>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-                {products.slice(0, 3).map(p => <ProductCard key={p.id} product={p} collectionSlug={slug} />)}
+                {group.products.slice(0, 3).map(p => (
+                  <ProductCard key={p.id} product={p} collectionSlug={group.slug} />
+                ))}
               </div>
             </section>
           );
         })}
-
-        {/* ── PETITE INDULGENCE ─────────────────────────────────── */}
-        <div className="pb-4 flex items-center gap-6">
-          <span className="font-poppins text-[10px] uppercase tracking-[0.4em] text-[#86162f]/40">Petite Indulgence</span>
-          <div className="flex-1 h-px bg-[#86162f]/10" />
-        </div>
-
-        {PETITE_COLLECTIONS.map((slug) => {
-          const meta     = COLLECTION_META[slug];
-          const products = getProductsByCollection(slug);
-          return (
-            <section key={slug} className="mb-20">
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <h2 className="font-seasons text-[#86162f] text-4xl md:text-5xl">{meta.title}</h2>
-                  <p className="font-poppins text-xs text-gray-400 mt-2 max-w-sm leading-relaxed">{meta.description}</p>
-                </div>
-                {products.length > 0 && (
-                  <Link
-                    href={`/products/${slug}`}
-                    className="shrink-0 ml-8 mt-3 font-poppins text-[10px] uppercase tracking-widest text-[#86162f] border-b border-[#86162f]/30 hover:border-[#86162f] transition-colors pb-0.5"
-                  >
-                    See Full Collection ({products.length}) →
-                  </Link>
-                )}
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-                {products.slice(0, 3).map(p => <ProductCard key={p.id} product={p} collectionSlug={slug} />)}
-              </div>
-            </section>
-          );
-        })}
-
       </div>
 
       <Footer />

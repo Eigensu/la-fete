@@ -63,15 +63,23 @@ export class CartService {
         (item as any).unavailableReason = 'Product or variant is no longer available';
       } else {
         (item as any).isUnavailable = false;
-        if (Number(item.unitPrice) !== Number(variant.price)) {
+        let expectedPrice = Number(variant.price);
+        if (item.cakeTopper) expectedPrice += 100;
+        if (item.cakeMessage) expectedPrice += 100;
+        if (item.sweetener) {
+           const match = item.sweetener.match(/\(\+\D*(\d+)\)/);
+           if (match) expectedPrice += parseInt(match[1], 10);
+        }
+
+        if (Number(item.unitPrice) !== expectedPrice) {
           priceChanged = true;
           priceChanges.push({
             itemId: item.id,
             oldPrice: Number(item.unitPrice),
-            newPrice: Number(variant.price),
+            newPrice: expectedPrice,
           });
           // Update unitPrice to match the current price
-          item.unitPrice = variant.price;
+          item.unitPrice = expectedPrice;
           await this.cartItemRepository.save(item);
         }
         
@@ -131,7 +139,22 @@ export class CartService {
       cart.items = [];
     }
 
-    const existingItem = cart.items.find(item => item.variant.id === dto.variantId);
+    const existingItem = cart.items.find(item => 
+      item.variant.id === dto.variantId &&
+      item.sweetener === (dto.sweetener || null) &&
+      item.cakeTopper === (dto.cakeTopper || false) &&
+      item.topperText === (dto.topperText || null) &&
+      item.cakeMessage === (dto.cakeMessage || false) &&
+      item.messageText === (dto.messageText || null)
+    );
+
+    let expectedPrice = Number(variant.price);
+    if (dto.cakeTopper) expectedPrice += 100;
+    if (dto.cakeMessage) expectedPrice += 100;
+    if (dto.sweetener) {
+        const match = dto.sweetener.match(/\(\+\D*(\d+)\)/);
+        if (match) expectedPrice += parseInt(match[1], 10);
+    }
 
     if (existingItem) {
       const newQuantity = existingItem.quantity + dto.quantity;
@@ -139,7 +162,7 @@ export class CartService {
         throw new BadRequestException(`Cannot add that many. Only ${variant.stockQuantity} in stock.`);
       }
       existingItem.quantity = newQuantity;
-      existingItem.unitPrice = variant.price; // Update to latest price
+      existingItem.unitPrice = expectedPrice; // Update to latest price
       await this.cartItemRepository.save(existingItem);
     } else {
       const newItem = this.cartItemRepository.create({
@@ -147,7 +170,12 @@ export class CartService {
         product,
         variant,
         quantity: dto.quantity,
-        unitPrice: variant.price,
+        unitPrice: expectedPrice,
+        sweetener: dto.sweetener || null,
+        cakeTopper: dto.cakeTopper || false,
+        topperText: dto.topperText || null,
+        cakeMessage: dto.cakeMessage || false,
+        messageText: dto.messageText || null,
       });
       await this.cartItemRepository.save(newItem);
     }
@@ -175,12 +203,26 @@ export class CartService {
       throw new BadRequestException('Variant is no longer available');
     }
 
-    if (dto.quantity > variant.stockQuantity) {
+    if (dto.quantity !== undefined && dto.quantity > variant.stockQuantity) {
       throw new BadRequestException(`Not enough stock. Available: ${variant.stockQuantity}`);
     }
 
-    item.quantity = dto.quantity;
-    item.unitPrice = variant.price;
+    if (dto.quantity !== undefined) item.quantity = dto.quantity;
+    if (dto.sweetener !== undefined) item.sweetener = dto.sweetener || null;
+    if (dto.cakeTopper !== undefined) item.cakeTopper = dto.cakeTopper || false;
+    if (dto.topperText !== undefined) item.topperText = dto.topperText || null;
+    if (dto.cakeMessage !== undefined) item.cakeMessage = dto.cakeMessage || false;
+    if (dto.messageText !== undefined) item.messageText = dto.messageText || null;
+
+    let expectedPrice = Number(variant.price);
+    if (item.cakeTopper) expectedPrice += 100;
+    if (item.cakeMessage) expectedPrice += 100;
+    if (item.sweetener) {
+        const match = item.sweetener.match(/\(\+\D*(\d+)\)/);
+        if (match) expectedPrice += parseInt(match[1], 10);
+    }
+
+    item.unitPrice = expectedPrice;
     await this.cartItemRepository.save(item);
 
     return (await this.getCart(userId)).cart;
@@ -257,7 +299,22 @@ export class CartService {
           continue;
         }
 
-        const existingItem = cart.items.find(i => i.variant.id === item.variantId);
+        const existingItem = cart.items.find(i => 
+            i.variant.id === item.variantId &&
+            i.sweetener === (item.sweetener || null) &&
+            i.cakeTopper === (item.cakeTopper || false) &&
+            i.topperText === (item.topperText || null) &&
+            i.cakeMessage === (item.cakeMessage || false) &&
+            i.messageText === (item.messageText || null)
+        );
+
+        let expectedPrice = Number(variant.price);
+        if (item.cakeTopper) expectedPrice += 100;
+        if (item.cakeMessage) expectedPrice += 100;
+        if (item.sweetener) {
+            const match = (item.sweetener as string).match(/\(\+\D*(\d+)\)/);
+            if (match) expectedPrice += parseInt(match[1], 10);
+        }
         
         let targetQuantity = item.quantity;
         if (existingItem) {
@@ -275,7 +332,7 @@ export class CartService {
 
         if (existingItem) {
           existingItem.quantity = targetQuantity;
-          existingItem.unitPrice = variant.price;
+          existingItem.unitPrice = expectedPrice;
           await queryRunner.manager.save(existingItem);
         } else {
           const newItem = queryRunner.manager.create(CartItem, {
@@ -283,7 +340,12 @@ export class CartService {
             product,
             variant,
             quantity: targetQuantity,
-            unitPrice: variant.price,
+            unitPrice: expectedPrice,
+            sweetener: item.sweetener || null,
+            cakeTopper: item.cakeTopper || false,
+            topperText: item.topperText || null,
+            cakeMessage: item.cakeMessage || false,
+            messageText: item.messageText || null,
           });
           await queryRunner.manager.save(newItem);
           cart.items.push(newItem);
