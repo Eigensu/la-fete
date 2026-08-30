@@ -1,5 +1,3 @@
-import { ALL_PRODUCTS } from './products-data';
-
 const isServer = typeof window === 'undefined';
 const API_URL = isServer
   ? (process.env.API_URL ? `${process.env.API_URL}/api/v1` : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'))
@@ -21,6 +19,8 @@ export interface Product {
   nutritionalHighlight?: string;
   isAvailable: boolean;
   isFeatured: boolean;
+  tag?: string;
+  subcategory?: string;
   category?: {
     name: string;
     slug: string;
@@ -32,29 +32,12 @@ export interface Product {
     weight: string;
     sku: string;
   }[];
-  // Re-injected static fields from ALL_PRODUCTS
-  flavour?: string;
-  dietary?: string[];
-  collections?: string[];
-  shortDescription?: string;
-  availableWeights?: any[];
 }
 
-function mergeStaticData(backendProduct: any): Product {
-  const staticProduct = ALL_PRODUCTS.find(p => p.slug === backendProduct.slug);
-  return {
-    ...backendProduct,
-    format: backendProduct.format || staticProduct?.format || 'Whole Cake',
-    flavour: backendProduct.flavour || staticProduct?.flavour || '',
-    dietary: backendProduct.dietary || staticProduct?.dietary || [],
-    collections: staticProduct?.collections || [],
-    shortDescription: staticProduct?.shortDescription || backendProduct.description,
-  };
-}
-
-export async function fetchProducts(): Promise<Product[]> {
+export async function fetchProducts(queryParams?: string): Promise<Product[]> {
   try {
-    const res = await fetch(`${API_URL}/products?limit=100`, {
+    const url = `${API_URL}/products?limit=100${queryParams ? '&' + queryParams : ''}`;
+    const res = await fetch(url, {
       cache: 'no-store',
     });
     if (!res.ok) {
@@ -62,10 +45,10 @@ export async function fetchProducts(): Promise<Product[]> {
     }
     const json = await res.json();
     const rawProducts = json.data || json.items || json;
-    return rawProducts.map(mergeStaticData);
+    return rawProducts;
   } catch (error) {
     console.error('Error fetching products:', error);
-    return [];
+    throw error;
   }
 }
 
@@ -79,7 +62,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
       throw new Error('Failed to fetch product');
     }
     const rawProduct = await res.json();
-    return mergeStaticData(rawProduct);
+    return rawProduct;
   } catch (error) {
     console.error('Error fetching product by slug:', error);
     return null;

@@ -18,7 +18,7 @@ interface CartItem {
 
 interface CartContextType {
     cart: Record<string, CartItem>;
-    updateQuantity: (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, customizations?: Partial<CartItem>) => Promise<void>;
+    updateQuantity: (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, options?: any) => Promise<void>;
     cartTotalCount: number;
     cartTotalAmount: number;
     clearCart: () => Promise<void>;
@@ -59,7 +59,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
                 if (typeof globalThis !== 'undefined') {
                     globalThis.localStorage.removeItem('la-fete-access-token');
                     globalThis.localStorage.removeItem('la-fete-user');
-                    window.location.href = '/auth';
                     throw new Error('Session expired');
                 }
             }
@@ -67,7 +66,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
             if (typeof globalThis !== 'undefined') {
                 globalThis.localStorage.removeItem('la-fete-access-token');
                 globalThis.localStorage.removeItem('la-fete-user');
-                window.location.href = '/auth';
                 throw new Error('Session expired');
             }
         }
@@ -190,7 +188,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCartTotalAmount(amount);
     }, [cart, isMounted, isAuthenticated]);
 
-    const updateQuantity = async (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, customizations?: Partial<CartItem>) => {
+    const updateQuantity = async (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, customizations?: any) => {
         const currentItem = cart[productIdentifier];
         const currentQty = currentItem ? currentItem.quantity : 0;
         const newQty = Math.max(0, currentQty + delta);
@@ -272,7 +270,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const updateLocalState = (productIdentifier: string, newQty: number, price?: number, productId?: string, variantId?: string, customizations?: Partial<CartItem>) => {
+    const updateLocalState = (productIdentifier: string, newQty: number, price?: number, productId?: string, variantId?: string, customizations?: any) => {
         setCart((prev) => {
             if (newQty === 0) {
                 const newCart = { ...prev };

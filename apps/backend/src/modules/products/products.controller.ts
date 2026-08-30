@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, no-unused-vars, @typescript-eslint/no-unused-vars */
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -7,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { GetProductsDto } from './dto/get-products.dto';
 
 @Controller()
 export class ProductsController {
@@ -37,34 +36,27 @@ export class ProductsController {
   @Get('admin/products')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
-  findAllAdmin(
-    @Query() paginationDto: PaginationDto,
-    @Query('search') search?: string,
-    @Query('category') category?: string,
-  ) {
+  findAllAdmin(@Query() query: GetProductsDto) {
     return this.productsService.findAll(
-      paginationDto.page,
-      paginationDto.limit,
-      search,
-      category,
+      query.page,
+      query.limit,
+      query.search,
+      query.category,
+      query.subcategory,
       undefined,
       false, // Admin can see inactive
     );
   }
 
   @Get('products')
-  findAllPublic(
-    @Query() paginationDto: PaginationDto,
-    @Query('search') search?: string,
-    @Query('category') category?: string,
-    @Query('featured') featured?: string,
-  ) {
+  findAllPublic(@Query() query: GetProductsDto) {
     return this.productsService.findAll(
-      paginationDto.page,
-      paginationDto.limit,
-      search,
-      category,
-      featured ? featured === 'true' : undefined,
+      query.page,
+      query.limit,
+      query.search,
+      query.category,
+      query.subcategory,
+      query.featured ? query.featured === 'true' : undefined,
       true, // Public only sees available
     );
   }

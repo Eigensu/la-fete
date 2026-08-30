@@ -133,12 +133,35 @@ export default function Navigation() {
                             >
                                 About Us
                             </Link>
-                            <Link
-                                href="/products"
-                                className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
-                            >
-                                Products
-                            </Link>
+                                                        <div className="relative group">
+                                <Link
+                                    href="/products/bakes"
+                                    className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity flex items-center gap-1"
+                                >
+                                    Bakes <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+                                </Link>
+                                <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-xl border border-[#86162f]/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col py-2 z-50">
+                                    <Link href="/products/bakes/bestsellers" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Bestsellers</Link>
+                                    <Link href="/products/bakes/szn-special" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">SZN Special</Link>
+                                    <Link href="/products/bakes/shop-all" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Shop All</Link>
+                                    <div className="group/sig relative">
+                                        <Link href="/products/bakes/signature-gateaux" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5 flex items-center justify-between">
+                                            Signature Gateaux <Plus size={12} />
+                                        </Link>
+                                        <div className="absolute top-0 left-full w-48 bg-white shadow-xl border border-[#86162f]/10 opacity-0 invisible group-hover/sig:opacity-100 group-hover/sig:visible transition-all duration-300 flex flex-col py-2 -ml-1">
+                                            <Link href="/products/bakes/signature-gateaux/dark-chocolate" className="px-5 py-2 text-[10px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Dark Chocolate</Link>
+                                            <Link href="/products/bakes/signature-gateaux/white-chocolate" className="px-5 py-2 text-[10px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">White Chocolate</Link>
+                                            <Link href="/products/bakes/signature-gateaux/coffee" className="px-5 py-2 text-[10px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Coffee</Link>
+                                            <Link href="/products/bakes/signature-gateaux/praline" className="px-5 py-2 text-[10px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Praline</Link>
+                                            <Link href="/products/bakes/signature-gateaux/pistachio" className="px-5 py-2 text-[10px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Pistachio</Link>
+                                            <Link href="/products/bakes/signature-gateaux/citrus" className="px-5 py-2 text-[10px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Citrus</Link>
+                                            <Link href="/products/bakes/signature-gateaux/liquor-infused" className="px-5 py-2 text-[10px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Liquor Infused</Link>
+                                        </div>
+                                    </div>
+                                    <Link href="/products/bakes/tea-cakes" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Tea Cakes</Link>
+                                    <Link href="/products/bakes/tub-cakes" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Tub Cakes</Link>
+                                </div>
+                            </div>
                             <Link
                                 href="/hampers"
                                 className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
@@ -267,14 +290,14 @@ export default function Navigation() {
                                 <Link href="/#about" onClick={closeMenu} className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform">About</Link>
 
                                 {/* Shop All with collapsible submenu */}
-                                <div className="flex flex-col gap-4">
+                                                                <div className="flex flex-col gap-4">
                                     <div className="flex items-center gap-3">
                                         <Link
-                                            href="/products"
+                                            href="/products/bakes"
                                             onClick={closeMenu}
                                             className="font-poppins text-3xl text-[#86162f] hover:translate-x-2 transition-transform"
                                         >
-                                            Shop All
+                                            Bakes
                                         </Link>
                                         <button
                                             onClick={() => setShopAllOpen(!shopAllOpen)}
@@ -298,24 +321,26 @@ export default function Navigation() {
                                                 className="overflow-hidden"
                                             >
                                                 <div className="flex flex-col gap-5 pl-6">
-                                                    {/* Cakes */}
-                                                    <div className="flex flex-col gap-2">
-                                                        <span className="font-poppins text-xs uppercase tracking-widest text-[#86162f]/40">Cakes</span>
-                                                        <Link href="/products/whole-wheat" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Whole Wheat</Link>
-                                                        <Link href="/products/vegan-sugar-free" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Vegan &amp; Sugar Free</Link>
-                                                        <Link href="/products/gf-sugar-free" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">GF &amp; Sugar Free</Link>
-                                                        <Link href="/products/boozy-whole-wheat" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Boozy Whole Wheat</Link>
+                                                    <Link href="/products/bakes/bestsellers" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Bestsellers</Link>
+                                                    <Link href="/products/bakes/szn-special" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">SZN Special</Link>
+                                                    <Link href="/products/bakes/shop-all" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Shop All</Link>
+                                                    
+                                                    {/* Signature Gateaux */}
+                                                    <div className="flex flex-col gap-2 mt-2">
+                                                        <Link href="/products/bakes/signature-gateaux" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Signature Gateaux</Link>
+                                                        <div className="flex flex-col gap-2 pl-4 border-l border-[#86162f]/20 ml-2">
+                                                            <Link href="/products/bakes/signature-gateaux/dark-chocolate" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/60 hover:text-[#86162f]">Dark Chocolate</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/white-chocolate" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/60 hover:text-[#86162f]">White Chocolate</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/coffee" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/60 hover:text-[#86162f]">Coffee</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/praline" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/60 hover:text-[#86162f]">Praline</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/pistachio" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/60 hover:text-[#86162f]">Pistachio</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/citrus" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/60 hover:text-[#86162f]">Citrus</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/liquor-infused" onClick={closeMenu} className="font-poppins text-base text-[#86162f]/60 hover:text-[#86162f]">Liquor Infused</Link>
+                                                        </div>
                                                     </div>
 
-                                                    {/* Petite Indulgence */}
-                                                    <div className="flex flex-col gap-2">
-                                                        <span className="font-poppins text-xs uppercase tracking-widest text-[#86162f]/40">Petite Indulgence</span>
-                                                        <Link href="/products/tea-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tea Cakes</Link>
-                                                        <Link href="/products/tub-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tub Cakes</Link>
-                                                    </div>
-
-                                                    <Link href="/products/bestsellers" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Bestsellers</Link>
-                                                    <Link href="/products/special" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Special</Link>
+                                                    <Link href="/products/bakes/tea-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tea Cakes</Link>
+                                                    <Link href="/products/bakes/tub-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tub Cakes</Link>
                                                 </div>
                                             </motion.div>
                                         )}
