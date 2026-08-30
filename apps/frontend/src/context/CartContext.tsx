@@ -188,7 +188,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCartTotalAmount(amount);
     }, [cart, isMounted, isAuthenticated]);
 
-    const updateQuantity = async (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, options?: any) => {
+    const updateQuantity = async (productIdentifier: string, delta: number, price?: number, productId?: string, variantId?: string, customizations?: any) => {
         const currentItem = cart[productIdentifier];
         const currentQty = currentItem ? currentItem.quantity : 0;
         const newQty = Math.max(0, currentQty + delta);
@@ -270,7 +270,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const updateLocalState = (productIdentifier: string, newQty: number, price?: number, productId?: string, variantId?: string, options?: any) => {
+    const updateLocalState = (productIdentifier: string, newQty: number, price?: number, productId?: string, variantId?: string, customizations?: any) => {
         setCart((prev) => {
             if (newQty === 0) {
                 const newCart = { ...prev };
