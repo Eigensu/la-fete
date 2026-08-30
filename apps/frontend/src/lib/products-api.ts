@@ -7,9 +7,10 @@ const isServer = typeof window === 'undefined';
 function resolveApiUrl(): string {
   if (!isServer) return '/api';
 
+  // API_URL only, matching the /api rewrite in next.config.ts. Honouring
+  // NEXT_PUBLIC_API_URL here too would let server fetches reach the backend
+  // while the client rewrite still fell back to localhost.
   if (process.env.API_URL) return `${process.env.API_URL}/api/v1`;
-  // NEXT_PUBLIC_API_URL is expected to already include the /api/v1 suffix.
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
 
   if (process.env.NODE_ENV === 'production') {
     throw new Error(
