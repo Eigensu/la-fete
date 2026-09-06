@@ -91,14 +91,14 @@ export default function ContactPage() {
     <main className="min-h-screen bg-white">
       <Navigation />
 
-      <div className="mt-10 md:mt-20" />
+      <div className="mt-16 md:mt-20" />
 
       {/* Hero */}
       <section className="py-14 md:py-20 text-center px-6">
         <p className="font-poppins text-[10px] uppercase tracking-[0.45em] text-[#f8aeb2] mb-4">
           Custom cake orders
         </p>
-        <h1 className="font-seasons text-[#86162f] text-5xl md:text-6xl leading-tight mb-5">
+        <h1 className="font-seasons text-[#86162f] text-3xl md:text-5xl leading-tight mb-5">
           Let&apos;s Create Something Special
         </h1>
         <p className="font-poppins text-sm text-gray-500 leading-relaxed max-w-md mx-auto">

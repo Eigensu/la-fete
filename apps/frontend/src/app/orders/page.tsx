@@ -42,7 +42,7 @@ export default function OrdersPage() {
         <div className="text-center py-16 text-gray-500 border rounded-lg border-dashed">
           <Package className="mx-auto h-12 w-12 mb-4 opacity-50" />
           <p className="text-lg">You haven't placed any orders yet.</p>
-          <Link href="/products" className="inline-block mt-4 bg-black text-white px-6 py-2 rounded hover:bg-gray-800">Start Shopping</Link>
+          <Link href="/products/bakes" className="inline-block mt-4 bg-black text-white px-6 py-2 rounded hover:bg-gray-800">Start Shopping</Link>
         </div>
       ) : (
         <div className="space-y-4">

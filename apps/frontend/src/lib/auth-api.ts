@@ -1,4 +1,3 @@
-/* global fetch, Response */
 export type AuthPayload = {
   accessToken: string;
   user: {

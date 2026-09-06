@@ -47,8 +47,8 @@ export default function GoogleCallbackPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#fcf9f8] px-6">
       <div className="max-w-sm w-full text-center">
-        <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white shadow-lg mb-6">
-          <span className="text-xl font-seasons">LF</span>
+        <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#86162f] text-white shadow-lg mb-6">
+          <span className="text-xl font-poppins font-semibold">LF</span>
         </div>
         <h1 className="font-seasons text-[#86162f] text-3xl mb-2">La Fête 365</h1>
         <p className="font-poppins text-sm text-gray-600">{status}</p>

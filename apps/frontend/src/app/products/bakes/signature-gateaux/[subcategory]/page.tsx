@@ -9,12 +9,18 @@ export default async function SubcategoryPage({ params }: { params: Promise<{ su
   const subcategory = resolvedParams.subcategory;
   const title = slugToTitle(subcategory);
 
+  // The API matches collections case-insensitively, so send the slug's words
+  // ("liquor-infused" -> "liquor infused") rather than the display title.
+  const collection = subcategory.replace(/-/g, ' ');
+
   return (
-    <BakesCategoryPage 
+    <BakesCategoryPage
       title={title}
       subtitle="Signature Gateaux"
       description={`Explore our selection of ${title} signature gateaux.`}
-      query={`category=signature-gateaux&subcategory=${encodeURIComponent(title)}`}
+      query={`category=signature-gateaux&subcategory=${encodeURIComponent(collection)}`}
+      backHref="/products/bakes/signature-gateaux"
+      backLabel="Back to Signature Gateaux"
     />
   );
 }

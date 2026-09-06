@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
                         <div className="w-10 h-10 bg-[#86162f]/5 rounded-sm flex items-center justify-center text-[#86162f]">
                             <Package size={20} />
                         </div>
-                        <span className="font-seasons text-3xl text-[#86162f]">{stats.products}</span>
+                        <span className="font-poppins font-semibold text-3xl text-[#86162f]">{stats.products}</span>
                     </div>
                     <p className="font-poppins text-gray-500 text-sm uppercase tracking-wider">Total Products</p>
                 </div>
@@ -74,7 +74,7 @@ export default function AdminDashboardPage() {
                         <div className="w-10 h-10 bg-[#86162f]/5 rounded-sm flex items-center justify-center text-[#86162f]">
                             <Tags size={20} />
                         </div>
-                        <span className="font-seasons text-3xl text-[#86162f]">{stats.categories}</span>
+                        <span className="font-poppins font-semibold text-3xl text-[#86162f]">{stats.categories}</span>
                     </div>
                     <p className="font-poppins text-gray-500 text-sm uppercase tracking-wider">Categories</p>
                 </div>
@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
                         <div className="w-10 h-10 bg-[#86162f]/5 rounded-sm flex items-center justify-center text-[#86162f]">
                             <Layers size={20} />
                         </div>
-                        <span className="font-seasons text-3xl text-[#86162f]">{stats.variants}</span>
+                        <span className="font-poppins font-semibold text-3xl text-[#86162f]">{stats.variants}</span>
                     </div>
                     <p className="font-poppins text-gray-500 text-sm uppercase tracking-wider">Total Variants</p>
                 </div>
@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
                         <div className="w-10 h-10 bg-[#86162f]/5 rounded-sm flex items-center justify-center text-[#86162f]">
                             <Star size={20} />
                         </div>
-                        <span className="font-seasons text-3xl text-[#86162f]">{stats.featured}</span>
+                        <span className="font-poppins font-semibold text-3xl text-[#86162f]">{stats.featured}</span>
                     </div>
                     <p className="font-poppins text-gray-500 text-sm uppercase tracking-wider">Featured Products</p>
                 </div>
@@ -102,7 +102,7 @@ export default function AdminDashboardPage() {
 
             <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-white p-6 rounded-sm shadow-sm border border-gray-100">
-                    <h3 className="font-seasons text-xl text-[#86162f] mb-4">Quick Actions</h3>
+                    <h3 className="font-poppins font-semibold text-xl text-[#86162f] mb-4">Quick Actions</h3>
                     <div className="flex flex-col gap-3">
                         <Link href="/admin/products/create" className="p-4 border border-gray-100 rounded-sm hover:border-[#86162f]/30 hover:bg-[#86162f]/5 transition-all flex items-center gap-3">
                             <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-[#86162f] shadow-sm">

@@ -4,8 +4,8 @@ import Image from 'next/image';
 
 export default function Hero() {
     return (
-        <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
-            {/* Background Image */}
+        <section id="home" className="relative h-screen flex items-end overflow-hidden">
+            {/* Background photograph */}
             <div className="absolute inset-0">
                 <Image
                     src="/wallpaper1.jpg"
@@ -14,33 +14,18 @@ export default function Hero() {
                     priority
                     className="object-cover object-center"
                 />
-                {/* Overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#fce4e6]/40 via-[#fef9f8]/50 to-white/60"></div>
-            </div>
-
-            {/* Decorative background effects */}
-            <div className="absolute inset-0 z-[1]">
-                <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#f8aeb2]/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-[#86162f]/5 rounded-full blur-3xl"></div>
+                {/* A quiet scrim, only where the type sits, not a wash over the whole photo */}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
             </div>
 
             {/* Content */}
-            <div className="relative z-10 text-center px-8 sm:px-12 md:px-16 lg:px-20">
-                {/* Title with glow */}
-                <div className="relative inline-block">
-                    {/* Glow effect behind */}
-                    <div className="absolute inset-0 text-[#f8aeb2] blur-2xl opacity-60">
-                        <h1 className="font-seasons text-7xl md:text-8xl lg:text-9xl">La Fête 365</h1>
-                    </div>
-                    {/* Actual title */}
-                    <h1 className="relative font-seasons text-[#86162f] text-7xl md:text-8xl lg:text-9xl mb-6">
-                        La Fête 365
-                    </h1>
-                </div>
-
-                <p className="text-[#86162f] text-sm md:text-base uppercase tracking-[0.4em] font-poppins font-light">
-                    Premium Luxury Bakery
+            <div className="relative z-10 w-full px-8 sm:px-12 md:px-16 lg:px-20 pb-16 md:pb-20">
+                <p className="text-white/70 text-[11px] md:text-xs uppercase tracking-[0.5em] font-poppins font-light mb-5">
+                    Premium Luxury Bakery · Mumbai
                 </p>
+                <h1 className="font-seasons text-white text-6xl md:text-8xl lg:text-9xl leading-[0.95]">
+                    La Fête 365
+                </h1>
             </div>
         </section>
     );

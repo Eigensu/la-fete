@@ -7,9 +7,9 @@ import { ProductClient } from './ProductClient';
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ collection: string; slug: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { collection, slug } = await params;
+  const { slug } = await params;
   const product = await fetchProductBySlug(slug);
   const allProducts = await fetchProducts();
 
@@ -21,7 +21,7 @@ export default async function ProductPage({
           <p className="font-poppins text-xs uppercase tracking-widest text-[#f8aeb2] mb-4">Not Found</p>
           <h2 className="font-seasons text-[#86162f] text-4xl mb-6">Product not found</h2>
           <Link
-            href="/products"
+            href="/products/bakes"
             className="font-poppins text-xs uppercase tracking-widest text-[#86162f] border-b border-[#86162f]/30 hover:border-[#86162f] transition-colors pb-0.5"
           >
             ← Back to All Products
@@ -35,8 +35,8 @@ export default async function ProductPage({
   return (
     <main className="min-h-screen bg-white">
       <Navigation />
-      <div className="mt-10 md:mt-20" />
-      <ProductClient product={product} allProducts={allProducts} collection={collection} />
+      <div className="mt-16 md:mt-20" />
+      <ProductClient product={product} allProducts={allProducts} collection="bakes" />
       <Footer />
     </main>
   );

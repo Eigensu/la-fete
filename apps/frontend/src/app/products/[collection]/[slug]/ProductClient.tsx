@@ -1,42 +1,41 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/lib/products-api';
 import { useCart } from '@/context/CartContext';
 import { Plus, Minus, ChevronDown, ChevronRight } from 'lucide-react';
-import { toTitleCase } from '@/utils/format';
+import { toTitleCase, sortByWeightAsc } from '@/utils/format';
+import { PRODUCT_CARD_IMAGES, pickImage } from '@/lib/gallery-images';
+import WhyChooseLaFete from '@/components/WhyChooseLaFete';
+import ProductFaqAccordion from '@/components/ProductFaqAccordion';
 
 const CARD_BG = '#f8aeb2';
 
-const DIETARY_META: Record<string, { code: string; label: string }> = {
-  'Whole Wheat':      { code: 'WW', label: 'Whole Wheat'      },
-  'Vegan':            { code: 'V',  label: 'Vegan'            },
-  'Gluten Free':      { code: 'GF', label: 'Gluten Free'      },
-  'Sugar Free':       { code: 'SF', label: 'Sugar Free'       },
-  'Flourless':        { code: 'FL', label: 'Flourless'        },
-  'High Protein':     { code: 'HP', label: 'High Protein'     },
-  'Liquor Infused':   { code: 'LI', label: 'Liquor Infused'   },
-  'Eggless':          { code: 'EG', label: 'Eggless'          },
-  'No Preservatives': { code: 'NP', label: 'No Preservatives' },
-  'Palm Oil Free':    { code: 'PO', label: 'Palm Oil Free'    },
-};
+const ORDER_CUTOFF_HOUR = 16; // 4:00 PM — orders after this bake the following day
 
-const UNIVERSAL_BADGES = ['No Preservatives', 'Palm Oil Free'];
+/**
+ * The earliest date an order placed right now can arrive, stated as a date
+ * rather than as a rule the customer has to apply themselves. The exact slot is
+ * still chosen at checkout.
+ */
+function earliestDelivery(now: Date) {
+  const missedCutoff = now.getHours() >= ORDER_CUTOFF_HOUR;
+  const date = new Date(now);
+  date.setDate(date.getDate() + (missedCutoff ? 2 : 1));
 
-function DietaryBadge({ tag }: { tag: string }) {
-  const meta = DIETARY_META[tag];
-  if (!meta) return null;
-  return (
-    <div className="flex flex-col items-center gap-2" style={{ minWidth: 60 }}>
-      <div className="w-12 h-12 rounded-full border border-[#86162f]/20 flex items-center justify-center bg-white">
-        <span className="font-poppins text-[9px] font-semibold text-[#86162f] tracking-wide">{meta.code}</span>
-      </div>
-      <span className="font-poppins text-[8px] uppercase tracking-wider text-gray-500 text-center leading-tight" style={{ maxWidth: 56 }}>
-        {meta.label}
-      </span>
-    </div>
-  );
+  const cutoff = new Date(now);
+  cutoff.setHours(ORDER_CUTOFF_HOUR, 0, 0, 0);
+  const msLeft = cutoff.getTime() - now.getTime();
+
+  return {
+    date,
+    label: date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }),
+    // Only meaningful while today's cutoff is still ahead of us.
+    hoursLeft: msLeft > 0 ? Math.floor(msLeft / 3_600_000) : null,
+    minutesLeft: msLeft > 0 ? Math.floor((msLeft % 3_600_000) / 60_000) : null,
+  };
 }
 
 function SimilarCard({ product, collection }: { product: Product; collection: string }) {
@@ -45,32 +44,33 @@ function SimilarCard({ product, collection }: { product: Product; collection: st
     ? Math.min(...(product.variants || []).map(w => Number(w.price)))
     : null;
   const cartItem = cart[product.name];
+  const cardImage = pickImage(String(product.id ?? product.name), PRODUCT_CARD_IMAGES);
 
   return (
-    <div className="flex flex-col" style={{ minWidth: 220 }}>
-      <Link href={`/products/${collection}/${product.slug}`}>
+    <div className="flex flex-col h-full" style={{ minWidth: 220 }}>
+      <Link href={`/products/${collection}/${product.slug}`} className="flex flex-col flex-1">
         <div
-          className="relative flex flex-col justify-end p-4 overflow-hidden mb-3"
-          style={{ background: CARD_BG, aspectRatio: '5/6' }}
+          className="relative overflow-hidden mb-3 shrink-0"
+          style={{ background: CARD_BG, aspectRatio: '4/5', width: '100%' }}
         >
-          <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-            {product.dietaryTags?.split(',').slice(0, 2).map(d => (
-              <span key={d.trim()} className="text-[7px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-1.5 py-0.5">
-                {d.trim()}
-              </span>
-            ))}
-          </div>
-          <div className="w-6 h-px bg-[#86162f]/25 mb-2" />
-          <p className="font-poppins text-[8px] uppercase tracking-[0.25em] text-[#86162f]/55 mb-0.5">{product.format}</p>
-          <h3 className="font-seasons text-[#86162f] text-lg leading-snug">{toTitleCase(product.name)}</h3>
-          {lowestPrice !== null && (
-            <p className="font-poppins text-[9px] text-[#86162f]/50 mt-1">
-              from ₹{lowestPrice.toLocaleString('en-IN')}
-            </p>
+          <Image src={cardImage} alt={product.name} fill sizes="220px" className="object-cover" />
+          {product.dietaryTags && (
+            <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
+              {product.dietaryTags.split(',').slice(0, 2).map(d => (
+                <span key={d.trim()} className="text-[7px] font-poppins uppercase tracking-widest text-white bg-black/35 backdrop-blur-[2px] px-2 py-1">
+                  {d.trim()}
+                </span>
+              ))}
+            </div>
           )}
+        </div>
+        <div className="flex-1 min-h-[52px]">
+          <p className="font-poppins text-[8px] uppercase tracking-[0.25em] text-[#86162f]/40 mb-0.5">{product.format}</p>
+          <h3 className="font-poppins font-medium text-[#86162f] text-sm leading-snug">{toTitleCase(product.name)}</h3>
         </div>
       </Link>
 
+      <div className="mt-3">
       {cartItem && cartItem.quantity > 0 ? (
         <div className="flex items-center justify-between border border-[#86162f]/20">
           <button onClick={() => updateQuantity(product.name, -1)} className="p-2.5 text-[#86162f]">
@@ -89,24 +89,36 @@ function SimilarCard({ product, collection }: { product: Product; collection: st
           Add to Cart
         </button>
       )}
+      </div>
     </div>
   );
 }
 
 export function ProductClient({ product, allProducts, collection }: { product: Product; allProducts: Product[]; collection: string }) {
+  // Smallest to largest (500g, 1kg, 2kg, ...) regardless of the order the
+  // backend returns them in.
+  const sortedVariants = sortByWeightAsc(product.variants ?? []);
+
   const [selectedWeight, setSelectedWeight] = useState(
-    () => product?.variants?.[0]?.weight ?? '',
+    () => sortedVariants[0]?.weight ?? '',
   );
   const [selectedSweetener, setSelectedSweetener] = useState(
     () => product?.sweetenerOptions?.[0] ?? '',
   );
-  
+
   const [cakeTopper, setCakeTopper] = useState(false);
   const [topperText, setTopperText] = useState('');
   const [cakeMessage, setCakeMessage] = useState(false);
   const [messageText, setMessageText] = useState('');
-  
+
   const [quantity, setQuantity] = useState(1);
+
+  // Resolved after mount: the server and the browser sit in different clocks, and
+  // rendering a date from `new Date()` during SSR would hydrate mismatched.
+  const [delivery, setDelivery] = useState<ReturnType<typeof earliestDelivery> | null>(null);
+  useEffect(() => {
+    setDelivery(earliestDelivery(new Date()));
+  }, []);
 
   const { cart, updateQuantity } = useCart();
 
@@ -137,17 +149,25 @@ export function ProductClient({ product, allProducts, collection }: { product: P
 
   const similarProducts = allProducts.filter((p) => p.format === product.format && p.id !== product.id).slice(0, 4);
   const dietaryArray = product.dietaryTags ? product.dietaryTags.split(',').map(d => d.trim()) : [];
-  const allBadges = [...new Set([...dietaryArray, ...UNIVERSAL_BADGES])];
 
+  // Toppers and written messages only make sense on a whole celebration cake —
+  // a 300g tub cake has nowhere to put them. Delivery terms, by contrast, apply
+  // to everything we ship.
   const isCelebrationCake = (product.category?.slug === 'les-gateaux' || (product.format || '').toLowerCase().includes('cake')) && !['tea cake', 'tub cake'].includes((product.format || '').toLowerCase());
+
+  // Nutritional highlights are written for petite indulgences and the sugar-free
+  // range only; elsewhere the field is either absent or not the claim we make.
+  const showNutrition =
+    ['tea cake', 'tub cake'].includes((product.format || '').toLowerCase()) ||
+    /sugar[- ]?free/i.test(`${product.dietaryTags ?? ''} ${product.name}`);
 
   function handleAddToCart() {
     updateQuantity(
-        cartKey, 
-        quantity, 
-        currentPrice ?? 0, 
-        product.id, 
-        product.variants?.find(w => w.weight === selectedWeight)?.id, 
+        cartKey,
+        quantity,
+        currentPrice ?? 0,
+        product.id,
+        product.variants?.find(w => w.weight === selectedWeight)?.id,
         {
             sweetener: selectedSweetener || undefined,
             cakeTopper,
@@ -167,7 +187,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
     <>
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24 pt-8 pb-4">
         <nav className="flex items-center gap-2 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/40 flex-wrap">
-          <Link href="/products" className="hover:text-[#86162f] transition-colors">
+          <Link href="/products/bakes" className="hover:text-[#86162f] transition-colors">
             Shop All
           </Link>
           <ChevronRight size={10} className="shrink-0" />
@@ -184,34 +204,71 @@ export function ProductClient({ product, allProducts, collection }: { product: P
 
       <section className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          <div className="lg:sticky lg:top-24">
+          {/* LEFT: IMAGE + DELIVERY */}
+          <div className="flex flex-col gap-8">
             <div
               className="relative w-full flex items-center justify-center overflow-hidden"
               style={{ background: '#f8aeb2', aspectRatio: '4/5' }}
             >
-              <div className="absolute top-4 right-4 flex flex-col items-end gap-1.5">
-                <span className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-2 py-0.5">
+              <Image
+                src={pickImage(String(product.id ?? product.name), PRODUCT_CARD_IMAGES)}
+                alt={product.name}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute top-4 left-4 flex flex-col items-start gap-1.5 z-10">
+                <span className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/70 bg-white/85 px-2 py-0.5">
                   {product.format}
                 </span>
                 {dietaryArray.map(d => (
                   <span
                     key={d}
-                    className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/60 bg-white/40 px-2 py-0.5"
+                    className="text-[8px] font-poppins uppercase tracking-widest text-[#86162f]/70 bg-white/85 px-2 py-0.5"
                   >
                     {d}
                   </span>
                 ))}
               </div>
-              <div className="text-center px-8 select-none">
-                <div className="w-10 h-px bg-[#86162f]/15 mx-auto mb-5" />
-                <p className="font-poppins text-[9px] uppercase tracking-[0.35em] text-[#86162f]/30">
-                  Photography Coming Soon
+            </div>
+
+            {/* EARLIEST DELIVERY */}
+            <div className="border-t border-[#86162f]/10 pt-6">
+              <div className="flex items-baseline justify-between gap-4 flex-wrap">
+                <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55">
+                  Earliest delivery
                 </p>
-                <div className="w-10 h-px bg-[#86162f]/15 mx-auto mt-5" />
+                <p className="font-poppins text-[11px] text-[#86162f]/50">Mumbai only</p>
               </div>
+
+              <p className="font-poppins font-semibold text-[#86162f] text-lg md:text-xl leading-tight mt-2 min-h-[1.6em]">
+                {delivery ? delivery.label : ' '}
+              </p>
+
+              <p className="font-poppins text-xs text-gray-500 mt-2 leading-relaxed">
+                {delivery === null ? (
+                  <>Baked to order. Choose your slot at checkout.</>
+                ) : delivery.hoursLeft !== null ? (
+                  <>
+                    Order within{' '}
+                    <span className="text-[#86162f]">
+                      {delivery.hoursLeft}h {delivery.minutesLeft}m
+                    </span>{' '}
+                    to keep this date. Choose your slot at checkout.
+                  </>
+                ) : (
+                  <>Today's 4:00 PM cut-off has passed. Choose your slot at checkout.</>
+                )}
+              </p>
+
+              <p className="font-poppins text-xs text-gray-500 mt-2 leading-relaxed">
+                Delivery is charged at checkout and varies by area.
+              </p>
             </div>
           </div>
 
+          {/* RIGHT: PRODUCT DETAILS + DROPDOWNS */}
           <div className="flex flex-col pt-2 lg:pt-4">
             <p className="font-poppins text-[10px] uppercase tracking-[0.35em] text-[#f8aeb2] mb-3">
               {product.format}
@@ -231,21 +288,21 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                 <span className="font-poppins text-sm text-gray-400">Price on request</span>
               )}
             </div>
-            
-            <p className="font-poppins text-xs text-gray-500 mt-3 mb-6 max-w-md line-clamp-2">
+
+            <p className="font-poppins text-sm text-gray-600 leading-relaxed mt-3 mb-6 max-w-[54ch]">
                 {product.description}
             </p>
 
             <div className="w-full h-px bg-[#86162f]/10 mb-6" />
 
             {/* WEIGHT OPTIONS (First) */}
-            {product.variants && product.variants.length > 0 && (
+            {sortedVariants.length > 0 && (
               <div className="mb-6">
                 <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-3">
                   Weight
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {(product.variants || []).map(w => (
+                  {sortedVariants.map(w => (
                     <button
                       key={w.weight}
                       onClick={() => setSelectedWeight(w.weight)}
@@ -286,29 +343,6 @@ export function ProductClient({ product, allProducts, collection }: { product: P
               </div>
             )}
 
-            {/* DELIVERY INFO & SCHEDULE */}
-            {isCelebrationCake && (
-              <>
-                <div className="bg-[#fdf5f6] border border-[#86162f]/15 p-4 mb-4">
-                  <p className="font-poppins text-[11px] uppercase tracking-widest text-[#86162f] font-medium mb-1">
-                    📍 Delivery Information
-                  </p>
-                  <p className="font-poppins text-xs text-[#86162f]/80 leading-relaxed">
-                    This cake is available for delivery only within Mumbai.
-                  </p>
-                </div>
-                <div className="mb-6">
-                    <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">
-                      Delivery Schedule
-                    </p>
-                    <ul className="space-y-1">
-                        <li className="font-poppins text-xs text-gray-500">• Order before 4:00 PM &rarr; Delivery available the next day.</li>
-                        <li className="font-poppins text-xs text-gray-500">• Order after 4:00 PM &rarr; Delivery available the day after tomorrow.</li>
-                    </ul>
-                </div>
-              </>
-            )}
-
             {/* QUANTITY */}
             <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">
               Quantity
@@ -331,17 +365,27 @@ export function ProductClient({ product, allProducts, collection }: { product: P
               </button>
             </div>
 
+            {/* ADD TO CART */}
+            <div className="flex items-stretch gap-3 mb-6">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 py-4 bg-[#86162f] text-white font-poppins text-xs uppercase tracking-widest hover:bg-[#a82043] transition-colors"
+              >
+                {inCartQty > 0 ? `In Cart (${inCartQty}) — Add More` : 'Add to Cart'}
+              </button>
+            </div>
+
             {/* ADD-ONS */}
             {isCelebrationCake && (
               <div className="mb-6 space-y-4 border-t border-[#86162f]/10 pt-6">
                   <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-3">
-                    Cake Add-ons
+                    Make it personal
                   </p>
-                  
+
                   <div className="flex flex-col gap-2 border border-[#86162f]/15 p-4 rounded-sm">
                       <label className="flex items-center gap-3 cursor-pointer">
-                          <input 
-                              type="checkbox" 
+                          <input
+                              type="checkbox"
                               checked={cakeTopper}
                               onChange={(e) => setCakeTopper(e.target.checked)}
                               className="w-4 h-4 accent-[#86162f] cursor-pointer"
@@ -351,8 +395,8 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                       {cakeTopper && (
                           <div className="mt-2 pl-7">
                               <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Topper Text</label>
-                              <input 
-                                  type="text" 
+                              <input
+                                  type="text"
                                   value={topperText}
                                   onChange={(e) => setTopperText(e.target.value)}
                                   placeholder="e.g. Happy Birthday"
@@ -365,19 +409,19 @@ export function ProductClient({ product, allProducts, collection }: { product: P
 
                   <div className="flex flex-col gap-2 border border-[#86162f]/15 p-4 rounded-sm">
                       <label className="flex items-center gap-3 cursor-pointer">
-                          <input 
-                              type="checkbox" 
+                          <input
+                              type="checkbox"
                               checked={cakeMessage}
                               onChange={(e) => setCakeMessage(e.target.checked)}
                               className="w-4 h-4 accent-[#86162f] cursor-pointer"
                           />
-                          <span className="font-poppins text-sm text-[#86162f]">Cake Message (+₹100)</span>
+                          <span className="font-poppins text-sm text-[#86162f]">Cake Message</span>
                       </label>
                       {cakeMessage && (
                           <div className="mt-2 pl-7">
                               <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Message on Cake</label>
-                              <input 
-                                  type="text" 
+                              <input
+                                  type="text"
                                   value={messageText}
                                   onChange={(e) => setMessageText(e.target.value)}
                                   placeholder="e.g. Happy Birthday Aarav"
@@ -390,33 +434,9 @@ export function ProductClient({ product, allProducts, collection }: { product: P
               </div>
             )}
 
-            {/* ADD TO CART */}
-            <div className="flex items-stretch gap-3 mb-6">
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 py-4 bg-[#86162f] text-white font-poppins text-xs uppercase tracking-widest hover:bg-[#a82043] transition-colors"
-              >
-                {inCartQty > 0 ? `In Cart (${inCartQty}) — Add More` : 'Add to Cart'}
-              </button>
-            </div>
-            
             {/* PRODUCT INFORMATION */}
             <div className="space-y-6 pt-6 border-t border-[#86162f]/10">
-                {product.description && (
-                    <div>
-                        <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Description</h4>
-                        <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.description}</p>
-                    </div>
-                )}
-                
-                {product.ingredients && (
-                    <div>
-                        <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Ingredients</h4>
-                        <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.ingredients}</p>
-                    </div>
-                )}
-                
-                {product.nutritionalHighlight && (
+                {product.nutritionalHighlight && showNutrition && (
                     <div>
                         <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Nutritional Highlights</h4>
                         <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.nutritionalHighlight}</p>
@@ -429,7 +449,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                         <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.allergyInformation}</p>
                     </div>
                 )}
-                
+
                 {product.shelfLife && (
                     <div>
                         <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Shelf Life &amp; Serving Instructions</h4>
@@ -442,38 +462,14 @@ export function ProductClient({ product, allProducts, collection }: { product: P
         </div>
       </section>
 
-      {/* WHY CHOOSE LA FETE */}
-      <section className="py-16 bg-[#fdf5f6] border-y border-[#86162f]/8">
+      <section className="py-8 md:py-10 bg-white">
         <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24">
-          <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/35 text-center mb-10">
+          <p className="font-poppins text-lg md:text-xl uppercase tracking-[0.35em] font-bold text-[#86162f] text-center mb-8">
             Why Choose La Fête
           </p>
-          <div className="flex items-stretch justify-center flex-wrap md:flex-nowrap gap-6 md:gap-10">
-              <div className="flex-1 min-w-[200px] border border-[#86162f]/15 bg-white p-8 text-center flex flex-col items-center justify-center">
-                  <span className="text-3xl mb-3">🔥</span>
-                  <h4 className="font-poppins text-sm uppercase tracking-widest text-[#86162f] leading-snug">We Don't Use Microwaves</h4>
-              </div>
-              <div className="flex-1 min-w-[200px] border border-[#86162f]/15 bg-white p-8 text-center flex flex-col items-center justify-center">
-                  <span className="text-3xl mb-3">🥜</span>
-                  <h4 className="font-poppins text-sm uppercase tracking-widest text-[#86162f] leading-snug">Soaked Almonds</h4>
-              </div>
-              <div className="flex-1 min-w-[200px] border border-[#86162f]/15 bg-white p-8 text-center flex flex-col items-center justify-center">
-                  <span className="text-3xl mb-3">🥚</span>
-                  <h4 className="font-poppins text-sm uppercase tracking-widest text-[#86162f] leading-snug">100% Eggless Bakery</h4>
-              </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 bg-white">
-        <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24">
-          <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/35 text-center mb-8">
-            Badges of Honour
-          </p>
-          <div className="flex items-start justify-center flex-wrap gap-6 md:gap-10">
-            {(allBadges || []).map(tag => (
-              <DietaryBadge key={tag} tag={tag} />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            <WhyChooseLaFete />
+            <ProductFaqAccordion />
           </div>
         </div>
       </section>
@@ -498,7 +494,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
               </Link>
             </div>
 
-            <div className="hidden md:grid grid-cols-4 gap-4">
+            <div className="hidden md:grid grid-cols-4 gap-4 items-stretch">
               {similarProducts.map(p => (
                 <SimilarCard key={p.id} product={p} collection={collection} />
               ))}

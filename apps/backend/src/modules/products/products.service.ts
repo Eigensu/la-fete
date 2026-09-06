@@ -69,7 +69,18 @@ export class ProductsService {
     }
 
     if (subcategory) {
-      query.andWhere('product.subcategory = :subcategory', { subcategory });
+      // A product can sit in several collections, so match membership rather than
+      // equality. `subcategory` is still accepted for products migrated before
+      // `collections` was populated.
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where(':collection = ANY(product.collections)', {
+            collection: subcategory.toLowerCase(),
+          }).orWhere('LOWER(product.subcategory) = :collection', {
+            collection: subcategory.toLowerCase(),
+          });
+        }),
+      );
     }
 
     if (search) {

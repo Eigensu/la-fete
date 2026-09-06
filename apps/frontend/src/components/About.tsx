@@ -1,18 +1,20 @@
 'use client';
 
+import Image from 'next/image';
+
 export default function About() {
     return (
         <section id="about" className="relative min-h-screen grid md:grid-cols-5 items-center bg-white">
             {/* Left: Image - takes 2 columns */}
             <div className="relative h-[60vh] md:h-screen overflow-hidden bg-[#f5f0ed] md:col-span-2">
-                <div className="absolute inset-0 flex items-center justify-center p-12 md:p-16">
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        {/* Placeholder for product image */}
-                        <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                        </svg>
-                    </div>
-                </div>
+                <Image
+                    src="/Gemini_Generated_Image_wp5afjwp5afjwp5a.png"
+                    alt="A signature La Fête 365 cake"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 40vw"
+                    className="object-cover"
+                    priority
+                />
             </div>
 
             {/* Right: Content - takes 3 columns */}
@@ -42,7 +44,7 @@ export default function About() {
                     <div className="mt-12 flex flex-col sm:flex-row gap-4">
                         <a
                             href="tel:+919867281799"
-                            className="px-8 py-4 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white text-center font-poppins text-sm uppercase tracking-wider hover:opacity-90 transition-opacity"
+                            className="px-8 py-4 bg-[#86162f] text-white text-center font-poppins text-sm uppercase tracking-wider hover:bg-[#a82043] transition-colors"
                         >
                             Order Now
                         </a>

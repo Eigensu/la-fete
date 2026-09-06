@@ -118,9 +118,12 @@ export default function Navigation() {
                         </div>
                     </div>
 
-                    {/* Desktop Header */}
-                    <div className="hidden md:flex items-center justify-between">
-                        <div className="flex items-center gap-4 lg:gap-6 xl:gap-8">
+                    {/* Desktop Header — links centred, account controls pinned right */}
+                    <div className="hidden md:flex items-center justify-center relative">
+                        {/* Matching padding on both sides keeps the links optically
+                            centred while clearing the absolutely-positioned
+                            account controls on the right. */}
+                        <div className="flex items-center gap-4 lg:gap-6 xl:gap-8 px-32 lg:px-40">
                             <Link
                                 href="/#home"
                                 className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity"
@@ -134,16 +137,17 @@ export default function Navigation() {
                                 About Us
                             </Link>
                                                         <div className="relative group">
-                                <Link
-                                    href="/products/bakes"
-                                    className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity flex items-center gap-1"
+                                {/* Opens the menu only — the Bakes landing page is reached
+                                    through "Shop All" inside it. */}
+                                <button
+                                    type="button"
+                                    aria-haspopup="true"
+                                    className="whitespace-nowrap font-poppins text-xs lg:text-sm uppercase tracking-wider text-[#86162f] hover:opacity-70 transition-opacity flex items-center gap-1 cursor-default"
                                 >
                                     Bakes <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
-                                </Link>
+                                </button>
                                 <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-xl border border-[#86162f]/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col py-2 z-50">
-                                    <Link href="/products/bakes/bestsellers" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Bestsellers</Link>
-                                    <Link href="/products/bakes/szn-special" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">SZN Special</Link>
-                                    <Link href="/products/bakes/shop-all" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Shop All</Link>
+                                    <Link href="/products/bakes" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Shop All</Link>
                                     <div className="group/sig relative">
                                         <Link href="/products/bakes/signature-gateaux" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5 flex items-center justify-between">
                                             Signature Gateaux <Plus size={12} />
@@ -160,6 +164,8 @@ export default function Navigation() {
                                     </div>
                                     <Link href="/products/bakes/tea-cakes" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Tea Cakes</Link>
                                     <Link href="/products/bakes/tub-cakes" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Tub Cakes</Link>
+                                    <Link href="/products/bakes/bestsellers" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Bestsellers</Link>
+                                    <Link href="/products/bakes/seasonal-special" className="px-5 py-2.5 text-[11px] uppercase tracking-widest font-poppins text-[#86162f] hover:bg-[#86162f]/5">Seasonal Special</Link>
                                 </div>
                             </div>
                             <Link
@@ -190,7 +196,7 @@ export default function Navigation() {
                             )}
                         </div>
 
-                        <div className="flex items-center gap-6">
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-6">
                             {isAuthenticated ? (
                                 <div className="relative">
                                     <button
@@ -249,21 +255,6 @@ export default function Navigation() {
                                 </span>
                             </button>
 
-                            <button
-                                onClick={toggleMenu}
-                                className="relative p-2 text-[#86162f] hover:opacity-70 transition-opacity focus:outline-none"
-                                aria-label="Toggle Menu"
-                                aria-expanded={isMenuOpen}
-                            >
-                                <span className="relative block w-6 h-5">
-                                    <span
-                                        className={`absolute left-0 top-1/2 h-0.5 w-6 bg-[#86162f] transition-all duration-300 ${isMenuOpen ? 'translate-y-0 rotate-45' : '-translate-y-1.5 rotate-0'}`}
-                                    />
-                                    <span
-                                        className={`absolute left-0 top-1/2 h-0.5 w-6 bg-[#86162f] transition-all duration-300 ${isMenuOpen ? 'translate-y-0 -rotate-45' : 'translate-y-1.5 rotate-0'}`}
-                                    />
-                                </span>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -321,9 +312,7 @@ export default function Navigation() {
                                                 className="overflow-hidden"
                                             >
                                                 <div className="flex flex-col gap-5 pl-6">
-                                                    <Link href="/products/bakes/bestsellers" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Bestsellers</Link>
-                                                    <Link href="/products/bakes/szn-special" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">SZN Special</Link>
-                                                    <Link href="/products/bakes/shop-all" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Shop All</Link>
+                                                    <Link href="/products/bakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Shop All</Link>
                                                     
                                                     {/* Signature Gateaux */}
                                                     <div className="flex flex-col gap-2 mt-2">
@@ -341,6 +330,8 @@ export default function Navigation() {
 
                                                     <Link href="/products/bakes/tea-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tea Cakes</Link>
                                                     <Link href="/products/bakes/tub-cakes" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Tub Cakes</Link>
+                                                    <Link href="/products/bakes/bestsellers" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Bestsellers</Link>
+                                                    <Link href="/products/bakes/seasonal-special" onClick={closeMenu} className="font-poppins text-xl text-[#86162f]/70 hover:text-[#86162f]">Seasonal Special</Link>
                                                 </div>
                                             </motion.div>
                                         )}
@@ -364,7 +355,7 @@ export default function Navigation() {
                             {/* Mobile User Profile Menu */}
                             {isAuthenticated && (
                                 <div>
-                                    <h3 className="font-seasons text-[#86162f] text-3xl mb-6">My Account</h3>
+                                    <h3 className="font-poppins font-semibold text-[#86162f] text-2xl mb-6">My Account</h3>
                                     <div className="flex flex-col gap-4 pl-4 border-l border-[#86162f]/20">
                                         <Link href="/profile" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">My Profile</Link>
                                         <Link href="/orders" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Order History</Link>
@@ -448,7 +439,7 @@ export default function Navigation() {
                                                 </svg>
                                             </div>
                                             <div className="flex-1">
-                                                <h4 className="font-seasons text-[#86162f] text-lg leading-tight mb-1">{toTitleCase(item.name)}</h4>
+                                                <h4 className="font-poppins font-medium text-[#86162f] text-sm leading-tight mb-1">{toTitleCase(item.name)}</h4>
                                                 {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
                                                     <div className="text-xs text-gray-500 mb-2 font-poppins space-y-0.5">
                                                         {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
@@ -498,7 +489,7 @@ export default function Navigation() {
                                                 router.push('/auth');
                                             }
                                         }}
-                                        className="w-full py-4 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white font-poppins text-sm uppercase tracking-widest hover:opacity-90 transition-opacity rounded-sm shadow-xl flex items-center justify-center"
+                                        className="w-full py-4 bg-[#86162f] text-white font-poppins text-sm uppercase tracking-widest hover:bg-[#a82043] transition-colors flex items-center justify-center"
                                     >
                                         Checkout
                                     </button>

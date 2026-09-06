@@ -52,6 +52,11 @@ const nextConfig: NextConfig = {
         destination: '/products/boozy-whole-wheat/:slug',
         permanent: true,
       },
+      {
+        source: '/products/bakes/szn-special',
+        destination: '/products/bakes/seasonal-special',
+        permanent: true,
+      },
     ];
   },
   async rewrites() {

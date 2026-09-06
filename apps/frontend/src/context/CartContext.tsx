@@ -2,6 +2,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isUuid = (v: unknown): v is string => typeof v === 'string' && UUID_RE.test(v);
+
 interface CartItem {
     id?: string;
     productId?: string;
@@ -66,7 +69,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
             if (typeof globalThis !== 'undefined') {
                 globalThis.localStorage.removeItem('la-fete-access-token');
                 globalThis.localStorage.removeItem('la-fete-user');
-                throw new Error('Session expired');
+                throw new Error('Session expired', { cause: e });
             }
         }
     }
@@ -99,16 +102,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 const guestCartRaw = globalThis.localStorage.getItem('la-fete-cart');
                 if (guestCartRaw) {
                     const guestCart = JSON.parse(guestCartRaw);
-                    const itemsToMerge = Object.values(guestCart).map((item: any) => ({
-                        productId: item.productId || item.id,
-                        variantId: item.variantId,
-                        quantity: item.quantity,
-                        sweetener: item.sweetener,
-                        cakeTopper: item.cakeTopper,
-                        topperText: item.topperText,
-                        cakeMessage: item.cakeMessage,
-                        messageText: item.messageText,
-                    }));
+                    // Older builds could persist a non-UUID productId (the
+                    // display-name key) into localStorage; drop those rather
+                    // than send them to a merge endpoint that requires UUIDs.
+                    const itemsToMerge = Object.values(guestCart)
+                        .filter((item: any) => isUuid(item.productId || item.id))
+                        .map((item: any) => ({
+                            productId: item.productId || item.id,
+                            variantId: isUuid(item.variantId) ? item.variantId : undefined,
+                            quantity: item.quantity,
+                            sweetener: item.sweetener,
+                            cakeTopper: item.cakeTopper,
+                            topperText: item.topperText,
+                            cakeMessage: item.cakeMessage,
+                            messageText: item.messageText,
+                        }));
                     if (itemsToMerge.length > 0) {
                         const mergeResponse = await fetchWithAuth('/api/cart/merge', {
                             method: 'POST',
@@ -117,6 +125,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                         if (mergeResponse) {
                             globalThis.localStorage.removeItem('la-fete-cart');
                         }
+                    } else {
+                        // Nothing salvageable (all rows were corrupt) — clear it
+                        // so this doesn't keep getting re-parsed on every login.
+                        globalThis.localStorage.removeItem('la-fete-cart');
                     }
                 }
             } catch (err) {
@@ -280,9 +292,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
             const newCart = { ...prev };
             if (!newCart[productIdentifier]) {
+                // A new entry needs a real product UUID — without one there's
+                // nothing valid to persist or later merge into the backend cart,
+                // so silently drop the click rather than store a corrupt row
+                // (previously this fell back to the display-name string, which
+                // then failed UUID validation on merge after login).
+                if (!isUuid(productId)) {
+                    console.error('Cannot add to cart: missing a valid product id', { productIdentifier });
+                    return prev;
+                }
                 newCart[productIdentifier] = {
-                    productId: productId || productIdentifier,
-                    variantId: variantId,
+                    productId,
+                    variantId: isUuid(variantId) ? variantId : undefined,
                     name: productIdentifier.split(' · ')[0],
                     quantity: newQty,
                     price: price || 0,

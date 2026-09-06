@@ -3,12 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import { toTitleCase } from '@/utils/format';
 import Link from 'next/link';
+import Navigation from '@/components/Navigation';
 import { getAddresses, Address, createAddress } from '@/lib/addresses-api';
 import { getDeliverySlots, createOrder } from '@/lib/orders-api';
 import toast from 'react-hot-toast';
+
+const inputClasses =
+  'w-full px-4 py-3 border border-[#86162f]/20 font-poppins text-sm text-[#86162f] outline-none focus:border-[#86162f] transition-colors placeholder:text-gray-400';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -18,7 +22,7 @@ export default function CheckoutPage() {
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
-  
+
   const [slots, setSlots] = useState<any[]>([]);
   const [selectedSlotId, setSelectedSlotId] = useState<string>('');
 
@@ -99,7 +103,7 @@ export default function CheckoutPage() {
         deliveryAddressId: selectedAddressId,
         deliverySlotId: selectedSlotId,
       });
-      
+
       toast.success('Order placed successfully!');
       clearCart();
       router.push(`/orders/${result.order.id}`);
@@ -112,159 +116,227 @@ export default function CheckoutPage() {
 
   if (isLoading || isCartLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fcf9f8]">
-        <div className="animate-spin w-8 h-8 border-4 border-[#86162f] border-t-transparent rounded-full"></div>
-      </div>
+      <main className="min-h-screen bg-white">
+        <Navigation />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-2 border-[#86162f] border-t-transparent rounded-full" />
+        </div>
+      </main>
     );
   }
 
   if (Object.keys(cart).length === 0 && !isPlacingOrder) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcf9f8] px-6">
-        <h2 className="font-seasons text-[#86162f] text-3xl mb-4">Your Basket is Empty</h2>
-        <Link href="/products" className="text-[#86162f] hover:underline font-poppins">
-          Return to Products
-        </Link>
-      </div>
+      <main className="min-h-screen bg-white">
+        <Navigation />
+        <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
+          <p className="font-poppins text-[10px] uppercase tracking-[0.45em] text-[#f8aeb2] mb-4">Nothing to order yet</p>
+          <h1 className="font-seasons text-[#86162f] text-3xl md:text-4xl mb-6">Your basket is empty</h1>
+          <Link
+            href="/products/bakes"
+            className="px-8 py-3.5 bg-[#86162f] text-white font-poppins text-xs uppercase tracking-widest hover:bg-[#a82043] transition-colors"
+          >
+            Browse Products
+          </Link>
+        </div>
+      </main>
     );
   }
 
+  const itemCount = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+  const deliveryFee = 150;
+
   return (
-    <main className="min-h-screen bg-[#fcf9f8] py-20 px-6">
-      <div className="max-w-4xl mx-auto">
-        <Link href="/" className="inline-flex items-center gap-2 text-[#86162f] mb-8 hover:opacity-70 transition-opacity">
-          <ArrowLeft size={16} />
-          <span className="font-poppins text-xs uppercase tracking-widest">Back to Home</span>
-        </Link>
+    <main className="min-h-screen bg-white">
+      <Navigation />
 
-        <h1 className="font-seasons text-[#86162f] text-4xl mb-12">Checkout</h1>
+      <div className="mt-16 md:mt-20 pt-6 md:pt-8 pb-4 md:pb-6 text-center border-b border-[#86162f]/10">
+        <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.45em] mb-2 font-poppins">
+          {itemCount} {itemCount === 1 ? 'item' : 'items'} in your basket
+        </p>
+        <h1 className="font-seasons text-[#86162f] text-3xl md:text-5xl">Checkout</h1>
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          <div className="space-y-8">
-            {/* Address Selection */}
-            <div className="bg-white p-6 shadow-sm rounded-sm border border-[#86162f]/10">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="font-seasons text-[#86162f] text-2xl">Delivery Address</h2>
-                <button 
+      <div className="max-w-screen-xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 py-10 md:py-14">
+        <div className="grid lg:grid-cols-[1fr_400px] gap-10 lg:gap-16 items-start">
+
+          {/* LEFT: delivery details */}
+          <div className="space-y-10">
+
+            {/* Address */}
+            <section>
+              <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#86162f]/10">
+                <div>
+                  <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/35 mb-1">Step 1</p>
+                  <h2 className="font-seasons text-[#86162f] text-xl md:text-2xl">Delivery address</h2>
+                </div>
+                <button
                   onClick={() => setShowNewAddressForm(!showNewAddressForm)}
-                  className="text-sm font-poppins text-[#86162f] hover:underline flex items-center gap-1"
+                  className="flex items-center gap-1.5 font-poppins text-[10px] uppercase tracking-widest text-[#86162f] border-b border-[#86162f]/30 hover:border-[#86162f] transition-colors pb-0.5 shrink-0"
                 >
-                  <Plus size={14} /> {showNewAddressForm ? 'Cancel' : 'New Address'}
+                  {showNewAddressForm ? 'Cancel' : (<><Plus size={12} /> New address</>)}
                 </button>
               </div>
 
               {showNewAddressForm ? (
-                <form onSubmit={handleAddNewAddress} className="space-y-4 font-poppins">
-                  <input required placeholder="Full Name" value={newAddress.fullName} onChange={e => setNewAddress({...newAddress, fullName: e.target.value})} className="w-full p-3 border border-[#86162f]/20 rounded-sm text-sm outline-none focus:border-[#86162f]" />
-                  <input required placeholder="Phone" value={newAddress.phone} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} className="w-full p-3 border border-[#86162f]/20 rounded-sm text-sm outline-none focus:border-[#86162f]" />
-                  <input required placeholder="Address Line 1" value={newAddress.addressLine1} onChange={e => setNewAddress({...newAddress, addressLine1: e.target.value})} className="w-full p-3 border border-[#86162f]/20 rounded-sm text-sm outline-none focus:border-[#86162f]" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <input required placeholder="City" value={newAddress.city} onChange={e => setNewAddress({...newAddress, city: e.target.value})} className="w-full p-3 border border-[#86162f]/20 rounded-sm text-sm outline-none focus:border-[#86162f]" />
-                    <input required placeholder="State" value={newAddress.state} onChange={e => setNewAddress({...newAddress, state: e.target.value})} className="w-full p-3 border border-[#86162f]/20 rounded-sm text-sm outline-none focus:border-[#86162f]" />
+                <form onSubmit={handleAddNewAddress} className="space-y-3">
+                  <input required placeholder="Full name" value={newAddress.fullName} onChange={e => setNewAddress({ ...newAddress, fullName: e.target.value })} className={inputClasses} />
+                  <input required placeholder="Phone" value={newAddress.phone} onChange={e => setNewAddress({ ...newAddress, phone: e.target.value })} className={inputClasses} />
+                  <input required placeholder="Address line 1" value={newAddress.addressLine1} onChange={e => setNewAddress({ ...newAddress, addressLine1: e.target.value })} className={inputClasses} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input required placeholder="City" value={newAddress.city} onChange={e => setNewAddress({ ...newAddress, city: e.target.value })} className={inputClasses} />
+                    <input required placeholder="State" value={newAddress.state} onChange={e => setNewAddress({ ...newAddress, state: e.target.value })} className={inputClasses} />
                   </div>
-                  <input required placeholder="Pincode" value={newAddress.pincode} onChange={e => setNewAddress({...newAddress, pincode: e.target.value})} className="w-full p-3 border border-[#86162f]/20 rounded-sm text-sm outline-none focus:border-[#86162f]" />
-                  <button type="submit" disabled={isLoading} className="w-full py-3 bg-[#86162f] text-white text-sm tracking-widest uppercase hover:bg-opacity-90 transition">
-                    {isLoading ? 'Saving...' : 'Save & Select Address'}
+                  <input required placeholder="Pincode" value={newAddress.pincode} onChange={e => setNewAddress({ ...newAddress, pincode: e.target.value })} className={inputClasses} />
+                  <button type="submit" disabled={isLoading} className="w-full py-3.5 bg-[#86162f] text-white font-poppins text-xs uppercase tracking-widest hover:bg-[#a82043] transition-colors disabled:opacity-50">
+                    {isLoading ? 'Saving…' : 'Save and select this address'}
                   </button>
                 </form>
+              ) : addresses.length === 0 ? (
+                <p className="font-poppins text-sm text-gray-500">No saved addresses yet — add one to continue.</p>
               ) : (
-                <div className="space-y-4">
-                  {addresses.length === 0 ? (
-                    <p className="text-sm text-gray-500 font-poppins">No saved addresses found. Please add a new one.</p>
-                  ) : (
-                    addresses.map(addr => (
-                      <button 
-                        key={addr.id} 
-                        type="button"
-                        role="radio"
-                        aria-checked={selectedAddressId === addr.id}
-                        onClick={() => setSelectedAddressId(addr.id)}
-                        className={`w-full text-left p-4 border rounded cursor-pointer transition-colors ${selectedAddressId === addr.id ? 'border-[#86162f] bg-[#86162f]/5' : 'border-gray-200 hover:border-[#86162f]/50'}`}
-                      >
-                        <p className="font-semibold text-sm">{addr.fullName} <span className="text-gray-400 font-normal">({addr.label})</span></p>
-                        <p className="text-xs text-gray-600 mt-1">{addr.addressLine1}, {addr.city}, {addr.state} - {addr.pincode}</p>
-                        <p className="text-xs text-gray-600">{addr.phone}</p>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Delivery Slots */}
-            <div className="bg-white p-6 shadow-sm rounded-sm border border-[#86162f]/10">
-              <h2 className="font-seasons text-[#86162f] text-2xl mb-6">Delivery Slot</h2>
-              <div className="space-y-3 font-poppins">
-                {slots.length === 0 ? (
-                  <p className="text-sm text-gray-500">No delivery slots available at the moment.</p>
-                ) : (
-                  slots.map(slot => {
-                    const d = new Date(slot.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                <div className="space-y-2.5">
+                  {addresses.map(addr => {
+                    const selected = selectedAddressId === addr.id;
                     return (
-                      <button 
-                        key={slot.id} 
+                      <button
+                        key={addr.id}
                         type="button"
                         role="radio"
-                        aria-checked={selectedSlotId === slot.id}
-                        onClick={() => setSelectedSlotId(slot.id)}
-                        className={`w-full text-left p-4 border rounded cursor-pointer transition-colors ${selectedSlotId === slot.id ? 'border-[#86162f] bg-[#86162f]/5' : 'border-gray-200 hover:border-[#86162f]/50'}`}
+                        aria-checked={selected}
+                        onClick={() => setSelectedAddressId(addr.id)}
+                        className={`w-full text-left p-4 border flex items-start gap-3 transition-colors ${
+                          selected ? 'border-[#86162f] bg-[#f8aeb2]/10' : 'border-[#86162f]/15 hover:border-[#86162f]/40'
+                        }`}
                       >
-                        <p className="font-semibold text-sm">{d}</p>
-                        <p className="text-xs text-gray-600">{slot.startTime} - {slot.endTime}</p>
+                        <span
+                          className={`shrink-0 mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center ${
+                            selected ? 'border-[#86162f] bg-[#86162f]' : 'border-[#86162f]/30'
+                          }`}
+                        >
+                          {selected && <Check size={10} className="text-white" strokeWidth={3} />}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="flex items-baseline gap-2 font-poppins text-sm text-[#86162f]">
+                            <span className="font-medium">{addr.fullName}</span>
+                            <span className="text-[10px] uppercase tracking-wider text-[#86162f]/45">{addr.label}</span>
+                          </span>
+                          <span className="block font-poppins text-xs text-gray-500 mt-1 leading-relaxed">
+                            {addr.addressLine1}, {addr.city}, {addr.state} – {addr.pincode}
+                          </span>
+                          <span className="block font-poppins text-xs text-gray-500">{addr.phone}</span>
+                        </span>
                       </button>
                     );
-                  })
-                )}
+                  })}
+                </div>
+              )}
+            </section>
+
+            {/* Delivery slot */}
+            <section>
+              <div className="mb-5 pb-3 border-b border-[#86162f]/10">
+                <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/35 mb-1">Step 2</p>
+                <h2 className="font-seasons text-[#86162f] text-xl md:text-2xl">Delivery slot</h2>
               </div>
-            </div>
+
+              {slots.length === 0 ? (
+                <p className="font-poppins text-sm text-gray-500">No delivery slots available right now.</p>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-2.5">
+                  {slots.map(slot => {
+                    const selected = selectedSlotId === slot.id;
+                    const d = new Date(slot.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                    return (
+                      <button
+                        key={slot.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        onClick={() => setSelectedSlotId(slot.id)}
+                        className={`text-left p-4 border flex items-start gap-3 transition-colors ${
+                          selected ? 'border-[#86162f] bg-[#f8aeb2]/10' : 'border-[#86162f]/15 hover:border-[#86162f]/40'
+                        }`}
+                      >
+                        <span
+                          className={`shrink-0 mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center ${
+                            selected ? 'border-[#86162f] bg-[#86162f]' : 'border-[#86162f]/30'
+                          }`}
+                        >
+                          {selected && <Check size={10} className="text-white" strokeWidth={3} />}
+                        </span>
+                        <span>
+                          <span className="block font-poppins text-sm text-[#86162f] font-medium">{d}</span>
+                          <span className="block font-poppins text-xs text-gray-500">{slot.startTime} – {slot.endTime}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </div>
 
-          <div className="bg-white p-8 shadow-xl rounded-sm h-fit sticky top-8">
-            <h2 className="font-seasons text-[#86162f] text-2xl mb-6">Order Summary</h2>
-            <div className="space-y-4 mb-6">
+          {/* RIGHT: order summary */}
+          <div className="lg:sticky lg:top-24 border border-[#86162f]/12 bg-[#fdf5f6] p-6 md:p-8">
+            <p className="font-poppins text-[9px] uppercase tracking-[0.4em] text-[#86162f]/35 mb-1">Step 3</p>
+            <h2 className="font-seasons text-[#86162f] text-xl md:text-2xl mb-6">Order summary</h2>
+
+            <div className="space-y-4 mb-6 pb-6 border-b border-dashed border-[#86162f]/20">
               {Object.entries(cart).map(([variantId, item]) => (
-                <div key={variantId} className="flex justify-between font-poppins text-sm">
-                  <div className="w-2/3 pr-2">
-                    <span className="font-poppins text-xs text-gray-700 block truncate">
-                      {toTitleCase(item.name)} x {item.quantity}
-                    </span>
+                <div key={variantId} className="flex justify-between gap-4 font-poppins text-sm">
+                  <div className="min-w-0">
+                    <p className="text-[#86162f] truncate">
+                      {toTitleCase(item.name)} <span className="text-[#86162f]/50">× {item.quantity}</span>
+                    </p>
                     {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
-                      <div className="text-[10px] text-gray-500 mt-1 space-y-0.5">
+                      <div className="text-[11px] text-gray-500 mt-1 space-y-0.5">
                         {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
                         {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
                         {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
                       </div>
                     )}
                   </div>
-                  <span>₹{item.price * item.quantity}</span>
+                  <span className="text-[#86162f] shrink-0">₹{item.price * item.quantity}</span>
                 </div>
               ))}
             </div>
 
-            <div className="border-t border-[#86162f]/20 pt-4 flex justify-between font-poppins text-sm text-gray-600">
-              <span>Subtotal</span>
-              <span>₹{cartTotalAmount}</span>
+            <div className="space-y-2 font-poppins text-sm text-gray-600">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>₹{cartTotalAmount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Delivery</span>
+                <span>₹{deliveryFee}</span>
+              </div>
             </div>
-            <div className="flex justify-between font-poppins text-sm text-gray-600 mt-2">
-              <span>Delivery Fee</span>
-              <span>₹150</span>
+            <p className="font-poppins text-[11px] text-gray-400 mt-2 leading-relaxed">
+              Standard Mumbai delivery. Outlying areas may cost more — we&rsquo;ll confirm before dispatch.
+            </p>
+
+            <div className="flex justify-between items-baseline mt-4 pt-4 border-t border-[#86162f]/20">
+              <span className="font-poppins text-sm text-[#86162f]">Total</span>
+              <span className="font-poppins font-semibold text-2xl text-[#86162f]">₹{cartTotalAmount + deliveryFee}</span>
             </div>
 
-            <div className="border-t border-[#86162f]/20 mt-4 pt-4 flex justify-between font-poppins font-bold text-lg text-[#86162f]">
-              <span>Total</span>
-              <span>₹{cartTotalAmount + 150}</span>
-            </div>
-
-            <button 
+            <button
               onClick={handleCompletePayment}
               disabled={isPlacingOrder || addresses.length === 0 || slots.length === 0}
-              className="w-full mt-8 py-4 bg-gradient-to-r from-[#86162f] via-[#a82043] to-[#f8aeb2] text-white font-poppins text-sm uppercase tracking-widest hover:opacity-90 transition-opacity rounded-sm shadow-xl flex items-center justify-center disabled:opacity-50"
+              className="w-full mt-6 py-4 bg-[#86162f] text-white font-poppins text-xs uppercase tracking-widest hover:bg-[#a82043] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isPlacingOrder ? 'Processing...' : 'Complete Payment'}
+              {isPlacingOrder ? 'Processing…' : 'Complete payment'}
             </button>
-            <p className="text-xs text-center text-gray-400 mt-4 font-poppins">Secure Mock Payment Gateway</p>
+            <p className="font-poppins text-[11px] text-center text-gray-400 mt-3">Secure mock payment gateway</p>
           </div>
         </div>
+      </div>
+
+      <div className="py-6 border-t border-[#86162f]/10 text-center">
+        <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/30">
+          © 2026 La Fête 365 · Mumbai
+        </p>
       </div>
     </main>
   );

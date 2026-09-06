@@ -43,6 +43,7 @@ export interface Product {
   isFeatured: boolean;
   tag?: string;
   subcategory?: string;
+  collections?: string[];
   category?: {
     name: string;
     slug: string;

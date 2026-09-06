@@ -1,9 +1,30 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { GALLERY_IMAGES, hashString } from '@/lib/gallery-images';
+
+/** Curated pool for hamper accent panels, kept in a fixed order so we can
+ * guarantee no two adjacent hampers (in HAMPERS array order) share an image. */
+const HAMPER_IMAGES = GALLERY_IMAGES.slice(0, 9);
+
+/** Deterministic pick keyed off the hamper id, nudged forward until it
+ * differs from the previous hamper's image so adjacent cards never repeat. */
+function pickHamperImage(hamper: Hamper, previousImage?: string): string {
+  const pool = HAMPER_IMAGES;
+  let index = hashString(hamper.id) % pool.length;
+  let image = pool[index];
+  let guard = 0;
+  while (image === previousImage && guard < pool.length) {
+    index = (index + 1) % pool.length;
+    image = pool[index];
+    guard++;
+  }
+  return image;
+}
 
 const OCCASIONS = ['All', 'Diwali', 'Corporate', 'Birthday', 'Everyday'] as const;
 type Occasion = (typeof OCCASIONS)[number];
@@ -113,27 +134,36 @@ const HAMPERS: Hamper[] = [
   },
 ];
 
-function FeaturedHamper({ hamper }: { hamper: Hamper }) {
+function FeaturedHamper({ hamper, image }: { hamper: Hamper; image: string }) {
   return (
     <div className="md:col-span-2 flex flex-col md:flex-row border border-[#86162f]/12 overflow-hidden hover:border-[#86162f]/35 transition-colors duration-300">
       {/* Left accent panel */}
       <div className="relative md:w-5/12 bg-[#f8aeb2] flex flex-col justify-between p-8 md:p-12 min-h-[220px] md:min-h-0 overflow-hidden shrink-0">
+        <Image
+          src={image}
+          alt={hamper.name}
+          fill
+          sizes="(max-width: 768px) 100vw, 40vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#86162f]/85 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#86162f]/55 to-transparent" />
         {/* Giant background number */}
         <span
           aria-hidden="true"
-          className="absolute right-0 bottom-0 font-seasons text-white/20 select-none pointer-events-none leading-none"
+          className="absolute right-0 bottom-0 font-poppins font-semibold text-white/20 select-none pointer-events-none leading-none"
           style={{ fontSize: 'clamp(100px, 14vw, 180px)', lineHeight: 0.82 }}
         >
           {hamper.num}
         </span>
         {/* Occasion badge */}
-        <span className="self-start font-poppins text-[9px] uppercase tracking-[0.35em] text-[#86162f]/65 border border-[#86162f]/20 px-3 py-1">
+        <span className="self-start font-poppins text-[9px] uppercase tracking-[0.35em] text-white/90 border border-white/40 px-3 py-1 relative z-10">
           {hamper.occasion}
         </span>
         {/* Bottom: serves + price */}
-        <div>
-          <p className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/50 mb-1.5">{hamper.serves}</p>
-          <p className="font-seasons text-[#86162f] text-3xl">{hamper.price}</p>
+        <div className="relative z-10">
+          <p className="font-poppins text-[9px] uppercase tracking-widest text-white/70 mb-1.5">{hamper.serves}</p>
+          <p className="font-poppins font-semibold text-white text-3xl">{hamper.price}</p>
         </div>
       </div>
 
@@ -179,28 +209,37 @@ function FeaturedHamper({ hamper }: { hamper: Hamper }) {
   );
 }
 
-function SmallHamper({ hamper }: { hamper: Hamper }) {
+function SmallHamper({ hamper, image }: { hamper: Hamper; image: string }) {
   return (
     <div className="flex flex-col border border-[#86162f]/12 overflow-hidden hover:border-[#86162f]/35 transition-colors duration-300">
       {/* Top accent panel */}
       <div className="relative bg-[#f8aeb2] flex flex-col justify-between p-6 min-h-[170px] overflow-hidden shrink-0">
+        <Image
+          src={image}
+          alt={hamper.name}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#86162f]/85 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#86162f]/55 to-transparent" />
         <span
-          className="absolute right-0 bottom-0 font-seasons text-white/25 select-none pointer-events-none leading-none"
+          className="absolute right-0 bottom-0 font-poppins font-semibold text-white/25 select-none pointer-events-none leading-none"
           style={{ fontSize: 110, lineHeight: 0.82 }}
         >
           {hamper.num}
         </span>
-        <span className="self-start font-poppins text-[8px] uppercase tracking-[0.3em] text-[#86162f]/65 border border-[#86162f]/20 px-2.5 py-1">
+        <span className="self-start font-poppins text-[8px] uppercase tracking-[0.3em] text-white/90 border border-white/40 px-2.5 py-1">
           {hamper.occasion}
         </span>
-        <p className="font-poppins text-[8px] uppercase tracking-widest text-[#86162f]/50 mt-auto">
+        <p className="font-poppins text-[8px] uppercase tracking-widest text-white/70 mt-auto">
           {hamper.serves}
         </p>
       </div>
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-6 bg-white">
-        <h3 className="font-seasons text-[#86162f] text-2xl leading-tight mb-2">
+        <h3 className="font-poppins font-semibold text-[#86162f] text-lg leading-tight mb-2">
           {hamper.name}
         </h3>
         <p className="font-poppins text-xs text-gray-400 leading-relaxed mb-4">
@@ -221,7 +260,7 @@ function SmallHamper({ hamper }: { hamper: Hamper }) {
         </div>
 
         <div className="mt-auto flex items-center justify-between">
-          <span className="font-seasons text-[#86162f] text-xl">{hamper.price}</span>
+          <span className="font-poppins font-semibold text-[#86162f] text-xl">{hamper.price}</span>
           <Link
             href="/contact"
             className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f] border-b border-[#86162f]/25 hover:border-[#86162f] transition-colors pb-0.5"
@@ -247,19 +286,19 @@ export default function HampersPage() {
       <Navigation />
 
       {/* Hero */}
-      <div className="mt-10 md:mt-20 relative overflow-hidden bg-gradient-to-r from-[#f8aeb2] via-[#a82043] to-[#86162f] text-center shadow-md py-14 md:py-20">
+      <div className="mt-16 md:mt-20 relative overflow-hidden text-center">
         <div className="relative z-10">
-          <p className="text-white/55 text-[10px] uppercase tracking-[0.5em] mb-3 font-poppins">
+          <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.5em] mb-3 font-poppins">
             La Fête — Gift Hampers
           </p>
-          <h1 className="font-seasons text-white text-5xl md:text-7xl mb-4">
+          <h1 className="font-seasons text-[#86162f] text-4xl md:text-6xl mb-4">
             The Gift Edit
           </h1>
-          <div className="flex items-center justify-center gap-3 text-white/40 font-poppins text-[9px] uppercase tracking-widest">
+          <div className="flex items-center justify-center gap-3 text-[#86162f]/45 font-poppins text-[9px] uppercase tracking-widest">
             <span>Diwali</span>
-            <span className="w-1 h-1 rounded-full bg-white/30" />
+            <span className="w-1 h-1 rounded-full bg-[#86162f]/25" />
             <span>Corporate</span>
-            <span className="w-1 h-1 rounded-full bg-white/30" />
+            <span className="w-1 h-1 rounded-full bg-[#86162f]/25" />
             <span>Birthday</span>
             <span className="w-1 h-1 rounded-full bg-white/30" />
             <span>Everyday</span>
@@ -310,13 +349,18 @@ export default function HampersPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-            {filtered.map(hamper =>
-              hamper.featured ? (
-                <FeaturedHamper key={hamper.id} hamper={hamper} />
-              ) : (
-                <SmallHamper key={hamper.id} hamper={hamper} />
-              ),
-            )}
+            {(() => {
+              let previousImage: string | undefined;
+              return filtered.map(hamper => {
+                const image = pickHamperImage(hamper, previousImage);
+                previousImage = image;
+                return hamper.featured ? (
+                  <FeaturedHamper key={hamper.id} hamper={hamper} image={image} />
+                ) : (
+                  <SmallHamper key={hamper.id} hamper={hamper} image={image} />
+                );
+              });
+            })()}
           </div>
         )}
       </div>
@@ -325,7 +369,7 @@ export default function HampersPage() {
       <section className="bg-[#86162f] py-20 md:py-28 text-center relative overflow-hidden">
         {/* Decorative watermark */}
         <span
-          className="absolute inset-0 flex items-center justify-center font-seasons text-white/5 select-none pointer-events-none leading-none"
+          className="absolute inset-0 flex items-center justify-center font-poppins font-semibold text-white/5 select-none pointer-events-none leading-none"
           style={{ fontSize: 'clamp(60px, 15vw, 180px)' }}
         >
           Yours

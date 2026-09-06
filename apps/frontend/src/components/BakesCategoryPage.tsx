@@ -5,27 +5,32 @@ import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Product, fetchProducts } from '@/lib/products-api';
-import { ChevronDown, Plus, Minus, ArrowRight } from 'lucide-react';
+import { ChevronDown, Plus, Minus, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { toTitleCase } from '@/utils/format';
 import ProductCard from '@/components/ProductCard';
+import { PRODUCT_CARD_IMAGES, assignDistinctImages } from '@/lib/gallery-images';
 
 const CARD_BG = '#f8aeb2';
 
-export default function BakesCategoryPage({ 
-  title, 
-  subtitle, 
-  description, 
+export default function BakesCategoryPage({
+  title,
+  subtitle,
+  description,
   query,
   limitDisplay = false,
-  showAllLink = ''
-}: { 
+  showAllLink = '',
+  backHref = '/products/bakes',
+  backLabel = 'Back to Bakes',
+}: {
   title: string;
   subtitle: string;
   description: string;
   query: string;
   limitDisplay?: boolean;
   showAllLink?: string;
+  backHref?: string;
+  backLabel?: string;
 }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,26 +51,39 @@ export default function BakesCategoryPage({
   }, [query]);
 
   const isEmpty = products.length === 0;
-  const displayProducts = limitDisplay ? products.slice(0, 3) : products;
+  const displayProducts = limitDisplay ? products.slice(0, 4) : products;
+  const cardImages = assignDistinctImages(
+    displayProducts.map(p => String(p.id ?? p.name)),
+    PRODUCT_CARD_IMAGES,
+  );
 
   return (
     <main className="min-h-screen bg-white">
       <Navigation />
 
-      <div className="mt-10 md:mt-20 py-10 md:py-14 bg-gradient-to-r from-[#f8aeb2] via-[#a82043] to-[#86162f] text-center shadow-md">
-        <p className="text-white/60 text-[10px] uppercase tracking-[0.45em] mb-2 font-poppins">{subtitle}</p>
-        <h1 className="font-seasons text-white text-5xl md:text-7xl">{title}</h1>
-        <p className="font-poppins text-white/60 text-xs mt-4 max-w-sm mx-auto">{description}</p>
+      <div className="mt-16 md:mt-20 px-4 sm:px-5 md:px-6 lg:px-8">
+        <Link
+          href={backHref}
+          className="inline-flex items-center gap-1.5 pt-4 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/60 hover:text-[#86162f] transition-colors"
+        >
+          <ArrowLeft size={12} /> {backLabel}
+        </Link>
       </div>
 
-      <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24">
-        <div className="py-5 flex items-center justify-between">
+      <div className="text-center">
+        <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.45em] mb-3 font-poppins">{subtitle}</p>
+        <h1 className="font-seasons text-[#86162f] text-4xl md:text-6xl">{title}</h1>
+        <p className="font-poppins text-gray-500 text-sm mt-4 max-w-md mx-auto leading-relaxed">{description}</p>
+      </div>
+
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-5 md:px-6 lg:px-8">
+        <div className="py-3 flex items-center justify-between">
           <div className="flex items-center gap-2 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/40">
-            <Link href="/products" className="hover:text-[#86162f] transition-colors">Shop All</Link>
+            <Link href="/products/bakes" className="hover:text-[#86162f] transition-colors">Shop All</Link>
             <span>/</span>
             <span className="text-[#86162f]">{title}</span>
           </div>
-          {limitDisplay && showAllLink && products.length > 3 && (
+          {limitDisplay && showAllLink && products.length > 4 && (
             <Link href={showAllLink} className="flex items-center gap-1 font-poppins text-[10px] uppercase tracking-widest text-[#86162f] hover:opacity-70 transition-opacity">
               Show All Products <ArrowRight size={12} />
             </Link>
@@ -94,8 +112,17 @@ export default function BakesCategoryPage({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 pb-24 pt-4">
-            {displayProducts.map(p => <ProductCard key={p.id} product={p} collectionSlug="bakes" />)}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 pb-24 pt-4">
+            {/* The page title already says what these are, so cards don't repeat it. */}
+            {displayProducts.map(p => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                collectionSlug="bakes"
+                redundantTags={[title, title.replace(/s$/, '')]}
+                fallbackImage={cardImages[String(p.id ?? p.name)]}
+              />
+            ))}
           </div>
         )}
       </div>

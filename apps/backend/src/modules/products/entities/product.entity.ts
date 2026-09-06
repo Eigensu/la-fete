@@ -92,4 +92,14 @@ export class Product {
 
   @Column({ type: 'text', nullable: true })
   nutritionalHighlight: string;
+
+  /**
+   * Gateaux collections this product belongs to, stored lowercase
+   * (e.g. ['dark chocolate', 'coffee', 'liquor infused']). A product appears on
+   * every collection page it lists here, so this supersedes the single-valued
+   * `subcategory` for browsing.
+   */
+  // Indexed as GIN in the AddProductCollections migration, which @Index cannot express.
+  @Column({ type: 'text', array: true, default: () => "'{}'" })
+  collections: string[];
 }

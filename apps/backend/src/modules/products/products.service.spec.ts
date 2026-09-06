@@ -48,7 +48,7 @@ describe('ProductsService', () => {
 
   describe('Product Listing, Search, Pagination', () => {
     it('should return paginated products', async () => {
-      const result = await service.findAll(1, 10, 'search', 'cat-id', true, true);
+      const result = await service.findAll(1, 10, 'search', 'cat-id', undefined, true, true);
       expect(result.data).toEqual([]);
       expect(result.pagination.totalItems).toBe(0);
     });
