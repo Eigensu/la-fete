@@ -69,7 +69,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
             if (typeof globalThis !== 'undefined') {
                 globalThis.localStorage.removeItem('la-fete-access-token');
                 globalThis.localStorage.removeItem('la-fete-user');
-                throw new Error('Session expired', { cause: e });
+                throw new Error('Session expired');
             }
         }
     }
