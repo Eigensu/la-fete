@@ -3,14 +3,12 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-const SECTIONS = [
+const DEFAULT_DELIVERY_TEXT = 'We currently deliver across Mumbai only. Orders placed before 4:00 PM are baked and dispatched the next day; after that, delivery moves to the day after. Delivery is charged at checkout and varies by area — you’ll choose your slot before confirming your order.';
+
+const STATIC_SECTIONS = [
   {
     title: 'Our In-House Process',
     body: 'Every cake is baked fresh to order in our Mumbai kitchen — no refined flour, no shortcuts, and no batch made ahead of time. From soaking almonds to hand-piping every finish, each order is made by the same small team from start to finish.',
-  },
-  {
-    title: 'Delivery & Shipping',
-    body: 'We currently deliver across Mumbai only. Orders placed before 4:00 PM are baked and dispatched the next day; after that, delivery moves to the day after. Delivery is charged at checkout and varies by area — you’ll choose your slot before confirming your order.',
   },
   {
     title: 'Returns & Cancellations',
@@ -22,13 +20,27 @@ const SECTIONS = [
   },
 ];
 
-export default function ProductFaqAccordion() {
+export default function ProductFaqAccordion({
+  shelfLife,
+  deliveryInstructions,
+}: {
+  /** Product-specific shelf life & serving instructions, when the catalogue provides one. */
+  shelfLife?: string;
+  /** Product-specific delivery & shipping note; falls back to the site-wide default. */
+  deliveryInstructions?: string;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const sections = [
+    ...(shelfLife ? [{ title: 'Shelf Life & Serving Instructions', body: shelfLife }] : []),
+    { title: 'Delivery & Shipping', body: deliveryInstructions || DEFAULT_DELIVERY_TEXT },
+    ...STATIC_SECTIONS,
+  ];
 
   return (
     <div className="h-full">
       <div className="border-t border-[#86162f]/15">
-        {SECTIONS.map((section, i) => {
+        {sections.map((section, i) => {
           const isOpen = openIndex === i;
           return (
             <div key={section.title} className="border-b border-[#86162f]/15">

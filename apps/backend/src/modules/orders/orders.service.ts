@@ -91,8 +91,10 @@ export class OrdersService {
           sweetener: cartItem.sweetener,
           cakeTopper: cartItem.cakeTopper,
           topperText: cartItem.topperText,
-          cakeMessage: cartItem.cakeMessage,
-          messageText: cartItem.messageText,
+          numberTopper: cartItem.numberTopper,
+          numberTopperText: cartItem.numberTopperText,
+          celebrationTopper: cartItem.celebrationTopper,
+          celebrationTopperType: cartItem.celebrationTopperType,
         });
       }
 
@@ -145,8 +147,10 @@ export class OrdersService {
           sweetener: item.sweetener,
           cakeTopper: item.cakeTopper,
           topperText: item.topperText,
-          cakeMessage: item.cakeMessage,
-          messageText: item.messageText,
+          numberTopper: item.numberTopper,
+          numberTopperText: item.numberTopperText,
+          celebrationTopper: item.celebrationTopper,
+          celebrationTopperType: item.celebrationTopperType,
         });
         await manager.save(orderItem);
       }

@@ -65,11 +65,12 @@ export default function AdminOrderDetailsPage() {
                       {item.variant.name !== 'Default' && ` - ${item.variant.name}`}
                     </p>
                     <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                    {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                    {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
                         <div className="mt-1 text-xs text-gray-400 space-y-0.5 border-l-2 border-gray-200 pl-2">
                             {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
                             {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
-                            {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                            {item.numberTopper && <p>Number Topper: {item.numberTopperText || 'Yes'}</p>}
+                            {item.celebrationTopper && <p>Celebration Topper: {item.celebrationTopperType || 'Yes'}</p>}
                         </div>
                     )}
                   </div>

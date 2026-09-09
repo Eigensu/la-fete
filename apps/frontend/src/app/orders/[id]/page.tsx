@@ -71,11 +71,12 @@ export default function OrderDetailsPage() {
                       {item.variant.name !== 'Default' && ` - ${item.variant.name}`}
                     </p>
                     <p className="text-sm text-gray-500 mb-1">Qty: {item.quantity}</p>
-                    {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                    {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
                       <div className="text-xs text-gray-500 space-y-0.5">
                         {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
                         {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
-                        {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                        {item.numberTopper && <p>Number Topper: {item.numberTopperText || 'Yes'}</p>}
+                        {item.celebrationTopper && <p>Celebration Topper: {item.celebrationTopperType || 'Yes'}</p>}
                       </div>
                     )}
                   </div>

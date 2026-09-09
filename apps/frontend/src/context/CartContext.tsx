@@ -15,8 +15,10 @@ interface CartItem {
     sweetener?: string;
     cakeTopper?: boolean;
     topperText?: string;
-    cakeMessage?: boolean;
-    messageText?: string;
+    numberTopper?: boolean;
+    numberTopperText?: string;
+    celebrationTopper?: boolean;
+    celebrationTopperType?: string;
 }
 
 interface CartContextType {
@@ -114,8 +116,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                             sweetener: item.sweetener,
                             cakeTopper: item.cakeTopper,
                             topperText: item.topperText,
-                            cakeMessage: item.cakeMessage,
-                            messageText: item.messageText,
+                            numberTopper: item.numberTopper,
+                            numberTopperText: item.numberTopperText,
+                            celebrationTopper: item.celebrationTopper,
+                            celebrationTopperType: item.celebrationTopperType,
                         }));
                     if (itemsToMerge.length > 0) {
                         const mergeResponse = await fetchWithAuth('/api/cart/merge', {
@@ -146,7 +150,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                             item.variant?.name,
                             item.sweetener,
                             item.cakeTopper ? 'Topper' : null,
-                            item.cakeMessage ? 'Message' : null
+                            item.numberTopper ? 'Number Topper' : null,
+                            item.celebrationTopper ? 'Celebration Topper' : null
                         ].filter(Boolean).join(' · ');
 
                         backendCart[productIdentifier] = {
@@ -159,8 +164,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                             sweetener: item.sweetener,
                             cakeTopper: item.cakeTopper,
                             topperText: item.topperText,
-                            cakeMessage: item.cakeMessage,
-                            messageText: item.messageText,
+                            numberTopper: item.numberTopper,
+                            numberTopperText: item.numberTopperText,
+                            celebrationTopper: item.celebrationTopper,
+                            celebrationTopperType: item.celebrationTopperType,
                         };
                     });
                 }
@@ -223,8 +230,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                             sweetener: customizations?.sweetener,
                             cakeTopper: customizations?.cakeTopper,
                             topperText: customizations?.topperText,
-                            cakeMessage: customizations?.cakeMessage,
-                            messageText: customizations?.messageText,
+                            numberTopper: customizations?.numberTopper,
+                            numberTopperText: customizations?.numberTopperText,
+                            celebrationTopper: customizations?.celebrationTopper,
+                            celebrationTopperType: customizations?.celebrationTopperType,
                         })
                     });
                 }
@@ -237,8 +246,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                             sweetener: customizations?.sweetener,
                             cakeTopper: customizations?.cakeTopper,
                             topperText: customizations?.topperText,
-                            cakeMessage: customizations?.cakeMessage,
-                            messageText: customizations?.messageText,
+                            numberTopper: customizations?.numberTopper,
+                            numberTopperText: customizations?.numberTopperText,
+                            celebrationTopper: customizations?.celebrationTopper,
+                            celebrationTopperType: customizations?.celebrationTopperType,
                         })
                     });
                 }
@@ -254,7 +265,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                                 item.variant?.name,
                                 item.sweetener,
                                 item.cakeTopper ? 'Topper' : null,
-                                item.cakeMessage ? 'Message' : null
+                                item.numberTopper ? 'Number Topper' : null,
+                                item.celebrationTopper ? 'Celebration Topper' : null
                             ].filter(Boolean).join(' · ');
 
                             backendCart[pIdentifier] = {
@@ -267,8 +279,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                                 sweetener: item.sweetener,
                                 cakeTopper: item.cakeTopper,
                                 topperText: item.topperText,
-                                cakeMessage: item.cakeMessage,
-                                messageText: item.messageText,
+                                numberTopper: item.numberTopper,
+                                numberTopperText: item.numberTopperText,
+                                celebrationTopper: item.celebrationTopper,
+                                celebrationTopperType: item.celebrationTopperType,
                             };
                         });
                     }
@@ -310,8 +324,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                     sweetener: customizations?.sweetener,
                     cakeTopper: customizations?.cakeTopper,
                     topperText: customizations?.topperText,
-                    cakeMessage: customizations?.cakeMessage,
-                    messageText: customizations?.messageText,
+                    numberTopper: customizations?.numberTopper,
+                    numberTopperText: customizations?.numberTopperText,
+                    celebrationTopper: customizations?.celebrationTopper,
+                    celebrationTopperType: customizations?.celebrationTopperType,
                 };
             } else {
                 newCart[productIdentifier].quantity = newQty;

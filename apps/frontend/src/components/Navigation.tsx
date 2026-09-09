@@ -65,7 +65,7 @@ export default function Navigation() {
     return (
         <>
             <nav
-                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled || isMenuOpen ? 'bg-white py-3 shadow-sm' : 'py-4'}`}
+                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled || isMenuOpen ? 'bg-white pt-6 pb-3 shadow-sm' : 'pt-8 pb-4'}`}
             >
                 <div className="relative w-full px-6 sm:px-8 md:px-10 lg:px-12">
                     {/* Mobile Header: hamburger left, cart right */}
@@ -440,11 +440,12 @@ export default function Navigation() {
                                             </div>
                                             <div className="flex-1">
                                                 <h4 className="font-poppins font-medium text-[#86162f] text-sm leading-tight mb-1">{toTitleCase(item.name)}</h4>
-                                                {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                                                {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
                                                     <div className="text-xs text-gray-500 mb-2 font-poppins space-y-0.5">
                                                         {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
                                                         {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
-                                                        {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                                                        {item.numberTopper && <p>Number Topper: {item.numberTopperText || 'Yes'}</p>}
+                                                        {item.celebrationTopper && <p>Celebration Topper: {item.celebrationTopperType || 'Yes'}</p>}
                                                     </div>
                                                 )}
                                                 <div className="flex items-center justify-between mt-2">

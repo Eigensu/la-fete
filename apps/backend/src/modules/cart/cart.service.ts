@@ -64,8 +64,6 @@ export class CartService {
       } else {
         (item as any).isUnavailable = false;
         let expectedPrice = Number(variant.price);
-        if (item.cakeTopper) expectedPrice += 100;
-        if (item.cakeMessage) expectedPrice += 100;
         if (item.sweetener) {
            const match = item.sweetener.match(/\(\+\D*(\d+)\)/);
            if (match) expectedPrice += parseInt(match[1], 10);
@@ -139,18 +137,18 @@ export class CartService {
       cart.items = [];
     }
 
-    const existingItem = cart.items.find(item => 
+    const existingItem = cart.items.find(item =>
       item.variant.id === dto.variantId &&
       item.sweetener === (dto.sweetener || null) &&
       item.cakeTopper === (dto.cakeTopper || false) &&
       item.topperText === (dto.topperText || null) &&
-      item.cakeMessage === (dto.cakeMessage || false) &&
-      item.messageText === (dto.messageText || null)
+      item.numberTopper === (dto.numberTopper || false) &&
+      item.numberTopperText === (dto.numberTopperText || null) &&
+      item.celebrationTopper === (dto.celebrationTopper || false) &&
+      item.celebrationTopperType === (dto.celebrationTopperType || null)
     );
 
     let expectedPrice = Number(variant.price);
-    if (dto.cakeTopper) expectedPrice += 100;
-    if (dto.cakeMessage) expectedPrice += 100;
     if (dto.sweetener) {
         const match = dto.sweetener.match(/\(\+\D*(\d+)\)/);
         if (match) expectedPrice += parseInt(match[1], 10);
@@ -174,8 +172,10 @@ export class CartService {
         sweetener: dto.sweetener || null,
         cakeTopper: dto.cakeTopper || false,
         topperText: dto.topperText || null,
-        cakeMessage: dto.cakeMessage || false,
-        messageText: dto.messageText || null,
+        numberTopper: dto.numberTopper || false,
+        numberTopperText: dto.numberTopperText || null,
+        celebrationTopper: dto.celebrationTopper || false,
+        celebrationTopperType: dto.celebrationTopperType || null,
       });
       await this.cartItemRepository.save(newItem);
     }
@@ -211,12 +211,12 @@ export class CartService {
     if (dto.sweetener !== undefined) item.sweetener = dto.sweetener || null;
     if (dto.cakeTopper !== undefined) item.cakeTopper = dto.cakeTopper || false;
     if (dto.topperText !== undefined) item.topperText = dto.topperText || null;
-    if (dto.cakeMessage !== undefined) item.cakeMessage = dto.cakeMessage || false;
-    if (dto.messageText !== undefined) item.messageText = dto.messageText || null;
+    if (dto.numberTopper !== undefined) item.numberTopper = dto.numberTopper || false;
+    if (dto.numberTopperText !== undefined) item.numberTopperText = dto.numberTopperText || null;
+    if (dto.celebrationTopper !== undefined) item.celebrationTopper = dto.celebrationTopper || false;
+    if (dto.celebrationTopperType !== undefined) item.celebrationTopperType = dto.celebrationTopperType || null;
 
     let expectedPrice = Number(variant.price);
-    if (item.cakeTopper) expectedPrice += 100;
-    if (item.cakeMessage) expectedPrice += 100;
     if (item.sweetener) {
         const match = item.sweetener.match(/\(\+\D*(\d+)\)/);
         if (match) expectedPrice += parseInt(match[1], 10);
@@ -299,18 +299,18 @@ export class CartService {
           continue;
         }
 
-        const existingItem = cart.items.find(i => 
+        const existingItem = cart.items.find(i =>
             i.variant.id === item.variantId &&
             i.sweetener === (item.sweetener || null) &&
             i.cakeTopper === (item.cakeTopper || false) &&
             i.topperText === (item.topperText || null) &&
-            i.cakeMessage === (item.cakeMessage || false) &&
-            i.messageText === (item.messageText || null)
+            i.numberTopper === (item.numberTopper || false) &&
+            i.numberTopperText === (item.numberTopperText || null) &&
+            i.celebrationTopper === (item.celebrationTopper || false) &&
+            i.celebrationTopperType === (item.celebrationTopperType || null)
         );
 
         let expectedPrice = Number(variant.price);
-        if (item.cakeTopper) expectedPrice += 100;
-        if (item.cakeMessage) expectedPrice += 100;
         if (item.sweetener) {
             const match = (item.sweetener as string).match(/\(\+\D*(\d+)\)/);
             if (match) expectedPrice += parseInt(match[1], 10);
@@ -344,8 +344,10 @@ export class CartService {
             sweetener: item.sweetener || null,
             cakeTopper: item.cakeTopper || false,
             topperText: item.topperText || null,
-            cakeMessage: item.cakeMessage || false,
-            messageText: item.messageText || null,
+            numberTopper: item.numberTopper || false,
+            numberTopperText: item.numberTopperText || null,
+            celebrationTopper: item.celebrationTopper || false,
+            celebrationTopperType: item.celebrationTopperType || null,
           });
           await queryRunner.manager.save(newItem);
           cart.items.push(newItem);
