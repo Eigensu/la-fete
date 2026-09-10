@@ -289,11 +289,12 @@ export default function CheckoutPage() {
                     <p className="text-[#86162f] truncate">
                       {toTitleCase(item.name)} <span className="text-[#86162f]/50">× {item.quantity}</span>
                     </p>
-                    {(item.sweetener || item.cakeTopper || item.cakeMessage) && (
+                    {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
                       <div className="text-[11px] text-gray-500 mt-1 space-y-0.5">
                         {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
                         {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
-                        {item.cakeMessage && <p>Message: {item.messageText || 'Yes'}</p>}
+                        {item.numberTopper && <p>Number Topper: {item.numberTopperText || 'Yes'}</p>}
+                        {item.celebrationTopper && <p>Celebration Topper: {item.celebrationTopperType || 'Yes'}</p>}
                       </div>
                     )}
                   </div>

@@ -25,9 +25,17 @@ export class AddCartItemDto {
 
   @IsOptional()
   @IsBoolean()
-  cakeMessage?: boolean;
+  numberTopper?: boolean;
 
   @IsOptional()
   @IsString()
-  messageText?: string;
+  numberTopperText?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  celebrationTopper?: boolean;
+
+  @IsOptional()
+  @IsString()
+  celebrationTopperType?: string;
 }

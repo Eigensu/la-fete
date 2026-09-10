@@ -24,3 +24,16 @@ export function weightToGrams(weight: string | null | undefined): number {
 export function sortByWeightAsc<T extends { weight: string }>(variants: T[]): T[] {
   return [...variants].sort((a, b) => weightToGrams(a.weight) - weightToGrams(b.weight));
 }
+
+/**
+ * Splits a raw comma-separated catalogue field (e.g. "nut,milk product,soy")
+ * into clean, title-cased items for display — the source data is written in
+ * lowercase shorthand with inconsistent spacing around commas.
+ */
+export function splitTagList(value: string | null | undefined): string[] {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((item) => toTitleCase(item.trim()))
+    .filter(Boolean);
+}

@@ -48,10 +48,16 @@ export class CartItem {
   topperText: string | null;
 
   @Column({ default: false })
-  cakeMessage: boolean;
+  numberTopper: boolean;
 
   @Column({ type: 'varchar', nullable: true })
-  messageText: string | null;
+  numberTopperText: string | null;
+
+  @Column({ default: false })
+  celebrationTopper: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  celebrationTopperType: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

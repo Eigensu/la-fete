@@ -15,8 +15,10 @@ export interface OrderItem {
   sweetener?: string;
   cakeTopper?: boolean;
   topperText?: string;
-  cakeMessage?: boolean;
-  messageText?: string;
+  numberTopper?: boolean;
+  numberTopperText?: string;
+  celebrationTopper?: boolean;
+  celebrationTopperType?: string;
 }
 
 export interface OrderAddress {

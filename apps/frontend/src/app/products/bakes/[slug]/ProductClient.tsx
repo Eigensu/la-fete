@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Product } from '@/lib/products-api';
 import { useCart } from '@/context/CartContext';
 import { Plus, Minus, ChevronDown, ChevronRight } from 'lucide-react';
-import { toTitleCase, sortByWeightAsc } from '@/utils/format';
+import { toTitleCase, sortByWeightAsc, splitTagList } from '@/utils/format';
 import { PRODUCT_CARD_IMAGES, pickImage } from '@/lib/gallery-images';
 import WhyChooseLaFete from '@/components/WhyChooseLaFete';
 import ProductFaqAccordion from '@/components/ProductFaqAccordion';
@@ -14,6 +14,8 @@ import ProductFaqAccordion from '@/components/ProductFaqAccordion';
 const CARD_BG = '#f8aeb2';
 
 const ORDER_CUTOFF_HOUR = 16;
+
+const CELEBRATION_TOPPER_OPTIONS = ['Happy Birthday', 'Anniversary', 'Congratulations'];
 
 function earliestDelivery(now: Date) {
   const missedCutoff = now.getHours() >= ORDER_CUTOFF_HOUR;
@@ -100,8 +102,10 @@ export function ProductClient({ product, allProducts, collection }: { product: P
 
   const [cakeTopper, setCakeTopper] = useState(false);
   const [topperText, setTopperText] = useState('');
-  const [cakeMessage, setCakeMessage] = useState(false);
-  const [messageText, setMessageText] = useState('');
+  const [numberTopper, setNumberTopper] = useState(false);
+  const [numberTopperText, setNumberTopperText] = useState('');
+  const [celebrationTopper, setCelebrationTopper] = useState(false);
+  const [celebrationTopperType, setCelebrationTopperType] = useState(CELEBRATION_TOPPER_OPTIONS[0]);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -116,8 +120,6 @@ export function ProductClient({ product, allProducts, collection }: { product: P
   let currentPrice = variantPrice !== null ? Number(variantPrice) : null;
 
   if (currentPrice !== null) {
-      if (cakeTopper) currentPrice += 100;
-      if (cakeMessage) currentPrice += 100;
       if (selectedSweetener) {
           const match = selectedSweetener.match(/\(\+\D*(\d+)\)/);
           if (match) currentPrice += parseInt(match[1], 10);
@@ -131,7 +133,8 @@ export function ProductClient({ product, allProducts, collection }: { product: P
     selectedVariantName,
     selectedSweetener,
     cakeTopper ? 'Topper' : null,
-    cakeMessage ? 'Message' : null
+    numberTopper ? 'Number Topper' : null,
+    celebrationTopper ? 'Celebration Topper' : null
   ].filter(Boolean).join(' · ');
 
   const cartItem = cart[cartKey];
@@ -139,6 +142,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
 
   const similarProducts = allProducts.filter((p) => p.format === product.format && p.id !== product.id).slice(0, 4);
   const dietaryArray = product.dietaryTags ? product.dietaryTags.split(',').map(d => d.trim()) : [];
+  const otherTagsArray = product.otherTags ? product.otherTags.split(',').map(t => t.trim()).filter(Boolean) : [];
 
   const isCelebrationCake = (product.category?.slug === 'les-gateaux' || (product.format || '').toLowerCase().includes('cake')) && !['tea cake', 'tub cake'].includes((product.format || '').toLowerCase());
 
@@ -157,15 +161,19 @@ export function ProductClient({ product, allProducts, collection }: { product: P
             sweetener: selectedSweetener || undefined,
             cakeTopper,
             topperText: cakeTopper ? topperText : undefined,
-            cakeMessage,
-            messageText: cakeMessage ? messageText : undefined,
+            numberTopper,
+            numberTopperText: numberTopper ? numberTopperText : undefined,
+            celebrationTopper,
+            celebrationTopperType: celebrationTopper ? celebrationTopperType : undefined,
         }
     );
     setQuantity(1);
     setCakeTopper(false);
     setTopperText('');
-    setCakeMessage(false);
-    setMessageText('');
+    setNumberTopper(false);
+    setNumberTopperText('');
+    setCelebrationTopper(false);
+    setCelebrationTopperType(CELEBRATION_TOPPER_OPTIONS[0]);
   }
 
   return (
@@ -230,6 +238,14 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                     {d}
                   </span>
                 ))}
+                {otherTagsArray.map(t => (
+                  <span
+                    key={t}
+                    className="text-[8px] font-poppins uppercase tracking-widest text-white bg-[#86162f]/80 px-2 py-0.5"
+                  >
+                    {t}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -266,6 +282,41 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                 Delivery is charged at checkout and varies by area.
               </p>
             </div>
+
+            {/* PRODUCT INFORMATION */}
+            {(product.ingredients || (product.nutritionalHighlight && showNutrition) || product.allergyInformation) && (
+              <div className="space-y-6 border-t border-[#86162f]/10 pt-6">
+                  {product.ingredients && (
+                      <div>
+                          <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Ingredients</h4>
+                          <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.ingredients}</p>
+                      </div>
+                  )}
+
+                  {product.nutritionalHighlight && showNutrition && (
+                      <div>
+                          <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Nutritional Highlights</h4>
+                          <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.nutritionalHighlight}</p>
+                      </div>
+                  )}
+
+                  {product.allergyInformation && (
+                      <div>
+                          <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Allergy Information</h4>
+                          <p className="font-poppins text-sm text-gray-600 leading-relaxed">
+                              Contains{' '}
+                              {splitTagList(product.allergyInformation).map((allergen, i, arr) => (
+                                  <span key={allergen}>
+                                      <span className="font-medium text-[#86162f]">{allergen}</span>
+                                      {i < arr.length - 1 ? (i === arr.length - 2 ? ' and ' : ', ') : ''}
+                                  </span>
+                              ))}
+                              .
+                          </p>
+                      </div>
+                  )}
+              </div>
+            )}
           </div>
 
           {/* RIGHT: PRODUCT DETAILS + DROPDOWNS */}
@@ -390,7 +441,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                             onChange={(e) => setCakeTopper(e.target.checked)}
                             className="w-4 h-4 accent-[#86162f] cursor-pointer"
                         />
-                        <span className="font-poppins text-sm text-[#86162f]">Cake Topper (+₹100)</span>
+                        <span className="font-poppins text-sm text-[#86162f]">Cake Topper</span>
                     </label>
                     {cakeTopper && (
                         <div className="mt-2 pl-7">
@@ -411,52 +462,54 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                     <label className="flex items-center gap-3 cursor-pointer">
                         <input
                             type="checkbox"
-                            checked={cakeMessage}
-                            onChange={(e) => setCakeMessage(e.target.checked)}
+                            checked={numberTopper}
+                            onChange={(e) => setNumberTopper(e.target.checked)}
                             className="w-4 h-4 accent-[#86162f] cursor-pointer"
                         />
-                        <span className="font-poppins text-sm text-[#86162f]">Cake Message</span>
+                        <span className="font-poppins text-sm text-[#86162f]">Number Topper</span>
                     </label>
-                    {cakeMessage && (
+                    {numberTopper && (
                         <div className="mt-2 pl-7">
-                            <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Message on Cake</label>
+                            <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Number</label>
                             <input
                                 type="text"
-                                value={messageText}
-                                onChange={(e) => setMessageText(e.target.value)}
-                                placeholder="e.g. Happy Birthday Aarav"
+                                value={numberTopperText}
+                                onChange={(e) => setNumberTopperText(e.target.value)}
+                                placeholder="e.g. 25"
                                 className="w-full border border-gray-200 px-3 py-2 font-poppins text-sm focus:outline-none focus:border-[#86162f]/50"
-                                maxLength={50}
+                                maxLength={10}
                             />
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex flex-col gap-2 border border-[#86162f]/15 p-4 rounded-sm">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={celebrationTopper}
+                            onChange={(e) => setCelebrationTopper(e.target.checked)}
+                            className="w-4 h-4 accent-[#86162f] cursor-pointer"
+                        />
+                        <span className="font-poppins text-sm text-[#86162f]">Celebration Topper</span>
+                    </label>
+                    {celebrationTopper && (
+                        <div className="mt-2 pl-7">
+                            <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Occasion</label>
+                            <select
+                                value={celebrationTopperType}
+                                onChange={(e) => setCelebrationTopperType(e.target.value)}
+                                className="w-full border border-gray-200 px-3 py-2 font-poppins text-sm focus:outline-none focus:border-[#86162f]/50 bg-white"
+                            >
+                                {CELEBRATION_TOPPER_OPTIONS.map(option => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </select>
                         </div>
                     )}
                 </div>
               </div>
             )}
-
-            {/* PRODUCT INFORMATION */}
-            <div className="space-y-6 pt-6 border-t border-[#86162f]/10">
-                {product.nutritionalHighlight && showNutrition && (
-                    <div>
-                        <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Nutritional Highlights</h4>
-                        <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.nutritionalHighlight}</p>
-                    </div>
-                )}
-
-                {product.allergyInformation && (
-                    <div>
-                        <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Allergy Information</h4>
-                        <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.allergyInformation}</p>
-                    </div>
-                )}
-
-                {product.shelfLife && (
-                    <div>
-                        <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Shelf Life Serving Instructions</h4>
-                        <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.shelfLife}</p>
-                    </div>
-                )}
-            </div>
           </div>
         </div>
       </section>
@@ -468,7 +521,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             <WhyChooseLaFete />
-            <ProductFaqAccordion />
+            <ProductFaqAccordion shelfLife={product.shelfLife} deliveryInstructions={product.deliveryInstructions} />
           </div>
         </div>
       </section>
