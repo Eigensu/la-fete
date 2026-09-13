@@ -64,6 +64,8 @@ export default function CheckoutPage() {
       }
       setSlots(deliverySlots);
       if (deliverySlots.length > 0) {
+        // Backend only ever returns slots from day-after-next onward, sorted
+        // by date then time, so the first entry is the earliest available.
         setSelectedSlotId(deliverySlots[0].id);
       }
     } catch (err) {

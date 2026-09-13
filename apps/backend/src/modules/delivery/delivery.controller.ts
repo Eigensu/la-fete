@@ -23,10 +23,17 @@ export class DeliveryController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    const start = startDate ? new Date(startDate) : new Date();
+    // Earliest deliverable date is always day-after-next — the exact slot
+    // is chosen at checkout, but nothing sooner is ever offered.
+    const earliest = new Date();
+    earliest.setDate(earliest.getDate() + 2);
+    earliest.setHours(0, 0, 0, 0);
+
+    const requestedStart = startDate ? new Date(startDate) : earliest;
+    const start = requestedStart > earliest ? requestedStart : earliest;
     const end = endDate
       ? new Date(endDate)
-      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+      : new Date(Date.now() + 9 * 24 * 60 * 60 * 1000); // 7-day window from the earliest date
 
     return this.deliveryService.getAvailableSlots(start, end);
   }

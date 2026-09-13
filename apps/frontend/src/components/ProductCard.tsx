@@ -30,16 +30,18 @@ const NAME_IMPLIES: Record<string, RegExp> = {
 };
 
 /**
- * Tags worth showing on a card: drop anything the surrounding page already
- * states (its heading, the format), anything the product name says itself, and
- * cap the rest so a card stays readable.
+ * Tags worth showing on a card: "Bestseller" always leads when present, then
+ * dietary tags — drop anything the surrounding page already states (its
+ * heading, the format), anything the product name says itself, and cap the
+ * rest so a card stays readable.
  */
 function visibleTags(product: Product, redundantTags: string[]) {
   const suppressed = new Set(redundantTags.map(canon));
   const name = product.name ?? '';
+  const isBestseller = Boolean(product.tag?.toLowerCase().includes('bestseller') || product.isFeatured);
 
   // The source sheet writes tags as both "a, b" and "a & b".
-  return (product.dietaryTags ?? '')
+  const dietary = (product.dietaryTags ?? '')
     .split(/,|\s&\s/)
     .map(d => d.trim())
     .filter(Boolean)
@@ -49,8 +51,10 @@ function visibleTags(product: Product, redundantTags: string[]) {
       if (NAME_IMPLIES[key]?.test(name)) return false;
       return true;
     })
-    .filter((d, i, all) => all.findIndex(o => canon(o) === canon(d)) === i)
-    .slice(0, MAX_TAGS);
+    .filter((d, i, all) => all.findIndex(o => canon(o) === canon(d)) === i);
+
+  const tags = isBestseller ? ['Bestseller', ...dietary] : dietary;
+  return tags.slice(0, MAX_TAGS);
 }
 
 export function getLowestPrice(product: Product): number | null {
@@ -97,13 +101,17 @@ export default function ProductCard({
             sizes="(max-width: 768px) 50vw, 25vw"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
-          {/* Dietary tags — a single quiet line, not a stack of pills */}
+          {/* Tags — a single quiet line, not a stack of pills. Bestseller
+              always leads and reads in the brand colour; dietary tags follow
+              in the neutral style. */}
           {visibleDietary.length > 0 && (
             <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
               {visibleDietary.map(d => (
                 <span
                   key={d}
-                  className="text-[7px] md:text-[8px] font-poppins uppercase tracking-widest text-white bg-black/35 backdrop-blur-[2px] px-2 py-1"
+                  className={`text-[7px] md:text-[8px] font-poppins uppercase tracking-widest text-white px-2 py-1 ${
+                    d === 'Bestseller' ? 'bg-[#86162f]' : 'bg-black/35 backdrop-blur-[2px]'
+                  }`}
                 >
                   {d}
                 </span>

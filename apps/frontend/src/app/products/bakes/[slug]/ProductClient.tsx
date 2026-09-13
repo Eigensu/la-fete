@@ -13,24 +13,19 @@ import ProductFaqAccordion from '@/components/ProductFaqAccordion';
 
 const CARD_BG = '#f8aeb2';
 
-const ORDER_CUTOFF_HOUR = 16;
-
 const CELEBRATION_TOPPER_OPTIONS = ['Happy Birthday', 'Anniversary', 'Congratulations'];
 
+/**
+ * The earliest date an order placed right now can arrive: always
+ * day-after-next. The exact slot is still chosen at checkout.
+ */
 function earliestDelivery(now: Date) {
-  const missedCutoff = now.getHours() >= ORDER_CUTOFF_HOUR;
   const date = new Date(now);
-  date.setDate(date.getDate() + (missedCutoff ? 2 : 1));
-
-  const cutoff = new Date(now);
-  cutoff.setHours(ORDER_CUTOFF_HOUR, 0, 0, 0);
-  const msLeft = cutoff.getTime() - now.getTime();
+  date.setDate(date.getDate() + 2);
 
   return {
     date,
     label: date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }),
-    hoursLeft: msLeft > 0 ? Math.floor(msLeft / 3_600_000) : null,
-    minutesLeft: msLeft > 0 ? Math.floor((msLeft % 3_600_000) / 60_000) : null,
   };
 }
 
@@ -263,19 +258,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
               </p>
 
               <p className="font-poppins text-xs text-gray-500 mt-2 leading-relaxed">
-                {delivery === null ? (
-                  <>Baked to order. Choose your slot at checkout.</>
-                ) : delivery.hoursLeft !== null ? (
-                  <>
-                    Order within{' '}
-                    <span className="text-[#86162f]">
-                      {delivery.hoursLeft}h {delivery.minutesLeft}m
-                    </span>{' '}
-                    to keep this date. Choose your slot at checkout.
-                  </>
-                ) : (
-                  <>Today's 4:00 PM cut-off has passed. Choose your slot at checkout.</>
-                )}
+                Baked to order. Choose your slot at checkout.
               </p>
 
               <p className="font-poppins text-xs text-gray-500 mt-2 leading-relaxed">

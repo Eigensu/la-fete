@@ -61,10 +61,10 @@ export default function BakesCategoryPage({
     <main className="min-h-screen bg-white">
       <Navigation />
 
-      <div className="mt-16 md:mt-20 px-4 sm:px-5 md:px-6 lg:px-8">
+      <div className="mt-12 md:mt-16 px-4 sm:px-5 md:px-6 lg:px-8">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-1.5 pt-4 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/60 hover:text-[#86162f] transition-colors"
+          className="inline-flex items-center gap-1.5 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/60 hover:text-[#86162f] transition-colors"
         >
           <ArrowLeft size={12} /> {backLabel}
         </Link>
