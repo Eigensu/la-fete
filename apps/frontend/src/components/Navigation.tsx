@@ -68,7 +68,13 @@ export default function Navigation() {
     return (
         <>
             <nav
-                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled && !isMenuOpen ? 'bg-white md:bg-transparent' : 'bg-transparent'} ${isScrolled || isMenuOpen ? 'pt-3 pb-2' : 'pt-4 pb-2'}`}
+                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${
+                    isMenuOpen 
+                        ? 'bg-transparent' 
+                        : (pathname === '/' 
+                            ? (isScrolled ? 'bg-white md:bg-transparent' : 'bg-transparent') 
+                            : 'bg-white')
+                } ${isScrolled || isMenuOpen ? 'pt-3 pb-2' : 'pt-4 pb-2'}`}
             >
                 <div className="relative w-full px-6 sm:px-8 md:px-10 lg:px-12">
                     {/* Mobile Header: hamburger left, cart right */}
@@ -215,7 +221,7 @@ export default function Navigation() {
                     >
                         {/* Backdrop for desktop */}
                         <div
-                            className="hidden md:block fixed inset-0 bg-black/20 -z-10 cursor-pointer"
+                            className="hidden md:block fixed inset-0  -z-10 cursor-pointer"
                             onClick={closeMenu}
                         />
                         <div className="max-w-screen-xl mx-auto w-full flex flex-col gap-5 md:gap-6">
@@ -224,26 +230,22 @@ export default function Navigation() {
 
                                 {/* Shop All with collapsible submenu */}
                                                                 <div className="flex flex-col gap-1.5 md:gap-3">
-                                    <div className="flex items-center gap-3">
-                                        <Link
-                                            href="/products/bakes"
-                                            onClick={closeMenu}
-                                            className="font-poppins text-[20px] md:text-lg leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform"
-                                        >
+                                    <button
+                                        onClick={() => setShopAllOpen(!shopAllOpen)}
+                                        aria-expanded={shopAllOpen}
+                                        aria-controls="shop-all-submenu"
+                                        className="flex items-center gap-3 w-full focus:outline-none group text-left"
+                                    >
+                                        <span className="font-poppins text-[20px] md:text-lg leading-snug md:leading-normal text-[#86162f] transition-transform group-hover:translate-x-2">
                                             Bakes
-                                        </Link>
-                                        <button
-                                            onClick={() => setShopAllOpen(!shopAllOpen)}
-                                            aria-expanded={shopAllOpen}
-                                            aria-controls="shop-all-submenu"
-                                            className="p-1 text-[#86162f] focus:outline-none"
-                                        >
+                                        </span>
+                                        <div className="p-1 text-[#86162f]">
                                             <ChevronDown
                                                 size={16}
                                                 className={`transition-transform duration-300 ${shopAllOpen ? 'rotate-180' : ''}`}
                                             />
-                                        </button>
-                                    </div>
+                                        </div>
+                                    </button>
                                     <AnimatePresence>
                                         {shopAllOpen && (
                                             <motion.div

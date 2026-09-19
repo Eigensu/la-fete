@@ -15,7 +15,7 @@
     --color-warm-gray: #f5f0ed;
 
     /* Semantic colors */
-    --background: var(--color-cream);
+    --background: #ffffff;
     --foreground: #1a1a1a;
     --card: #ffffff;
     --card-foreground: #2d2d2d;
@@ -104,7 +104,7 @@
   }
 
   .gradient-pink-burgundy {
-    background: linear-gradient(135deg, var(--color-light-pink) 0%, var(--color-burgundy) 100%);
+    background: #ffffff;
   }
 
   .gradient-burgundy-rose {
@@ -181,4 +181,10 @@ html {
 ::-moz-selection {
   background-color: var(--color-light-pink);
   color: var(--color-burgundy);
+}
+/* Prevent margin collapse on main elements so background colors cover the top of the page */
+
+/* Prevent margin collapse on main elements so page backgrounds start at the very top */
+main {
+  display: flow-root;
 }
