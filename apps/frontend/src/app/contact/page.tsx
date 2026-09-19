@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import Navigation from '@/components/Navigation';
 import { ChevronDown } from 'lucide-react';
 
 const EVENT_TYPES   = ['Birthday', 'Anniversary', 'Wedding', 'Baby Shower', 'Corporate', 'Festive / Seasonal', 'Other'];
@@ -89,9 +88,7 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <Navigation />
-
-      <div className="mt-16 md:mt-20" />
+<div className="mt-16 md:mt-20" />
 
       {/* Hero */}
       <section className="py-14 md:py-20 text-center px-6">

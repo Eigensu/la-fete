@@ -4,6 +4,8 @@ import React from 'react';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { Toaster } from 'react-hot-toast';
+import GlobalFooter from '@/components/GlobalFooter';
+import GlobalNavigation from '@/components/GlobalNavigation';
 
 // Self-hosted via next/font instead of a CSS @import — Turbopack was silently
 // dropping the remote @import from globals.css, so Poppins/Fraunces were
@@ -43,7 +45,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <CartProvider>
+          <GlobalNavigation />
           {children}
+          <GlobalFooter />
           <Toaster position="top-center" />
         </CartProvider>
       </body>

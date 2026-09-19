@@ -95,8 +95,8 @@ export default function AddressesPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-5xl mx-auto py-8 px-4">
+      <div className="flex justify-between items-center mt-8 mb-8">
         <h1 className="text-3xl font-bold">My Addresses</h1>
         {!showForm && (
           <button

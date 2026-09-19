@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
 import { GALLERY_IMAGES, hashString } from '@/lib/gallery-images';
 
 /** Curated pool for hamper accent panels, kept in a fixed order so we can
@@ -283,9 +281,7 @@ export default function HampersPage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <Navigation />
-
-      {/* Hero */}
+{/* Hero */}
       <div className="mt-16 md:mt-20 relative overflow-hidden text-center">
         <div className="relative z-10">
           <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.5em] mb-3 font-poppins">
@@ -307,7 +303,7 @@ export default function HampersPage() {
       </div>
 
       {/* Sticky occasion filter */}
-      <div className="sticky top-0 z-20 bg-white border-b border-[#86162f]/10 shadow-sm">
+      <div className="sticky top-[60px] md:top-0 z-20 bg-white border-b border-[#86162f]/10 shadow-sm">
         <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24">
           <div className="flex items-center gap-2 py-3.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             <span className="shrink-0 font-poppins text-[8px] uppercase tracking-[0.35em] text-[#86162f]/30 mr-2 hidden sm:block">
@@ -393,8 +389,6 @@ export default function HampersPage() {
           </Link>
         </div>
       </section>
-
-      <Footer />
-    </main>
+</main>
   );
 }

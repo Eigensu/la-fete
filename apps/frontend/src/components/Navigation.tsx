@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { toTitleCase } from '@/utils/format';
 import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { logout as apiLogout } from '@/lib/auth-api';
+import Image from 'next/image';
+import { PRODUCT_CARD_IMAGES, pickImage } from '@/lib/gallery-images';
 
 function getStoredUserRole(): string | undefined {
     try {
@@ -18,6 +20,7 @@ function getStoredUserRole(): string | undefined {
 }
 
 export default function Navigation() {
+    const pathname = usePathname();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [shopAllOpen, setShopAllOpen] = useState(false);
@@ -65,7 +68,7 @@ export default function Navigation() {
     return (
         <>
             <nav
-                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled || isMenuOpen ? 'bg-white pt-3 pb-2 shadow-sm' : 'pt-4 pb-2'}`}
+                className={`fixed top-0 w-full z-[60] transition-all duration-300 ${isScrolled && !isMenuOpen ? 'bg-white md:bg-transparent' : 'bg-transparent'} ${isScrolled || isMenuOpen ? 'pt-3 pb-2' : 'pt-4 pb-2'}`}
             >
                 <div className="relative w-full px-6 sm:px-8 md:px-10 lg:px-12">
                     {/* Mobile Header: hamburger left, cart right */}
@@ -215,17 +218,17 @@ export default function Navigation() {
                             className="hidden md:block fixed inset-0 bg-black/20 -z-10 cursor-pointer"
                             onClick={closeMenu}
                         />
-                        <div className="max-w-screen-xl mx-auto w-full flex flex-col gap-6">
-                            <div className="flex flex-col gap-1.5 pl-4 border-l border-[#86162f]/20">
-                                <Link href="/" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Home</Link>
+                        <div className="max-w-screen-xl mx-auto w-full flex flex-col gap-5 md:gap-6">
+                            <div className="flex flex-col gap-2 md:gap-1.5 pl-4 border-l border-[#86162f]/20">
+                                <Link href="/" onClick={closeMenu} className="font-poppins text-[20px] md:text-lg leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Home</Link>
 
                                 {/* Shop All with collapsible submenu */}
-                                                                <div className="flex flex-col gap-3">
+                                                                <div className="flex flex-col gap-1.5 md:gap-3">
                                     <div className="flex items-center gap-3">
                                         <Link
                                             href="/products/bakes"
                                             onClick={closeMenu}
-                                            className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform"
+                                            className="font-poppins text-[20px] md:text-lg leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform"
                                         >
                                             Bakes
                                         </Link>
@@ -250,41 +253,41 @@ export default function Navigation() {
                                                 exit={{ height: 0, opacity: 0 }}
                                                 className="overflow-hidden"
                                             >
-                                                <div className="flex flex-col gap-3 pl-6">
-                                                    <Link href="/products/bakes" onClick={closeMenu} className="font-poppins text-sm text-[#86162f]/70 hover:text-[#86162f]">Shop All</Link>
+                                                <div className="flex flex-col gap-1.5 md:gap-3 pl-5 md:pl-6">
+                                                    <Link href="/products/bakes" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f]/70 hover:text-[#86162f]">Shop All</Link>
 
                                                     {/* Signature Gateaux */}
-                                                    <div className="flex flex-col gap-2 mt-1">
-                                                        <Link href="/products/bakes/signature-gateaux" onClick={closeMenu} className="font-poppins text-sm text-[#86162f]/70 hover:text-[#86162f]">Signature Gateaux</Link>
-                                                        <div className="flex flex-col gap-1.5 pl-4 border-l border-[#86162f]/20 ml-2">
-                                                            <Link href="/products/bakes/signature-gateaux/dark-chocolate" onClick={closeMenu} className="font-poppins text-xs text-[#86162f]/60 hover:text-[#86162f]">Dark Chocolate</Link>
-                                                            <Link href="/products/bakes/signature-gateaux/white-chocolate" onClick={closeMenu} className="font-poppins text-xs text-[#86162f]/60 hover:text-[#86162f]">White Chocolate</Link>
-                                                            <Link href="/products/bakes/signature-gateaux/coffee" onClick={closeMenu} className="font-poppins text-xs text-[#86162f]/60 hover:text-[#86162f]">Coffee</Link>
-                                                            <Link href="/products/bakes/signature-gateaux/praline" onClick={closeMenu} className="font-poppins text-xs text-[#86162f]/60 hover:text-[#86162f]">Praline</Link>
-                                                            <Link href="/products/bakes/signature-gateaux/pistachio" onClick={closeMenu} className="font-poppins text-xs text-[#86162f]/60 hover:text-[#86162f]">Pistachio</Link>
-                                                            <Link href="/products/bakes/signature-gateaux/citrus" onClick={closeMenu} className="font-poppins text-xs text-[#86162f]/60 hover:text-[#86162f]">Citrus</Link>
-                                                            <Link href="/products/bakes/signature-gateaux/liquor-infused" onClick={closeMenu} className="font-poppins text-xs text-[#86162f]/60 hover:text-[#86162f]">Liquor Infused</Link>
+                                                    <div className="flex flex-col gap-1.5 md:gap-2 mt-0.5 md:mt-1">
+                                                        <Link href="/products/bakes/signature-gateaux" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f]/70 hover:text-[#86162f]">Signature Gateaux</Link>
+                                                        <div className="flex flex-col gap-1 md:gap-1.5 pl-4 border-l border-[#86162f]/20 ml-1 md:ml-2">
+                                                            <Link href="/products/bakes/signature-gateaux/dark-chocolate" onClick={closeMenu} className="font-poppins text-[14px] md:text-xs leading-snug md:leading-normal text-[#86162f]/60 hover:text-[#86162f]">Dark Chocolate</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/white-chocolate" onClick={closeMenu} className="font-poppins text-[14px] md:text-xs leading-snug md:leading-normal text-[#86162f]/60 hover:text-[#86162f]">White Chocolate</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/coffee" onClick={closeMenu} className="font-poppins text-[14px] md:text-xs leading-snug md:leading-normal text-[#86162f]/60 hover:text-[#86162f]">Coffee</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/praline" onClick={closeMenu} className="font-poppins text-[14px] md:text-xs leading-snug md:leading-normal text-[#86162f]/60 hover:text-[#86162f]">Praline</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/pistachio" onClick={closeMenu} className="font-poppins text-[14px] md:text-xs leading-snug md:leading-normal text-[#86162f]/60 hover:text-[#86162f]">Pistachio</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/citrus" onClick={closeMenu} className="font-poppins text-[14px] md:text-xs leading-snug md:leading-normal text-[#86162f]/60 hover:text-[#86162f]">Citrus</Link>
+                                                            <Link href="/products/bakes/signature-gateaux/liquor-infused" onClick={closeMenu} className="font-poppins text-[14px] md:text-xs leading-snug md:leading-normal text-[#86162f]/60 hover:text-[#86162f]">Liquor Infused</Link>
                                                         </div>
                                                     </div>
 
-                                                    <Link href="/products/bakes/tea-cakes" onClick={closeMenu} className="font-poppins text-sm text-[#86162f]/70 hover:text-[#86162f]">Tea Cakes</Link>
-                                                    <Link href="/products/bakes/tub-cakes" onClick={closeMenu} className="font-poppins text-sm text-[#86162f]/70 hover:text-[#86162f]">Tub Cakes</Link>
-                                                    <Link href="/products/bakes/bestsellers" onClick={closeMenu} className="font-poppins text-sm text-[#86162f]/70 hover:text-[#86162f]">Bestsellers</Link>
-                                                    <Link href="/products/bakes/seasonal-special" onClick={closeMenu} className="font-poppins text-sm text-[#86162f]/70 hover:text-[#86162f]">Seasonal Special</Link>
+                                                    <Link href="/products/bakes/tea-cakes" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f]/70 hover:text-[#86162f]">Tea Cakes</Link>
+                                                    <Link href="/products/bakes/tub-cakes" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f]/70 hover:text-[#86162f]">Tub Cakes</Link>
+                                                    <Link href="/products/bakes/bestsellers" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f]/70 hover:text-[#86162f]">Bestsellers</Link>
+                                                    <Link href="/products/bakes/seasonal-special" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f]/70 hover:text-[#86162f]">Seasonal Special</Link>
                                                 </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
                                 </div>
 
-                                <Link href="/hampers" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Hampers</Link>
-                                <Link href="/celebrate" onClick={closeMenu} className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform">Celebrate with Us</Link>
+                                <Link href="/hampers" onClick={closeMenu} className="font-poppins text-[20px] md:text-lg leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Hampers</Link>
+                                <Link href="/celebrate" onClick={closeMenu} className="font-poppins text-[20px] md:text-lg leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Celebrate with Us</Link>
 
                                 {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
                                     <Link
                                         href="/admin"
                                         onClick={closeMenu}
-                                        className="font-poppins text-lg text-[#86162f] hover:translate-x-2 transition-transform font-bold mt-4"
+                                        className="font-poppins text-[20px] md:text-lg leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform font-bold mt-4"
                                     >
                                         Admin Dashboard
                                     </Link>
@@ -293,22 +296,22 @@ export default function Navigation() {
                             {/* Mobile User Profile Menu */}
                             {isAuthenticated && (
                                 <div>
-                                    <h3 className="font-poppins font-semibold text-[#86162f] text-lg mb-4">My Account</h3>
-                                    <div className="flex flex-col gap-3 pl-4 border-l border-[#86162f]/20">
-                                        <Link href="/profile" onClick={closeMenu} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform">My Profile</Link>
-                                        <Link href="/orders" onClick={closeMenu} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform">Order History</Link>
-                                        <Link href="/orders" onClick={closeMenu} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform">Track Orders</Link>
-                                        <Link href="/profile/addresses" onClick={closeMenu} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform">Saved Addresses</Link>
+                                    <h3 className="font-poppins font-semibold text-[#86162f] text-[20px] md:text-lg leading-snug md:leading-normal mb-3 md:mb-4">My Account</h3>
+                                    <div className="flex flex-col gap-1.5 md:gap-3 pl-4 border-l border-[#86162f]/20">
+                                        <Link href="/profile" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">My Profile</Link>
+                                        <Link href="/orders" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Order History</Link>
+                                        <Link href="/orders" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Track Orders</Link>
+                                        <Link href="/profile/addresses" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Saved Addresses</Link>
                                         {typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
                                             <>
                                                 <div className="h-px bg-[#86162f]/20 w-8 my-2"></div>
-                                                <Link href="/admin" onClick={closeMenu} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform font-bold">Admin Dashboard</Link>
-                                                <Link href="/admin/orders" onClick={closeMenu} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform">Orders Management</Link>
-                                                <Link href="/admin/products" onClick={closeMenu} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform">Products & Categories</Link>
+                                                <Link href="/admin" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform font-bold">Admin Dashboard</Link>
+                                                <Link href="/admin/orders" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Orders Management</Link>
+                                                <Link href="/admin/products" onClick={closeMenu} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform">Products & Categories</Link>
                                             </>
                                         )}
                                         <div className="h-px bg-[#86162f]/20 w-8 my-2"></div>
-                                        <button onClick={handleLogout} className="font-poppins text-sm text-[#86162f] hover:translate-x-2 transition-transform flex items-center gap-2 text-left">
+                                        <button onClick={handleLogout} className="font-poppins text-[16px] md:text-sm leading-snug md:leading-normal text-[#86162f] hover:translate-x-2 transition-transform flex items-center gap-2 text-left">
                                             <LogOut size={16} /> Sign Out
                                         </button>
                                     </div>
@@ -349,7 +352,7 @@ export default function Navigation() {
                                 </button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5 md:gap-6">
                                 {Object.entries(cart).length === 0 ? (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
                                         <ShoppingCart size={48} className="mb-4" />
@@ -364,10 +367,20 @@ export default function Navigation() {
                                 ) : (
                                     Object.entries(cart).map(([cartKey, item]) => (
                                         <div key={cartKey} className="flex gap-4 items-start">
-                                            <div className="w-20 h-20 bg-[#f5f0ed] rounded-sm flex items-center justify-center shrink-0">
-                                                <svg className="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                                </svg>
+                                            <div className="w-20 h-20 bg-[#f5f0ed] rounded-sm flex items-center justify-center shrink-0 relative overflow-hidden">
+                                                {item.productId || item.name ? (
+                                                    <Image 
+                                                        src={pickImage(String(item.productId ?? item.name), PRODUCT_CARD_IMAGES)} 
+                                                        alt={item.name} 
+                                                        fill 
+                                                        sizes="80px" 
+                                                        className="object-cover" 
+                                                    />
+                                                ) : (
+                                                    <svg className="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                                                    </svg>
+                                                )}
                                             </div>
                                             <div className="flex-1">
                                                 <h4 className="font-poppins font-medium text-[#86162f] text-sm leading-tight mb-1">{toTitleCase(item.name)}</h4>

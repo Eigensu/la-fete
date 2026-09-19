@@ -206,11 +206,11 @@ export function ProductClient({ product, allProducts, collection }: { product: P
       </div>
 
       <section className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* LEFT: IMAGE + DELIVERY */}
-          <div className="flex flex-col gap-8">
+          <div className="contents lg:flex lg:flex-col lg:gap-8">
             <div
-              className="relative w-full flex items-center justify-center overflow-hidden"
+              className="order-1 lg:order-none relative w-full flex items-center justify-center overflow-hidden"
               style={{ background: '#f8aeb2', aspectRatio: '4/5' }}
             >
               <Image
@@ -245,7 +245,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
             </div>
 
             {/* EARLIEST DELIVERY */}
-            <div className="border-t border-[#86162f]/10 pt-6">
+            <div className="order-3 lg:order-none border-t border-[#86162f]/10 pt-6 w-full">
               <div className="flex items-baseline justify-between gap-4 flex-wrap">
                 <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55">
                   Earliest delivery
@@ -268,7 +268,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
 
             {/* PRODUCT INFORMATION */}
             {(product.ingredients || (product.nutritionalHighlight && showNutrition) || product.allergyInformation) && (
-              <div className="space-y-6 border-t border-[#86162f]/10 pt-6">
+              <div className="order-4 lg:order-none space-y-6 border-t border-[#86162f]/10 pt-6 w-full">
                   {product.ingredients && (
                       <div>
                           <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Ingredients</h4>
@@ -303,7 +303,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
           </div>
 
           {/* RIGHT: PRODUCT DETAILS + DROPDOWNS */}
-          <div className="flex flex-col pt-2 lg:pt-4">
+          <div className="order-2 lg:order-none flex flex-col pt-2 lg:pt-4 w-full">
             <p className="font-poppins text-[10px] uppercase tracking-[0.35em] text-[#f8aeb2] mb-3">
               {product.format}
             </p>

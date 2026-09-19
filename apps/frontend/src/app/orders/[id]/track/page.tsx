@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { ArrowLeft, Package, CheckCircle, Truck, MapPin } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import Navigation from '@/components/Navigation';
 
 export default function OrderTrackingPage() {
   const params = useParams();
@@ -55,8 +54,7 @@ export default function OrderTrackingPage() {
 
   return (
     <>
-      <Navigation />
-      <div className="max-w-3xl mx-auto py-8 mt-8 px-4">
+<div className="max-w-3xl mx-auto py-8 mt-8 px-4">
         <Link href={`/orders/${id}`} className="flex items-center gap-2 text-gray-600 hover:text-black mb-6">
         <ArrowLeft size={16} /> Back to Order Details
       </Link>

@@ -87,15 +87,29 @@ export default async function Products() {
                       className="object-cover"
                     />
                     <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#86162f]/80 to-transparent" />
-                    {/* Collection label — top left */}
-                    <div className="absolute top-3 left-3">
+                    {/* MOBILE ONLY: Unified badges container with auto-wrapping flex layout */}
+                    <div className="flex md:hidden absolute top-2.5 left-2.5 right-2.5 flex-wrap items-start content-start gap-1 z-10 pointer-events-none">
+                      <span className="inline-block bg-white/90 px-1.5 py-1 max-w-[95%] font-poppins uppercase tracking-widest text-[#86162f]/80 text-[8px] leading-[1.2] text-center break-words">
+                        {meta.title}
+                      </span>
+                      {product.dietaryTags?.split(',').slice(0, 2).map(d => (
+                        <span 
+                          key={d.trim()} 
+                          className="inline-block bg-white/90 px-1.5 py-1 max-w-[95%] font-poppins uppercase tracking-widest text-[#86162f]/80 text-[8px] leading-[1.2] text-center break-words"
+                        >
+                          {d.trim()}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* DESKTOP ONLY: Original separate absolutely positioned containers */}
+                    <div className="hidden md:block absolute top-3 left-3 z-10 pointer-events-none">
                       <span className="font-poppins text-[8px] uppercase tracking-widest text-[#86162f]/70 bg-white/90 px-1.5 py-0.5">
                         {meta.title}
                       </span>
                     </div>
 
-                    {/* Dietary tags — top right */}
-                    <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                    <div className="hidden md:flex absolute top-3 right-3 flex-col items-end gap-1 z-10 pointer-events-none">
                       {product.dietaryTags?.split(',').slice(0, 2).map(d => (
                         <span
                           key={d.trim()}
@@ -119,9 +133,11 @@ export default async function Products() {
                 {/* Collection link — below card, matches View All button style */}
                 <Link
                   href={`/products/${slug}`}
-                  className="w-full py-3 border border-[#86162f] text-[#86162f] font-poppins text-xs uppercase tracking-wider text-center hover:bg-[#86162f] hover:text-white transition-all duration-200"
+                  className="w-full border border-[#86162f] text-[#86162f] font-poppins uppercase tracking-wider hover:bg-[#86162f] hover:text-white transition-all duration-200 py-2 px-1 text-[10px] leading-tight flex items-center justify-center gap-1 md:py-3 md:px-0 md:text-xs md:leading-normal md:block md:text-center"
                 >
-                  Shop {meta.title} →
+                  <span className="md:hidden text-center line-clamp-2 whitespace-normal">Shop {meta.title}</span>
+                  <span className="md:hidden shrink-0 text-[10px]">→</span>
+                  <span className="hidden md:inline">Shop {meta.title} →</span>
                 </Link>
               </div>
             );

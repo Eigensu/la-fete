@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Package, Truck } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import Navigation from '@/components/Navigation';
 
 export default function OrderDetailsPage() {
   const params = useParams();
@@ -42,31 +41,30 @@ export default function OrderDetailsPage() {
 
   return (
     <>
-      <Navigation />
-      <div className="max-w-5xl mx-auto py-8 px-4">
-        <Link href="/orders" className="flex items-center gap-2 text-gray-600 hover:text-black mt-8 mb-6">
+<div className="max-w-5xl mx-auto py-8 px-4">
+        <Link href="/orders" className="flex items-center gap-2 text-gray-600 hover:text-black mt-4 md:mt-8 mb-5 md:mb-6">
         <ArrowLeft size={16} /> Back to Orders
       </Link>
 
-      <div className="flex justify-between items-end mb-8 pb-6 border-b">
+      <div className="flex flex-col md:flex-row justify-start md:justify-between items-start md:items-end gap-5 md:gap-0 mb-6 md:mb-8 pb-5 md:pb-6 border-b">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Order #{order.orderNumber}</h1>
-          <p className="text-gray-500">Placed on {new Date(order.createdAt).toLocaleString()}</p>
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 tracking-tight">Order&nbsp;#{order.orderNumber}</h1>
+          <p className="text-sm md:text-base text-gray-500">Placed on {new Date(order.createdAt).toLocaleString()}</p>
         </div>
-        <Link href={`/orders/${order.id}/track`} className="flex items-center gap-2 bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
+        <Link href={`/orders/${order.id}/track`} className="flex items-center gap-2 bg-black text-white px-6 py-2.5 md:py-2 rounded hover:bg-gray-800 text-sm md:text-base shrink-0">
           <Truck size={16} /> Track Order
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <div className="bg-white border rounded-lg p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="md:col-span-2 space-y-5 md:space-y-6">
+          <div className="bg-white border rounded-lg p-4 sm:p-5 md:p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2"><Package size={20} /> Items</h2>
             <div className="divide-y">
               {order.items?.map(item => (
-                <div key={item.id} className="py-4 flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">
+                <div key={item.id} className="py-4 flex justify-between items-start md:items-center gap-3 md:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium break-words">
                       {toTitleCase(item.variant.product?.name)} 
                       {item.variant.name !== 'Default' && ` - ${item.variant.name}`}
                     </p>
@@ -80,7 +78,7 @@ export default function OrderDetailsPage() {
                       </div>
                     )}
                   </div>
-                  <p className="font-semibold">₹{Number(item.subtotal).toLocaleString()}</p>
+                  <p className="font-semibold shrink-0 mt-0.5 md:mt-0">₹{Number(item.subtotal).toLocaleString()}</p>
                 </div>
               ))}
             </div>
@@ -101,8 +99,8 @@ export default function OrderDetailsPage() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-gray-50 border rounded-lg p-6">
+        <div className="space-y-5 md:space-y-6">
+          <div className="bg-gray-50 border rounded-lg p-4 sm:p-5 md:p-6">
             <h2 className="font-semibold mb-4 flex items-center gap-2">Order Status</h2>
             <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
               order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
@@ -114,7 +112,7 @@ export default function OrderDetailsPage() {
             <p className="text-sm text-gray-500 mt-4">Payment Status: <span className="font-semibold text-green-600">PAID</span></p>
           </div>
 
-          <div className="bg-white border rounded-lg p-6">
+          <div className="bg-white border rounded-lg p-4 sm:p-5 md:p-6">
             <h2 className="font-semibold mb-4 flex items-center gap-2"><MapPin size={18} /> Delivery Address</h2>
             {order.deliveryAddress ? (
               <div className="text-sm text-gray-600 space-y-1">
