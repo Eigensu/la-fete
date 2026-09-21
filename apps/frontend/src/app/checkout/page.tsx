@@ -58,9 +58,11 @@ export default function CheckoutPage() {
     }
   }, [router]);
 
-  // Re-fetch delivery slots once the cart has loaded, using the slowest
-  // lead time across whatever's in it (a signature gateau needs 48h even
-  // if a next-day Tea Cake is also in the basket).
+  // Delivery slots are loaded here and nowhere else: the window depends on
+  // the slowest lead time across whatever's in the cart (a signature gateau
+  // needs 48h even if a next-day Tea Cake is also in the basket), so a
+  // second, cart-blind request would race this one and could overwrite a
+  // 1-day cart's valid next-day slots with the 2-day default.
   useEffect(() => {
     if (isCartLoading || Object.keys(cart).length === 0) return;
 
@@ -93,22 +95,11 @@ export default function CheckoutPage() {
 
   const fetchData = async () => {
     try {
-      const [addrs, deliverySlots] = await Promise.all([
-        getAddresses(),
-        getDeliverySlots()
-      ]);
+      const addrs = await getAddresses();
       setAddresses(addrs);
       if (addrs.length > 0) {
         const def = addrs.find(a => a.isDefault);
         setSelectedAddressId(def ? def.id : addrs[0].id);
-      }
-      setSlots(deliverySlots);
-      if (deliverySlots.length > 0) {
-        // Backend only ever returns slots from day-after-next onward, sorted
-        // by date then time, so the first entry is the earliest available.
-        // Refined again once the cart's own lead time is known (see effect
-        // above), which may push this out further for slower items.
-        setSelectedSlotId(deliverySlots[0].id);
       }
     } catch (err) {
       toast.error('Failed to load checkout details');

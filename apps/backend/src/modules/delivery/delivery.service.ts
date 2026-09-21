@@ -11,18 +11,7 @@ import { Delivery } from './entities/delivery.entity';
 import { DeliverySlot } from './entities/delivery-slot.entity';
 import { BorzoService } from './borzo.service';
 import { DeliveryStatus } from '../../common/enums/delivery-status.enum';
-
-/** Morning, afternoon, evening — the only three windows ever offered. */
-const SLOT_TIMES = [
-  { startTime: '10:00:00', endTime: '13:00:00' },
-  { startTime: '15:00:00', endTime: '18:00:00' },
-  { startTime: '18:00:00', endTime: '21:00:00' },
-];
-
-/** How far out slots are kept generated. Must cover the longest lead time
- *  (48h, for signature gateaux) plus enough runway that shoppers always see
- *  a real choice of dates, not just tomorrow's. */
-const ROLLING_WINDOW_DAYS = 21;
+import { SLOT_TIMES, ROLLING_WINDOW_DAYS } from './delivery-slots.constants';
 
 @Injectable()
 export class DeliveryService {
@@ -174,18 +163,23 @@ export class DeliveryService {
 
   /** Keeps a rolling window of future slots topped up automatically, so
    *  nobody has to remember to run a seed script as the calendar moves
-   *  forward. The window shifts by exactly one day each night, so only
-   *  that new far edge ever needs slots — every earlier day in the window
-   *  was already filled in on a previous run. */
+   *  forward. Sweeps the whole window (tomorrow through the far edge)
+   *  rather than just the day the window grew into: generateSlots skips
+   *  dates that already have slots, so the sweep costs a handful of
+   *  lookups and, unlike a single-day top-up, leaves no permanent hole if
+   *  a night is missed or the window was seeded to a shorter horizon. */
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
   async topUpRollingSlotWindow() {
-    const edgeDate = new Date();
-    edgeDate.setDate(edgeDate.getDate() + 1 + ROLLING_WINDOW_DAYS);
-    edgeDate.setHours(0, 0, 0, 0);
+    const start = new Date();
+    start.setDate(start.getDate() + 1);
+    start.setHours(0, 0, 0, 0);
 
-    const created = await this.generateSlots(edgeDate, edgeDate);
+    const edgeDate = new Date(start);
+    edgeDate.setDate(edgeDate.getDate() + ROLLING_WINDOW_DAYS - 1);
+
+    const created = await this.generateSlots(start, edgeDate);
     if (created.length > 0) {
-      this.logger.log(`Rolling delivery-slot top-up: created ${created.length} new slot(s) for ${edgeDate.toDateString()}.`);
+      this.logger.log(`Rolling delivery-slot top-up: created ${created.length} new slot(s) through ${edgeDate.toDateString()}.`);
     }
   }
 }

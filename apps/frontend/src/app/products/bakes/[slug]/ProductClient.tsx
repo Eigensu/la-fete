@@ -495,6 +495,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
             ingredients={product.ingredients}
             nutritionalHighlight={showNutrition ? product.nutritionalHighlight : undefined}
             allergyInformation={product.allergyInformation}
+            leadDays={leadDays(product.format)}
           />
           <div className="border-b border-[#86162f]/15">
             <button

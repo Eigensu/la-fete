@@ -1,16 +1,14 @@
 import { AppDataSource } from './data-source';
 import { DeliverySlot } from './modules/delivery/entities/delivery-slot.entity';
+import {
+  SLOT_TIMES,
+  ROLLING_WINDOW_DAYS,
+} from './modules/delivery/delivery-slots.constants';
 
-/** Same three windows the checkout page and DeliveryService.generateSlots
- *  offer: morning, afternoon, evening. */
-const SLOT_TIMES = [
-  { startTime: '10:00:00', endTime: '13:00:00' },
-  { startTime: '15:00:00', endTime: '18:00:00' },
-  { startTime: '18:00:00', endTime: '21:00:00' },
-];
-
-/** How many days out (from day-after-tomorrow) to keep slots generated for. */
-const DAYS_AHEAD = 14;
+/** Seeds exactly the horizon DeliveryService's nightly job then maintains —
+ *  sharing the constant is what keeps the two from leaving a gap of
+ *  slot-less days between where the seed stopped and where the job starts. */
+const DAYS_AHEAD = ROLLING_WINDOW_DAYS;
 
 async function seedDeliverySlots() {
   await AppDataSource.initialize();

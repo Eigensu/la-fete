@@ -91,7 +91,10 @@ function ClaimBadge({ icon: Icon, label }: { icon: () => JSX.Element; label: str
 export default function WhyChooseLaFete() {
   return (
     <div className="h-full text-center">
-      <div className="flex justify-between sm:justify-center gap-1 sm:gap-6">
+      {/* Wraps rather than overflowing: five 64px badges plus gaps need ~336px,
+          which a 320px viewport can't give once the page gutters are taken out.
+          Above that the row still fits on one line, as intended. */}
+      <div className="flex flex-wrap justify-center gap-y-4 gap-x-1 sm:gap-6">
         {CLAIMS.map(claim => (
           <ClaimBadge key={claim.label} {...claim} />
         ))}

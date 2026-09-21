@@ -4,7 +4,17 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { splitTagList } from '@/utils/format';
 
-const DEFAULT_DELIVERY_TEXT = 'We currently deliver across Mumbai only. Orders placed before 4:00 PM are baked and dispatched the next day; after that, delivery moves to the day after. Delivery is charged at checkout and varies by area — you’ll choose your slot before confirming your order.';
+/** The site-wide fallback, phrased from the product's own lead time so it can
+ *  never contradict the "Earliest delivery" date shown higher up the page —
+ *  Tea/Tub Cakes go out next-day, everything else needs the full 48 hours. */
+function defaultDeliveryText(leadDays: number) {
+  const window =
+    leadDays <= 1
+      ? 'Orders are baked to order and delivered from the next day onwards'
+      : `Orders are baked to order and delivered from ${leadDays} days after you order onwards`;
+
+  return `We currently deliver across Mumbai only. ${window}. Delivery is charged at checkout and varies by area — you’ll choose your slot before confirming your order.`;
+}
 
 const STATIC_SECTIONS: { title: string; body: string }[] = [];
 
@@ -14,6 +24,7 @@ export default function ProductFaqAccordion({
   ingredients,
   nutritionalHighlight,
   allergyInformation,
+  leadDays = 2,
 }: {
   /** Product-specific shelf life & serving instructions, when the catalogue provides one. */
   shelfLife?: string;
@@ -22,6 +33,9 @@ export default function ProductFaqAccordion({
   ingredients?: string;
   nutritionalHighlight?: string;
   allergyInformation?: string;
+  /** Days between ordering and the earliest delivery for this product's
+   *  format, so the fallback copy matches the date shown on the page. */
+  leadDays?: number;
 }) {
   const [openIndices, setOpenIndices] = useState<Set<number>>(new Set());
 
@@ -55,7 +69,7 @@ export default function ProductFaqAccordion({
         }]
       : []),
     ...(shelfLife ? [{ title: 'Shelf Life & Serving Instructions', body: shelfLife }] : []),
-    { title: 'Delivery & Shipping', body: deliveryInstructions || DEFAULT_DELIVERY_TEXT },
+    { title: 'Delivery & Shipping', body: deliveryInstructions || defaultDeliveryText(leadDays) },
     ...STATIC_SECTIONS,
   ];
 
