@@ -4,12 +4,19 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { Plus, Check } from 'lucide-react';
-import { toTitleCase } from '@/utils/format';
+import { toTitleCase, formatSlotTime } from '@/utils/format';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import { getAddresses, Address, createAddress } from '@/lib/addresses-api';
 import { getDeliverySlots, createOrder } from '@/lib/orders-api';
+import { fetchProductBySlug } from '@/lib/products-api';
 import toast from 'react-hot-toast';
+
+/** Tea Cakes and Tub Cakes ship next-day; everything else (signature
+ *  gateaux and other celebration cakes) needs the full 48 hours to make. */
+function leadDaysForFormat(format: string | undefined) {
+  return ['tea cake', 'tub cake'].includes((format || '').toLowerCase()) ? 1 : 2;
+}
 
 const inputClasses =
   'w-full px-4 py-3 border border-[#86162f]/20 font-poppins text-sm text-[#86162f] outline-none focus:border-[#86162f] transition-colors placeholder:text-gray-400';
@@ -51,22 +58,48 @@ export default function CheckoutPage() {
     }
   }, [router]);
 
+  // Delivery slots are loaded here and nowhere else: the window depends on
+  // the slowest lead time across whatever's in the cart (a signature gateau
+  // needs 48h even if a next-day Tea Cake is also in the basket), so a
+  // second, cart-blind request would race this one and could overwrite a
+  // 1-day cart's valid next-day slots with the 2-day default.
+  useEffect(() => {
+    if (isCartLoading || Object.keys(cart).length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      const productIds = Array.from(
+        new Set(Object.values(cart).map((item) => item.productId).filter(Boolean)),
+      ) as string[];
+      const products = await Promise.all(productIds.map((id) => fetchProductBySlug(id)));
+      const minLeadDays = products.reduce(
+        (max, p) => Math.max(max, leadDaysForFormat(p?.format)),
+        1,
+      );
+
+      const deliverySlots = await getDeliverySlots(minLeadDays);
+      if (cancelled) return;
+      setSlots(deliverySlots);
+      setSelectedSlotId((current) => {
+        // Keep the current selection if it's still offered; otherwise fall
+        // back to the earliest slot now available.
+        if (current && deliverySlots.some((s) => s.id === current)) return current;
+        return deliverySlots[0]?.id ?? '';
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cart, isCartLoading]);
+
   const fetchData = async () => {
     try {
-      const [addrs, deliverySlots] = await Promise.all([
-        getAddresses(),
-        getDeliverySlots()
-      ]);
+      const addrs = await getAddresses();
       setAddresses(addrs);
       if (addrs.length > 0) {
         const def = addrs.find(a => a.isDefault);
         setSelectedAddressId(def ? def.id : addrs[0].id);
-      }
-      setSlots(deliverySlots);
-      if (deliverySlots.length > 0) {
-        // Backend only ever returns slots from day-after-next onward, sorted
-        // by date then time, so the first entry is the earliest available.
-        setSelectedSlotId(deliverySlots[0].id);
       }
     } catch (err) {
       toast.error('Failed to load checkout details');
@@ -268,8 +301,8 @@ export default function CheckoutPage() {
                           {selected && <Check size={10} className="text-white" strokeWidth={3} />}
                         </span>
                         <span>
-                          <span className="block font-poppins text-sm text-[#86162f] font-medium">{d}</span>
-                          <span className="block font-poppins text-xs text-gray-500">{slot.startTime} – {slot.endTime}</span>
+                          <span className="block font-poppins text-sm text-[#86162f] font-medium">{formatSlotTime(slot.startTime)} – {formatSlotTime(slot.endTime)}</span>
+                          <span className="block font-poppins text-xs text-gray-500">{d}</span>
                         </span>
                       </button>
                     );
@@ -293,10 +326,10 @@ export default function CheckoutPage() {
                     </p>
                     {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
                       <div className="text-[11px] text-gray-500 mt-1 space-y-0.5">
-                        {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
-                        {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
-                        {item.numberTopper && <p>Number Topper: {item.numberTopperText || 'Yes'}</p>}
-                        {item.celebrationTopper && <p>Celebration Topper: {item.celebrationTopperType || 'Yes'}</p>}
+                        {item.sweetener && <p><span className="text-[#c85d76] font-medium">Sweetener:</span> {item.sweetener}</p>}
+                        {item.cakeTopper && <p><span className="text-[#c85d76] font-medium">Topper:</span> {item.topperText || 'Yes'}</p>}
+                        {item.numberTopper && <p><span className="text-[#c85d76] font-medium">Number Topper:</span> {item.numberTopperText || 'Yes'}</p>}
+                        {item.celebrationTopper && <p><span className="text-[#c85d76] font-medium">Celebration Topper:</span> {item.celebrationTopperType || 'Yes'}</p>}
                       </div>
                     )}
                   </div>

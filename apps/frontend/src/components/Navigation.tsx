@@ -6,10 +6,11 @@ import { useRouter, usePathname } from 'next/navigation';
 import { toTitleCase } from '@/utils/format';
 import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '@/context/CartContext';
+import { useCart, CartItem } from '@/context/CartContext';
 import { logout as apiLogout } from '@/lib/auth-api';
 import Image from 'next/image';
 import { PRODUCT_CARD_IMAGES, pickImage } from '@/lib/gallery-images';
+import { fetchProductBySlug } from '@/lib/products-api';
 
 function getStoredUserRole(): string | undefined {
     try {
@@ -72,9 +73,9 @@ const MAIN_MENU: MenuNode[] = [
 /** Type scale per nesting level — larger on touch, tighter from md up, so the
  *  hierarchy reads without extra chrome and every row stays thumb-sized. */
 const LEVEL_STYLES = [
-    'text-[19px] md:text-[17px] font-medium',
-    'text-[16px] md:text-[14px]',
-    'text-[15px] md:text-[13px]',
+    'text-[17px] uppercase tracking-wide md:text-[17px] md:tracking-normal font-medium',
+    'text-[14px] uppercase tracking-wide md:text-[14px] md:tracking-normal',
+    'text-[13px] uppercase tracking-wide md:text-[13px] md:tracking-normal',
 ] as const;
 
 const ROW_BASE =
@@ -125,7 +126,7 @@ function MenuTree({
                                 onClick={() => onToggle(key)}
                                 aria-expanded={isOpen}
                                 aria-controls={`submenu-${key}`}
-                                className={`${ROW_BASE} ${size} ${tone} ${focus} justify-between gap-2 px-3 py-2.5`}
+                                className={`${ROW_BASE} ${size} ${tone} ${focus} justify-between gap-2 px-3 py-2 md:py-2.5`}
                             >
                                 <span className="min-w-0 truncate">{node.label}</span>
                                 <ChevronDown
@@ -138,7 +139,7 @@ function MenuTree({
                                 href={node.href}
                                 onClick={onNavigate}
                                 aria-current={isActive ? 'page' : undefined}
-                                className={`${ROW_BASE} ${size} ${tone} ${focus} px-3 py-2.5`}
+                                className={`${ROW_BASE} ${size} ${tone} ${focus} px-3 py-2 md:py-2.5`}
                             >
                                 {node.label}
                             </Link>
@@ -171,6 +172,124 @@ function MenuTree({
                 );
             })}
         </ul>
+    );
+}
+
+/** Resolves a cart line's product page URL from its productId and links the
+ *  thumbnail + name there, so a shopper reviewing the basket can jump back to
+ *  a product to change its options. Falls back to plain (non-link) content
+ *  while the lookup is in flight or if it fails — the cart must never break
+ *  because a product got deleted after it was added. */
+function useCartItemHref(productId?: string) {
+    const [href, setHref] = useState<string | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        if (!productId) {
+            setHref(null);
+            return;
+        }
+        fetchProductBySlug(productId).then((product) => {
+            if (cancelled || !product) return;
+            const collectionSlug = product.category?.slug || 'bakes';
+            setHref(`/products/${collectionSlug}/${product.slug}`);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [productId]);
+
+    return href;
+}
+
+/** One line in the cart drawer. The thumbnail and name link back to the
+ *  product page (resolved from productId) so a shopper can revisit it to
+ *  change options; quantity stepper and price stay outside the link so they
+ *  keep working as plain buttons. */
+function CartLineItem({
+    cartKey,
+    item,
+    onNavigate,
+    updateQuantity,
+}: {
+    cartKey: string;
+    item: CartItem;
+    onNavigate: () => void;
+    updateQuantity: (cartKey: string, delta: number) => void;
+}) {
+    const href = useCartItemHref(item.productId);
+
+    const thumb = (
+        <div className="w-24 h-24 bg-[#f5f0ed] rounded-sm flex items-center justify-center shrink-0 relative overflow-hidden">
+            {item.productId || item.name ? (
+                <Image
+                    src={pickImage(String(item.productId ?? item.name), PRODUCT_CARD_IMAGES)}
+                    alt={item.name}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                />
+            ) : (
+                <svg className="w-9 h-9 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                </svg>
+            )}
+        </div>
+    );
+
+    const title = (
+        <h4 className="font-poppins font-medium text-[#86162f] text-base leading-tight mb-1.5 hover:underline">
+            {toTitleCase(item.name)}
+        </h4>
+    );
+
+    return (
+        <div className="flex gap-4 items-start">
+            {href ? (
+                <Link href={href} onClick={onNavigate} className="shrink-0">
+                    {thumb}
+                </Link>
+            ) : (
+                thumb
+            )}
+            <div className="flex-1">
+                {href ? (
+                    <Link href={href} onClick={onNavigate}>
+                        {title}
+                    </Link>
+                ) : (
+                    title
+                )}
+                {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
+                    <div className="text-sm text-gray-500 mb-2.5 font-poppins space-y-1">
+                        {item.sweetener && <p><span className="text-[#c85d76] font-medium">Sweetener:</span> {item.sweetener}</p>}
+                        {item.cakeTopper && <p><span className="text-[#c85d76] font-medium">Topper:</span> {item.topperText || 'Yes'}</p>}
+                        {item.numberTopper && <p><span className="text-[#c85d76] font-medium">Number Topper:</span> {item.numberTopperText || 'Yes'}</p>}
+                        {item.celebrationTopper && <p><span className="text-[#c85d76] font-medium">Celebration Topper:</span> {item.celebrationTopperType || 'Yes'}</p>}
+                    </div>
+                )}
+                <div className="flex items-center justify-between mt-2.5">
+                    <div className="flex items-center gap-3.5 bg-[#f5f0ed] px-2.5 py-1.5 rounded-sm">
+                        <button
+                            onClick={() => updateQuantity(cartKey, -1)}
+                            className="text-[#86162f] hover:opacity-70"
+                            aria-label="Decrease quantity"
+                        >
+                            <Minus size={16} />
+                        </button>
+                        <span className="font-poppins text-base font-medium w-5 text-center">{item.quantity}</span>
+                        <button
+                            onClick={() => updateQuantity(cartKey, 1)}
+                            className="text-[#86162f] hover:opacity-70"
+                            aria-label="Increase quantity"
+                        >
+                            <Plus size={16} />
+                        </button>
+                    </div>
+                    <span className="font-poppins font-semibold text-[#86162f] text-base">₹{item.price * item.quantity}</span>
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -476,19 +595,19 @@ export default function Navigation() {
                                             My Account
                                         </p>
                                         <div className="flex flex-col gap-0.5">
-                                            <Link href="/profile" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">My Profile</Link>
-                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Order History</Link>
-                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Track Orders</Link>
-                                            <Link href="/profile/addresses" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Saved Addresses</Link>
+                                            <Link href="/profile" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">My Profile</Link>
+                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Order History</Link>
+                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Track Orders</Link>
+                                            <Link href="/profile/addresses" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Saved Addresses</Link>
                                             {isAdmin && (
                                                 <>
                                                     <div className="mx-3 my-1.5 border-t border-[#86162f]/10"></div>
-                                                    <Link href="/admin" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug font-medium text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors flex items-center gap-2">
+                                                    <Link href="/admin" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] uppercase tracking-wide leading-snug font-medium text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors flex items-center gap-2">
                                                         <Shield size={16} /> Admin Panel
                                                     </Link>
                                                 </>
                                             )}
-                                            <button onClick={handleLogout} className="mt-1 px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] flex items-center gap-2 text-left transition-colors">
+                                            <button onClick={handleLogout} className="mt-1 px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] flex items-center gap-2 text-left transition-colors">
                                                 <LogOut size={16} /> Sign Out
                                             </button>
                                         </div>
@@ -539,7 +658,7 @@ export default function Navigation() {
                                 </button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5 md:gap-6">
+                            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 md:gap-7">
                                 {Object.entries(cart).length === 0 ? (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
                                         <ShoppingCart size={48} className="mb-4" />
@@ -553,54 +672,13 @@ export default function Navigation() {
                                     </div>
                                 ) : (
                                     Object.entries(cart).map(([cartKey, item]) => (
-                                        <div key={cartKey} className="flex gap-4 items-start">
-                                            <div className="w-20 h-20 bg-[#f5f0ed] rounded-sm flex items-center justify-center shrink-0 relative overflow-hidden">
-                                                {item.productId || item.name ? (
-                                                    <Image 
-                                                        src={pickImage(String(item.productId ?? item.name), PRODUCT_CARD_IMAGES)} 
-                                                        alt={item.name} 
-                                                        fill 
-                                                        sizes="80px" 
-                                                        className="object-cover" 
-                                                    />
-                                                ) : (
-                                                    <svg className="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                                    </svg>
-                                                )}
-                                            </div>
-                                            <div className="flex-1">
-                                                <h4 className="font-poppins font-medium text-[#86162f] text-sm leading-tight mb-1">{toTitleCase(item.name)}</h4>
-                                                {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
-                                                    <div className="text-xs text-gray-500 mb-2 font-poppins space-y-0.5">
-                                                        {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
-                                                        {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
-                                                        {item.numberTopper && <p>Number Topper: {item.numberTopperText || 'Yes'}</p>}
-                                                        {item.celebrationTopper && <p>Celebration Topper: {item.celebrationTopperType || 'Yes'}</p>}
-                                                    </div>
-                                                )}
-                                                <div className="flex items-center justify-between mt-2">
-                                                    <div className="flex items-center gap-3 bg-[#f5f0ed] px-2 py-1 rounded-sm">
-                                                        <button
-                                                            onClick={() => updateQuantity(cartKey, -1)}
-                                                            className="text-[#86162f] hover:opacity-70"
-                                                            aria-label="Decrease quantity"
-                                                        >
-                                                            <Minus size={14} />
-                                                        </button>
-                                                        <span className="font-poppins text-sm font-medium w-4 text-center">{item.quantity}</span>
-                                                        <button
-                                                            onClick={() => updateQuantity(cartKey, 1)}
-                                                            className="text-[#86162f] hover:opacity-70"
-                                                            aria-label="Increase quantity"
-                                                        >
-                                                            <Plus size={14} />
-                                                        </button>
-                                                    </div>
-                                                    <span className="font-poppins font-semibold text-[#86162f]">₹{item.price * item.quantity}</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <CartLineItem
+                                            key={cartKey}
+                                            cartKey={cartKey}
+                                            item={item}
+                                            onNavigate={() => setIsCartOpen(false)}
+                                            updateQuantity={updateQuantity}
+                                        />
                                     ))
                                 )}
                             </div>

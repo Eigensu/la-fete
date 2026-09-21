@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseConfig } from './config/database.config';
@@ -30,6 +31,7 @@ import { join } from 'path';
         limit: 10,
       },
     ]),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     ProductsModule,

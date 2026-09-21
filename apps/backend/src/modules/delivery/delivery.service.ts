@@ -1,17 +1,22 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Repository, EntityManager, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { DeliverySlot } from './entities/delivery-slot.entity';
 import { BorzoService } from './borzo.service';
 import { DeliveryStatus } from '../../common/enums/delivery-status.enum';
+import { SLOT_TIMES, ROLLING_WINDOW_DAYS } from './delivery-slots.constants';
 
 @Injectable()
 export class DeliveryService {
+  private readonly logger = new Logger(DeliveryService.name);
+
   constructor(
     @InjectRepository(Delivery)
     private deliveryRepository: Repository<Delivery>,
@@ -132,28 +137,49 @@ export class DeliveryService {
     return this.slotRepository.save(slot);
   }
 
+  /** Idempotent: a date+time combo that already has a slot is left alone,
+   *  so this is safe to call repeatedly (an admin request, the nightly
+   *  top-up job, or both landing on the same day). */
   async generateSlots(startDate: Date, endDate: Date) {
-    const slots = [
-      { startTime: '10:00:00', endTime: '13:00:00' },
-      { startTime: '14:00:00', endTime: '17:00:00' },
-      { startTime: '18:00:00', endTime: '21:00:00' },
-    ];
-
-    const createdSlots = [];
+    const createdSlots: DeliverySlot[] = [];
     const currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
-      for (const slot of slots) {
-        const newSlot = await this.createSlot(
-          new Date(currentDate),
-          slot.startTime,
-          slot.endTime,
-        );
+      for (const slot of SLOT_TIMES) {
+        const date = new Date(currentDate);
+        const existing = await this.slotRepository.findOne({
+          where: { date, startTime: slot.startTime },
+        });
+        if (existing) continue;
+
+        const newSlot = await this.createSlot(date, slot.startTime, slot.endTime);
         createdSlots.push(newSlot);
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return createdSlots;
+  }
+
+  /** Keeps a rolling window of future slots topped up automatically, so
+   *  nobody has to remember to run a seed script as the calendar moves
+   *  forward. Sweeps the whole window (tomorrow through the far edge)
+   *  rather than just the day the window grew into: generateSlots skips
+   *  dates that already have slots, so the sweep costs a handful of
+   *  lookups and, unlike a single-day top-up, leaves no permanent hole if
+   *  a night is missed or the window was seeded to a shorter horizon. */
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  async topUpRollingSlotWindow() {
+    const start = new Date();
+    start.setDate(start.getDate() + 1);
+    start.setHours(0, 0, 0, 0);
+
+    const edgeDate = new Date(start);
+    edgeDate.setDate(edgeDate.getDate() + ROLLING_WINDOW_DAYS - 1);
+
+    const created = await this.generateSlots(start, edgeDate);
+    if (created.length > 0) {
+      this.logger.log(`Rolling delivery-slot top-up: created ${created.length} new slot(s) through ${edgeDate.toDateString()}.`);
+    }
   }
 }

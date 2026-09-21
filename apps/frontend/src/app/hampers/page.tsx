@@ -144,24 +144,22 @@ function FeaturedHamper({ hamper, image }: { hamper: Hamper; image: string }) {
           sizes="(max-width: 768px) 100vw, 40vw"
           className="object-cover"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#86162f]/85 to-transparent" />
-        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#86162f]/55 to-transparent" />
         {/* Giant background number */}
         <span
           aria-hidden="true"
-          className="absolute right-0 bottom-0 font-poppins font-semibold text-white/20 select-none pointer-events-none leading-none"
+          className="absolute right-0 bottom-0 font-poppins font-semibold text-white/30 select-none pointer-events-none leading-none [text-shadow:0_1px_10px_rgba(0,0,0,0.35)]"
           style={{ fontSize: 'clamp(100px, 14vw, 180px)', lineHeight: 0.82 }}
         >
           {hamper.num}
         </span>
         {/* Occasion badge */}
-        <span className="self-start font-poppins text-[9px] uppercase tracking-[0.35em] text-white/90 border border-white/40 px-3 py-1 relative z-10">
+        <span className="self-start font-poppins text-[9px] uppercase tracking-[0.35em] text-white border border-white/70 px-3 py-1 relative z-10 [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">
           {hamper.occasion}
         </span>
         {/* Bottom: serves + price */}
         <div className="relative z-10">
-          <p className="font-poppins text-[9px] uppercase tracking-widest text-white/70 mb-1.5">{hamper.serves}</p>
-          <p className="font-poppins font-semibold text-white text-3xl">{hamper.price}</p>
+          <p className="font-poppins text-[9px] uppercase tracking-widest text-white mb-1.5 [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">{hamper.serves}</p>
+          <p className="font-poppins font-semibold text-white text-3xl [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">{hamper.price}</p>
         </div>
       </div>
 
@@ -219,18 +217,16 @@ function SmallHamper({ hamper, image }: { hamper: Hamper; image: string }) {
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#86162f]/85 to-transparent" />
-        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#86162f]/55 to-transparent" />
         <span
-          className="absolute right-0 bottom-0 font-poppins font-semibold text-white/25 select-none pointer-events-none leading-none"
+          className="absolute right-0 bottom-0 font-poppins font-semibold text-white/35 select-none pointer-events-none leading-none [text-shadow:0_1px_10px_rgba(0,0,0,0.35)]"
           style={{ fontSize: 110, lineHeight: 0.82 }}
         >
           {hamper.num}
         </span>
-        <span className="self-start font-poppins text-[8px] uppercase tracking-[0.3em] text-white/90 border border-white/40 px-2.5 py-1">
+        <span className="self-start font-poppins text-[8px] uppercase tracking-[0.3em] text-white border border-white/70 px-2.5 py-1 [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">
           {hamper.occasion}
         </span>
-        <p className="font-poppins text-[8px] uppercase tracking-widest text-white/70 mt-auto">
+        <p className="font-poppins text-[8px] uppercase tracking-widest text-white mt-auto [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">
           {hamper.serves}
         </p>
       </div>

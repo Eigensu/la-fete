@@ -77,11 +77,11 @@ const CLAIMS = [
 
 function ClaimBadge({ icon: Icon, label }: { icon: () => JSX.Element; label: string }) {
   return (
-    <div className="flex flex-col items-center gap-2" style={{ width: 100 }}>
-      <div className="w-12 h-12 rounded-full border border-[#86162f]/25 flex items-center justify-center text-[#86162f] bg-white">
+    <div className="flex flex-col items-center gap-2 flex-1 min-w-0 max-w-[64px] sm:max-w-[100px]">
+      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-[#86162f]/25 flex items-center justify-center text-[#86162f] bg-white shrink-0">
         <Icon />
       </div>
-      <span className="font-poppins text-[9px] uppercase tracking-wider text-[#86162f]/70 text-center leading-snug">
+      <span className="font-poppins text-[7.5px] sm:text-[9px] uppercase tracking-wider text-[#86162f]/70 text-center leading-snug">
         {label}
       </span>
     </div>
@@ -89,22 +89,16 @@ function ClaimBadge({ icon: Icon, label }: { icon: () => JSX.Element; label: str
 }
 
 export default function WhyChooseLaFete() {
-  const row1 = CLAIMS.slice(0, 3);
-  const row2 = CLAIMS.slice(3);
-
   return (
     <div className="h-full text-center">
-      <div className="flex flex-col gap-6">
-        <div className="flex justify-center gap-6">
-          {row1.map(claim => (
-            <ClaimBadge key={claim.label} {...claim} />
-          ))}
-        </div>
-        <div className="flex justify-center gap-6">
-          {row2.map(claim => (
-            <ClaimBadge key={claim.label} {...claim} />
-          ))}
-        </div>
+      {/* All five badges stay on one row at every width. They share the row
+          instead of holding a fixed 64px each, which would need ~336px and
+          overflow a 320px viewport once the page gutters are taken out; the
+          max-width keeps them from stretching on roomier screens. */}
+      <div className="flex justify-center gap-1 sm:gap-6">
+        {CLAIMS.map(claim => (
+          <ClaimBadge key={claim.label} {...claim} />
+        ))}
       </div>
     </div>
   );
