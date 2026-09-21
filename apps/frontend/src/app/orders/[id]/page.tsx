@@ -71,10 +71,10 @@ export default function OrderDetailsPage() {
                     <p className="text-sm text-gray-500 mb-1">Qty: {item.quantity}</p>
                     {(item.sweetener || item.cakeTopper || item.numberTopper || item.celebrationTopper) && (
                       <div className="text-xs text-gray-500 space-y-0.5">
-                        {item.sweetener && <p>Sweetener: {item.sweetener}</p>}
-                        {item.cakeTopper && <p>Topper: {item.topperText || 'Yes'}</p>}
-                        {item.numberTopper && <p>Number Topper: {item.numberTopperText || 'Yes'}</p>}
-                        {item.celebrationTopper && <p>Celebration Topper: {item.celebrationTopperType || 'Yes'}</p>}
+                        {item.sweetener && <p><span className="text-[#c85d76] font-medium">Sweetener:</span> {item.sweetener}</p>}
+                        {item.cakeTopper && <p><span className="text-[#c85d76] font-medium">Topper:</span> {item.topperText || 'Yes'}</p>}
+                        {item.numberTopper && <p><span className="text-[#c85d76] font-medium">Number Topper:</span> {item.numberTopperText || 'Yes'}</p>}
+                        {item.celebrationTopper && <p><span className="text-[#c85d76] font-medium">Celebration Topper:</span> {item.celebrationTopperType || 'Yes'}</p>}
                       </div>
                     )}
                   </div>

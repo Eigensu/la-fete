@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Product } from '@/lib/products-api';
 import { useCart } from '@/context/CartContext';
 import { Plus, Minus, ChevronDown, ChevronRight } from 'lucide-react';
-import { toTitleCase, sortByWeightAsc, splitTagList } from '@/utils/format';
+import { toTitleCase, sortByWeightAsc, visibleDietaryTags } from '@/utils/format';
 import { PRODUCT_CARD_IMAGES, pickImage } from '@/lib/gallery-images';
 import WhyChooseLaFete from '@/components/WhyChooseLaFete';
 import ProductFaqAccordion from '@/components/ProductFaqAccordion';
@@ -16,12 +16,20 @@ const CARD_BG = '#f8aeb2';
 const CELEBRATION_TOPPER_OPTIONS = ['Happy Birthday', 'Anniversary', 'Congratulations'];
 
 /**
- * The earliest date an order placed right now can arrive: always
- * day-after-next. The exact slot is still chosen at checkout.
+ * Tea Cakes and Tub Cakes ship next-day; everything else (signature gateaux
+ * and other celebration cakes) needs the full 48 hours to make.
  */
-function earliestDelivery(now: Date) {
+function leadDays(format: string | undefined) {
+  return ['tea cake', 'tub cake'].includes((format || '').toLowerCase()) ? 1 : 2;
+}
+
+/**
+ * The earliest date an order placed right now can arrive, given the
+ * product's lead time. The exact slot is still chosen at checkout.
+ */
+function earliestDelivery(now: Date, format: string | undefined) {
   const date = new Date(now);
-  date.setDate(date.getDate() + 2);
+  date.setDate(date.getDate() + leadDays(format));
 
   return {
     date,
@@ -103,6 +111,8 @@ export function ProductClient({ product, allProducts, collection }: { product: P
   const [numberTopperText, setNumberTopperText] = useState('');
   const [celebrationTopper, setCelebrationTopper] = useState(false);
   const [celebrationTopperType, setCelebrationTopperType] = useState(CELEBRATION_TOPPER_OPTIONS[0]);
+  const [personalizeOpen, setPersonalizeOpen] = useState(false);
+  const [whyChooseOpen, setWhyChooseOpen] = useState(false);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -110,8 +120,8 @@ export function ProductClient({ product, allProducts, collection }: { product: P
   // rendering a date from `new Date()` during SSR would hydrate mismatched.
   const [delivery, setDelivery] = useState<ReturnType<typeof earliestDelivery> | null>(null);
   useEffect(() => {
-    setDelivery(earliestDelivery(new Date()));
-  }, []);
+    setDelivery(earliestDelivery(new Date(), product.format));
+  }, [product.format]);
 
   const { cart, updateQuantity } = useCart();
 
@@ -140,7 +150,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
   const inCartQty = cartItem?.quantity ?? 0;
 
   const similarProducts = allProducts.filter((p) => p.format === product.format && p.id !== product.id).slice(0, 4);
-  const dietaryArray = product.dietaryTags ? product.dietaryTags.split(',').map(d => d.trim()) : [];
+  const dietaryArray = visibleDietaryTags(product.dietaryTags, `${product.format ?? ''} ${product.name ?? ''}`);
   const otherTagsArray = product.otherTags ? product.otherTags.split(',').map(t => t.trim()).filter(Boolean) : [];
 
   // Toppers and written messages only make sense on a whole celebration cake —
@@ -237,9 +247,217 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* RIGHT: PRODUCT DETAILS + DROPDOWNS */}
+          <div className="order-2 lg:order-none flex flex-col pt-2 lg:pt-4 w-full">
+            <p className="font-poppins text-[10px] uppercase tracking-[0.35em] text-[#f8aeb2] mb-3">
+              {product.format}
+            </p>
+            <h1 className="font-seasons text-[#86162f] text-4xl md:text-5xl leading-tight mb-4">
+              {toTitleCase(product.name)}
+            </h1>
+            <div className="flex items-baseline gap-2 mb-1">
+              {currentPrice !== null ? (
+                <>
+                  <span className="font-poppins text-2xl font-light text-[#86162f]">
+                    ₹{currentPrice.toLocaleString('en-IN')}
+                  </span>
+                  <span className="font-poppins text-xs text-gray-400">for {selectedVariantName}</span>
+                </>
+              ) : (
+                <span className="font-poppins text-sm text-gray-400">Price on request</span>
+              )}
+            </div>
+
+            <p className="font-poppins text-xs text-gray-600 leading-relaxed mt-2 mb-4 max-w-[54ch]">
+                {product.description}
+            </p>
+
+            <div className="w-full h-px bg-[#86162f]/10 mb-4" />
+
+            {/* WEIGHT OPTIONS (First) */}
+            {sortedVariants.length > 0 && (
+              <div className="mb-4">
+                <p className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/55 mb-2">
+                  Weight
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {sortedVariants.map(w => (
+                    <button
+                      key={w.weight}
+                      onClick={() => setSelectedWeight(w.weight)}
+                      className={`px-3 py-1.5 font-poppins text-[11px] tracking-wide border transition-all duration-150 ${
+                        selectedWeight === w.weight
+                          ? 'bg-[#86162f] text-white border-[#86162f]'
+                          : 'bg-white text-[#86162f] border-[#86162f]/25 hover:border-[#86162f]/60'
+                      }`}
+                    >
+                      {w.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* SWEETENER OPTIONS */}
+            {isCelebrationCake && product.sweetenerOptions && product.sweetenerOptions.length > 0 && (
+              <div className="mb-4">
+                <p className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/55 mb-2">
+                  Sweetener Base
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(product.sweetenerOptions || []).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedSweetener(s)}
+                      className={`px-3 py-1.5 font-poppins text-[11px] tracking-wide border transition-all duration-150 ${
+                        selectedSweetener === s
+                          ? 'bg-[#86162f] text-white border-[#86162f]'
+                          : 'bg-white text-[#86162f] border-[#86162f]/25 hover:border-[#86162f]/60'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* QUANTITY */}
+            <p className="font-poppins text-[9px] uppercase tracking-widest text-[#86162f]/55 mb-1.5">
+              Quantity
+            </p>
+            <div className="flex items-center border border-[#86162f]/20 w-max mb-4">
+              <button
+                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                className="px-3 py-2 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
+              >
+                <Minus size={12} />
+              </button>
+              <span className="px-4 font-poppins text-xs text-[#86162f] min-w-[2.5rem] text-center select-none">
+                {quantity}
+              </span>
+              <button
+                onClick={() => setQuantity(q => q + 1)}
+                className="px-3 py-2 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
+              >
+                <Plus size={12} />
+              </button>
+            </div>
+
+            {/* MAKE IT PERSONAL */}
+            {isCelebrationCake && (
+              <div className="mb-4 border-t border-[#86162f]/10 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setPersonalizeOpen((open) => !open)}
+                  aria-expanded={personalizeOpen}
+                  className="w-full flex items-center justify-between gap-2 border border-[#86162f]/15 px-3 py-2 rounded-sm"
+                >
+                  <span className="font-poppins text-[11px] uppercase tracking-widest text-[#86162f]">
+                    Make It Personal
+                  </span>
+                  <ChevronDown
+                    size={14}
+                    className={`shrink-0 text-[#86162f]/60 transition-transform duration-300 ${personalizeOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {personalizeOpen && (
+                  <div className="space-y-3 mt-3">
+                    <div className="flex flex-col gap-2 border border-[#86162f]/15 p-3 rounded-sm">
+                        <label className="flex items-center gap-2.5 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={cakeTopper}
+                                onChange={(e) => setCakeTopper(e.target.checked)}
+                                className="w-3.5 h-3.5 accent-[#86162f] cursor-pointer"
+                            />
+                            <span className="font-poppins text-xs text-[#86162f]">Message on Cake</span>
+                        </label>
+                        {cakeTopper && (
+                            <div className="mt-1.5 pl-6">
+                                <label className="block font-poppins text-[9px] uppercase tracking-wider text-gray-500 mb-1">Message Text</label>
+                                <input
+                                    type="text"
+                                    value={topperText}
+                                    onChange={(e) => setTopperText(e.target.value)}
+                                    placeholder="e.g. Happy Birthday"
+                                    className="w-full border border-gray-200 px-2.5 py-1.5 font-poppins text-xs focus:outline-none focus:border-[#86162f]/50"
+                                    maxLength={30}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-2 border border-[#86162f]/15 p-3 rounded-sm">
+                        <label className="flex items-center gap-2.5 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={celebrationTopper}
+                                onChange={(e) => setCelebrationTopper(e.target.checked)}
+                                className="w-3.5 h-3.5 accent-[#86162f] cursor-pointer"
+                            />
+                            <span className="font-poppins text-xs text-[#86162f]">Celebration Topper</span>
+                        </label>
+                        {celebrationTopper && (
+                            <div className="mt-1.5 pl-6">
+                                <label className="block font-poppins text-[9px] uppercase tracking-wider text-gray-500 mb-1">Occasion</label>
+                                <select
+                                    value={celebrationTopperType}
+                                    onChange={(e) => setCelebrationTopperType(e.target.value)}
+                                    className="w-full border border-gray-200 px-2.5 py-1.5 font-poppins text-xs focus:outline-none focus:border-[#86162f]/50 bg-white"
+                                >
+                                    {CELEBRATION_TOPPER_OPTIONS.map(option => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-2 border border-[#86162f]/15 p-3 rounded-sm">
+                        <label className="flex items-center gap-2.5 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={numberTopper}
+                                onChange={(e) => setNumberTopper(e.target.checked)}
+                                className="w-3.5 h-3.5 accent-[#86162f] cursor-pointer"
+                            />
+                            <span className="font-poppins text-xs text-[#86162f]">Number Topper</span>
+                        </label>
+                        {numberTopper && (
+                            <div className="mt-1.5 pl-6">
+                                <label className="block font-poppins text-[9px] uppercase tracking-wider text-gray-500 mb-1">Number</label>
+                                <input
+                                    type="text"
+                                    value={numberTopperText}
+                                    onChange={(e) => setNumberTopperText(e.target.value)}
+                                    placeholder="e.g. 25"
+                                    className="w-full border border-gray-200 px-2.5 py-1.5 font-poppins text-xs focus:outline-none focus:border-[#86162f]/50"
+                                    maxLength={10}
+                                />
+                            </div>
+                        )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ADD TO CART */}
+            <div className="flex items-stretch gap-3 mb-4">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 py-3 bg-[#86162f] text-white font-poppins text-[11px] uppercase tracking-widest hover:bg-[#a82043] transition-colors"
+              >
+                {inCartQty > 0 ? `In Cart (${inCartQty}) — Add More` : 'Add to Cart'}
+              </button>
+            </div>
 
             {/* EARLIEST DELIVERY */}
-            <div className="order-3 lg:order-none border-t border-[#86162f]/10 pt-6 w-full">
+            <div className="border-t border-[#86162f]/10 pt-4 w-full">
               <div className="flex items-baseline justify-between gap-4 flex-wrap">
                 <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55">
                   Earliest delivery
@@ -259,246 +477,39 @@ export function ProductClient({ product, allProducts, collection }: { product: P
                 Delivery is charged at checkout and varies by area.
               </p>
             </div>
-
-            {/* PRODUCT INFORMATION */}
-            {(product.ingredients || (product.nutritionalHighlight && showNutrition) || product.allergyInformation) && (
-              <div className="order-4 lg:order-none space-y-6 border-t border-[#86162f]/10 pt-6 w-full">
-                  {product.ingredients && (
-                      <div>
-                          <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Ingredients</h4>
-                          <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.ingredients}</p>
-                      </div>
-                  )}
-
-                  {product.nutritionalHighlight && showNutrition && (
-                      <div>
-                          <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Nutritional Highlights</h4>
-                          <p className="font-poppins text-sm text-gray-600 leading-relaxed">{product.nutritionalHighlight}</p>
-                      </div>
-                  )}
-
-                  {product.allergyInformation && (
-                      <div>
-                          <h4 className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">Allergy Information</h4>
-                          <p className="font-poppins text-sm text-gray-600 leading-relaxed">
-                              Contains{' '}
-                              {splitTagList(product.allergyInformation).map((allergen, i, arr) => (
-                                  <span key={allergen}>
-                                      <span className="font-medium text-[#86162f]">{allergen}</span>
-                                      {i < arr.length - 1 ? (i === arr.length - 2 ? ' and ' : ', ') : ''}
-                                  </span>
-                              ))}
-                              .
-                          </p>
-                      </div>
-                  )}
-              </div>
-            )}
-          </div>
-
-          {/* RIGHT: PRODUCT DETAILS + DROPDOWNS */}
-          <div className="order-2 lg:order-none flex flex-col pt-2 lg:pt-4 w-full">
-            <p className="font-poppins text-[10px] uppercase tracking-[0.35em] text-[#f8aeb2] mb-3">
-              {product.format}
-            </p>
-            <h1 className="font-seasons text-[#86162f] text-4xl md:text-5xl leading-tight mb-4">
-              {toTitleCase(product.name)}
-            </h1>
-            <div className="flex items-baseline gap-2 mb-1">
-              {currentPrice !== null ? (
-                <>
-                  <span className="font-poppins text-3xl font-light text-[#86162f]">
-                    ₹{currentPrice.toLocaleString('en-IN')}
-                  </span>
-                  <span className="font-poppins text-xs text-gray-400">for {selectedVariantName}</span>
-                </>
-              ) : (
-                <span className="font-poppins text-sm text-gray-400">Price on request</span>
-              )}
-            </div>
-
-            <p className="font-poppins text-sm text-gray-600 leading-relaxed mt-3 mb-6 max-w-[54ch]">
-                {product.description}
-            </p>
-
-            <div className="w-full h-px bg-[#86162f]/10 mb-6" />
-
-            {/* WEIGHT OPTIONS (First) */}
-            {sortedVariants.length > 0 && (
-              <div className="mb-6">
-                <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-3">
-                  Weight
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {sortedVariants.map(w => (
-                    <button
-                      key={w.weight}
-                      onClick={() => setSelectedWeight(w.weight)}
-                      className={`px-4 py-2.5 font-poppins text-xs tracking-wide border transition-all duration-150 ${
-                        selectedWeight === w.weight
-                          ? 'bg-[#86162f] text-white border-[#86162f]'
-                          : 'bg-white text-[#86162f] border-[#86162f]/25 hover:border-[#86162f]/60'
-                      }`}
-                    >
-                      {w.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* SWEETENER OPTIONS */}
-            {isCelebrationCake && product.sweetenerOptions && product.sweetenerOptions.length > 0 && (
-              <div className="mb-6">
-                <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-3">
-                  Sweetener Base
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {(product.sweetenerOptions || []).map(s => (
-                    <button
-                      key={s}
-                      onClick={() => setSelectedSweetener(s)}
-                      className={`px-4 py-2 font-poppins text-xs tracking-wide border transition-all duration-150 ${
-                        selectedSweetener === s
-                          ? 'bg-[#86162f] text-white border-[#86162f]'
-                          : 'bg-white text-[#86162f] border-[#86162f]/25 hover:border-[#86162f]/60'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* QUANTITY */}
-            <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-2">
-              Quantity
-            </p>
-            <div className="flex items-center border border-[#86162f]/20 w-max mb-6">
-              <button
-                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                className="px-4 py-3.5 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
-              >
-                <Minus size={13} />
-              </button>
-              <span className="px-5 font-poppins text-sm text-[#86162f] min-w-[3rem] text-center select-none">
-                {quantity}
-              </span>
-              <button
-                onClick={() => setQuantity(q => q + 1)}
-                className="px-4 py-3.5 text-[#86162f] hover:bg-[#86162f]/5 transition-colors"
-              >
-                <Plus size={13} />
-              </button>
-            </div>
-
-            {/* ADD TO CART */}
-            <div className="flex items-stretch gap-3 mb-6">
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 py-4 bg-[#86162f] text-white font-poppins text-xs uppercase tracking-widest hover:bg-[#a82043] transition-colors"
-              >
-                {inCartQty > 0 ? `In Cart (${inCartQty}) — Add More` : 'Add to Cart'}
-              </button>
-            </div>
-
-            {/* ADD-ONS */}
-            {isCelebrationCake && (
-              <div className="mb-6 space-y-4 border-t border-[#86162f]/10 pt-6">
-                  <p className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/55 mb-3">
-                    Make it personal
-                  </p>
-
-                  <div className="flex flex-col gap-2 border border-[#86162f]/15 p-4 rounded-sm">
-                      <label className="flex items-center gap-3 cursor-pointer">
-                          <input
-                              type="checkbox"
-                              checked={cakeTopper}
-                              onChange={(e) => setCakeTopper(e.target.checked)}
-                              className="w-4 h-4 accent-[#86162f] cursor-pointer"
-                          />
-                          <span className="font-poppins text-sm text-[#86162f]">Cake Topper</span>
-                      </label>
-                      {cakeTopper && (
-                          <div className="mt-2 pl-7">
-                              <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Topper Text</label>
-                              <input
-                                  type="text"
-                                  value={topperText}
-                                  onChange={(e) => setTopperText(e.target.value)}
-                                  placeholder="e.g. Happy Birthday"
-                                  className="w-full border border-gray-200 px-3 py-2 font-poppins text-sm focus:outline-none focus:border-[#86162f]/50"
-                                  maxLength={30}
-                              />
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="flex flex-col gap-2 border border-[#86162f]/15 p-4 rounded-sm">
-                      <label className="flex items-center gap-3 cursor-pointer">
-                          <input
-                              type="checkbox"
-                              checked={numberTopper}
-                              onChange={(e) => setNumberTopper(e.target.checked)}
-                              className="w-4 h-4 accent-[#86162f] cursor-pointer"
-                          />
-                          <span className="font-poppins text-sm text-[#86162f]">Number Topper</span>
-                      </label>
-                      {numberTopper && (
-                          <div className="mt-2 pl-7">
-                              <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Number</label>
-                              <input
-                                  type="text"
-                                  value={numberTopperText}
-                                  onChange={(e) => setNumberTopperText(e.target.value)}
-                                  placeholder="e.g. 25"
-                                  className="w-full border border-gray-200 px-3 py-2 font-poppins text-sm focus:outline-none focus:border-[#86162f]/50"
-                                  maxLength={10}
-                              />
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="flex flex-col gap-2 border border-[#86162f]/15 p-4 rounded-sm">
-                      <label className="flex items-center gap-3 cursor-pointer">
-                          <input
-                              type="checkbox"
-                              checked={celebrationTopper}
-                              onChange={(e) => setCelebrationTopper(e.target.checked)}
-                              className="w-4 h-4 accent-[#86162f] cursor-pointer"
-                          />
-                          <span className="font-poppins text-sm text-[#86162f]">Celebration Topper</span>
-                      </label>
-                      {celebrationTopper && (
-                          <div className="mt-2 pl-7">
-                              <label className="block font-poppins text-[10px] uppercase tracking-wider text-gray-500 mb-1">Occasion</label>
-                              <select
-                                  value={celebrationTopperType}
-                                  onChange={(e) => setCelebrationTopperType(e.target.value)}
-                                  className="w-full border border-gray-200 px-3 py-2 font-poppins text-sm focus:outline-none focus:border-[#86162f]/50 bg-white"
-                              >
-                                  {CELEBRATION_TOPPER_OPTIONS.map(option => (
-                                      <option key={option} value={option}>{option}</option>
-                                  ))}
-                              </select>
-                          </div>
-                      )}
-                  </div>
-              </div>
-            )}
           </div>
         </div>
       </section>
 
       <section className="py-8 md:py-10 bg-white">
         <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24">
-          <p className="font-poppins text-lg md:text-xl uppercase tracking-[0.35em] font-bold text-[#86162f] text-center mb-8">
-            Why Choose La Fête
-          </p>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-            <WhyChooseLaFete />
-            <ProductFaqAccordion shelfLife={product.shelfLife} deliveryInstructions={product.deliveryInstructions} />
+          <ProductFaqAccordion
+            shelfLife={product.shelfLife}
+            deliveryInstructions={product.deliveryInstructions}
+            ingredients={product.ingredients}
+            nutritionalHighlight={showNutrition ? product.nutritionalHighlight : undefined}
+            allergyInformation={product.allergyInformation}
+          />
+          <div className="border-b border-[#86162f]/15">
+            <button
+              type="button"
+              onClick={() => setWhyChooseOpen((open) => !open)}
+              aria-expanded={whyChooseOpen}
+              className="w-full flex items-center justify-center gap-4 py-5 md:py-6"
+            >
+              <span className="font-poppins text-[11px] md:text-xs uppercase tracking-[0.3em] text-[#86162f]">
+                Why Choose La Fête
+              </span>
+              <ChevronDown
+                size={16}
+                className={`shrink-0 text-[#86162f] transition-transform duration-200 ${whyChooseOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {whyChooseOpen && (
+              <div className="pb-6">
+                <WhyChooseLaFete />
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -86,7 +86,6 @@ export default async function Products() {
                       sizes="(max-width: 768px) 50vw, 33vw"
                       className="object-cover"
                     />
-                    <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#86162f]/80 to-transparent" />
                     {/* MOBILE ONLY: Unified badges container with auto-wrapping flex layout */}
                     <div className="flex md:hidden absolute top-2.5 left-2.5 right-2.5 flex-wrap items-start content-start gap-1 z-10 pointer-events-none">
                       <span className="inline-block bg-white/90 px-1.5 py-1 max-w-[95%] font-poppins uppercase tracking-widest text-[#86162f]/80 text-[8px] leading-[1.2] text-center break-words">
@@ -120,11 +119,11 @@ export default async function Products() {
                       ))}
                     </div>
 
-                    <div className="w-8 h-px bg-white/40 mb-3" />
-                    <p className="font-poppins text-[9px] uppercase tracking-[0.25em] text-white/70 mb-1">
+                    <div className="w-8 h-px bg-white/70 mb-3 [filter:drop-shadow(0_1px_3px_rgba(0,0,0,0.5))]" />
+                    <p className="font-poppins text-[9px] uppercase tracking-[0.25em] text-white mb-1 [text-shadow:0_1px_4px_rgba(0,0,0,0.55)]">
                       {product.category?.name || 'Cake'}
                     </p>
-                    <h3 className="font-poppins font-medium text-white text-sm md:text-base leading-snug">
+                    <h3 className="font-poppins font-medium text-white text-sm md:text-base leading-snug [text-shadow:0_1px_5px_rgba(0,0,0,0.55)]">
                       {toTitleCase(product.name)}
                     </h3>
                   </div>

@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (v: unknown): v is string => typeof v === 'string' && UUID_RE.test(v);
 
-interface CartItem {
+export interface CartItem {
     id?: string;
     productId?: string;
     variantId?: string;
@@ -290,6 +290,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 }
             } catch (err) {
                 console.error('Backend cart update failed', err);
+                // A stale row (its id no longer exists server-side — already
+                // removed elsewhere, or the session drifted) would otherwise
+                // sit in the UI forever, throwing this same error on every
+                // click. Resync from the server so it corrects itself.
+                if (err instanceof Error && err.message === 'Item not found in cart') {
+                    await initCart();
+                }
             }
         } else {
             updateLocalState(productIdentifier, newQty, price, productId, variantId, customizations);

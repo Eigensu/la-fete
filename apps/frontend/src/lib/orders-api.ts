@@ -146,9 +146,13 @@ export async function trackOrder(orderId: string): Promise<any> {
   return fetchWithAuth(`/api/delivery/track/${orderId}`);
 }
 
-export async function getDeliverySlots(): Promise<any[]> {
+/** `minLeadDays`: the slowest lead time across everything in the cart (1 for
+ *  next-day Tea/Tub Cakes, 2 for signature gateaux and other celebration
+ *  cakes) — omit to get the default 2-day floor. */
+export async function getDeliverySlots(minLeadDays?: number): Promise<any[]> {
   try {
-    const res = await fetchWithAuth('/api/delivery/slots');
+    const qs = minLeadDays ? `?minLeadDays=${minLeadDays}` : '';
+    const res = await fetchWithAuth(`/api/delivery/slots${qs}`);
     return res;
   } catch (err) {
     console.error('Error fetching delivery slots:', err);
