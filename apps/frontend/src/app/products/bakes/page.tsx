@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
 import { fetchProducts, Product } from '@/lib/products-api';
 import ProductCard from '@/components/ProductCard';
 import { PRODUCT_CARD_IMAGES, assignDistinctImages } from '@/lib/gallery-images';
@@ -34,9 +32,7 @@ export default async function BakesPage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <Navigation />
-
-      <div className="mt-16 md:mt-20 text-center">
+<div className="mt-16 md:mt-20 text-center">
         <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.45em] mb-3 font-poppins">Our Collection</p>
         <h1 className="font-seasons text-[#86162f] text-4xl md:text-6xl">Bakes</h1>
         <p className="font-poppins text-gray-500 text-sm mt-4 max-w-md mx-auto leading-relaxed">
@@ -82,8 +78,6 @@ export default async function BakesPage() {
           );
         })}
       </div>
-
-      <Footer />
-    </main>
+</main>
   );
 }

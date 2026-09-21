@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
 import { Product, fetchProducts } from '@/lib/products-api';
 import { ChevronDown, Plus, Minus, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
@@ -59,14 +57,14 @@ export default function BakesCategoryPage({
 
   return (
     <main className="min-h-screen bg-white">
-      <Navigation />
-
-      <div className="mt-12 md:mt-16 px-4 sm:px-5 md:px-6 lg:px-8">
+<div className="mt-12 md:mt-16 px-4 sm:px-5 md:px-6 lg:px-8">
         <Link
           href={backHref}
           className="inline-flex items-center gap-1.5 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/60 hover:text-[#86162f] transition-colors"
         >
-          <ArrowLeft size={12} /> {backLabel}
+          <ArrowLeft size={12} />
+          <span className="md:hidden">Back</span>
+          <span className="hidden md:inline">{backLabel}</span>
         </Link>
       </div>
 
@@ -126,8 +124,6 @@ export default function BakesCategoryPage({
           </div>
         )}
       </div>
-
-      <Footer />
-    </main>
+</main>
   );
 }

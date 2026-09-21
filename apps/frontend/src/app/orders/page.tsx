@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import { Package, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
-import Navigation from '@/components/Navigation';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -28,8 +27,7 @@ export default function OrdersPage() {
 
   return (
     <>
-      <Navigation />
-      <div className="max-w-5xl mx-auto py-8 px-4">
+<div className="max-w-5xl mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mt-8 mb-8">Order History</h1>
 
       {loading ? (
@@ -48,13 +46,13 @@ export default function OrdersPage() {
         <div className="space-y-4">
           {orders.map(order => (
             <Link key={order.id} href={`/orders/${order.id}`}>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 border rounded-lg hover:shadow-md transition bg-white gap-4">
-                <div>
+              <div className="flex flex-row justify-between items-center p-4 md:p-6 border rounded-lg hover:shadow-md transition bg-white gap-3 md:gap-4">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-500 mb-1">Order #{order.orderNumber}</p>
                   <p className="font-semibold text-lg">₹{Number(order.totalAmount).toLocaleString()}</p>
                   <p className="text-sm text-gray-600 mt-1">{new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</p>
                 </div>
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3 md:gap-6 shrink-0">
                   <div className="text-right">
                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                       order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :

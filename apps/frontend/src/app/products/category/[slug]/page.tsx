@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
 import { fetchProducts, Product } from '@/lib/products-api';
 import ProductCard from '@/components/ProductCard';
 import { PRODUCT_CARD_IMAGES, assignDistinctImages } from '@/lib/gallery-images';
@@ -31,27 +29,23 @@ export default async function CategoryPage({
   if (formatProducts.length === 0) {
     return (
       <main className="min-h-screen bg-white flex flex-col">
-        <Navigation />
-        <div className="flex-1 flex flex-col items-center justify-center py-32 text-center px-6">
+<div className="flex-1 flex flex-col items-center justify-center py-32 text-center px-6">
           <p className="font-poppins text-xs uppercase tracking-widest text-[#f8aeb2] mb-4">Not Found</p>
           <h2 className="font-seasons text-[#86162f] text-4xl mb-6">Category not found</h2>
           <Link
             href="/products/bakes"
             className="font-poppins text-xs uppercase tracking-widest text-[#86162f] border-b border-[#86162f]/30 hover:border-[#86162f] transition-colors pb-0.5"
           >
-            &larr; Back to All Products
+            &larr; <span className="md:hidden">Back</span><span className="hidden md:inline">Back to All Products</span>
           </Link>
         </div>
-        <Footer />
-      </main>
+</main>
     );
   }
 
   return (
     <main className="min-h-screen bg-white">
-      <Navigation />
-
-      {/* Hero banner */}
+{/* Hero banner */}
       <div className="mt-16 md:mt-20 text-center">
         <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.45em] mb-3 font-poppins">Category</p>
         <h1 className="font-seasons text-[#86162f] text-4xl md:text-6xl capitalize">{formatName}</h1>
@@ -63,7 +57,7 @@ export default async function CategoryPage({
             href="/products/bakes"
             className="font-poppins text-[10px] uppercase tracking-widest text-[#86162f] hover:text-[#a82043] transition-colors"
           >
-            &larr; Back to All Products
+            &larr; <span className="md:hidden">Back</span><span className="hidden md:inline">Back to All Products</span>
           </Link>
         </div>
         
@@ -92,8 +86,6 @@ export default async function CategoryPage({
           </div>
         </section>
       </div>
-
-      <Footer />
-    </main>
+</main>
   );
 }

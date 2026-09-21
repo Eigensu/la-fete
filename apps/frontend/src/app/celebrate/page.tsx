@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navigation from '@/components/Navigation';
 
 interface GalleryItem {
   id: number;
@@ -58,9 +57,7 @@ function GalleryCell({ label, style, mobileOrder, image }: { label: string; styl
 export default function CelebratePage() {
   return (
     <main className="min-h-screen bg-white">
-      <Navigation />
-
-      <div className="mt-16 md:mt-20" />
+<div className="mt-16 md:mt-20" />
 
       {/* Hero */}
       <section className="py-16 md:py-24 text-center px-6">
