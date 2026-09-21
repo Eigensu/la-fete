@@ -36,6 +36,17 @@ export default [
         FormData: 'readonly',
         FileReader: 'readonly',
         Blob: 'readonly',
+        // DOM interfaces used in type positions (refs, event handlers).
+        // Base `no-undef` cannot see TypeScript types, so they have to be
+        // declared here or every typed ref reads as an undefined global.
+        Node: 'readonly',
+        Element: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
       },
       parserOptions: {
         ecmaVersion: 'latest',
