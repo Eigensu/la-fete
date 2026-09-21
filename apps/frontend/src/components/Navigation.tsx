@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { toTitleCase } from '@/utils/format';
-import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut } from 'lucide-react';
+import { X, ChevronDown, ShoppingCart, Plus, Minus, User, LogOut, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { logout as apiLogout } from '@/lib/auth-api';
@@ -185,10 +185,12 @@ export default function Navigation() {
     const router = useRouter();
     const profileRef = useRef<HTMLDivElement>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         const token = globalThis.localStorage.getItem('la-fete-access-token');
         setIsAuthenticated(!!token);
+        setIsAdmin(!!token && getStoredUserRole() === 'ADMIN');
     }, []);
 
     const handleLogout = async () => {
@@ -197,6 +199,7 @@ export default function Navigation() {
         globalThis.localStorage.removeItem('la-fete-access-token');
         globalThis.localStorage.removeItem('la-fete-user');
         setIsAuthenticated(false);
+        setIsAdmin(false);
         router.push('/');
     };
 
@@ -399,13 +402,12 @@ export default function Navigation() {
                                                 <Link href="/orders" onClick={closeMenu} className="px-3 py-2 text-sm font-poppins text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/5 rounded-lg text-left transition-colors">Order History</Link>
                                                 <Link href="/orders" onClick={closeMenu} className="px-3 py-2 text-sm font-poppins text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/5 rounded-lg text-left transition-colors">Track Orders</Link>
                                                 <Link href="/profile/addresses" onClick={closeMenu} className="px-3 py-2 text-sm font-poppins text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/5 rounded-lg text-left transition-colors">Saved Addresses</Link>
-                                                {typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                                {isAdmin && (
                                                     <>
                                                         <div className="border-t border-[#86162f]/10 my-1.5"></div>
-                                                        <p className="px-3 pb-1 font-poppins text-[10px] uppercase tracking-[0.2em] text-[#86162f]/40">Admin</p>
-                                                        <Link href="/admin" onClick={closeMenu} className="px-3 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 rounded-lg font-semibold text-left transition-colors">Admin Dashboard</Link>
-                                                        <Link href="/admin/orders" onClick={closeMenu} className="px-3 py-2 text-sm font-poppins text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/5 rounded-lg text-left transition-colors">Orders Management</Link>
-                                                        <Link href="/admin/products" onClick={closeMenu} className="px-3 py-2 text-sm font-poppins text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/5 rounded-lg text-left transition-colors">Products &amp; Categories</Link>
+                                                        <Link href="/admin" onClick={closeMenu} className="px-3 py-2 text-sm font-poppins text-[#86162f] hover:bg-[#86162f]/5 rounded-lg font-medium text-left transition-colors flex items-center gap-2">
+                                                            <Shield size={14} /> Admin Panel
+                                                        </Link>
                                                     </>
                                                 )}
                                                 <div className="border-t border-[#86162f]/10 my-1.5"></div>
@@ -466,16 +468,6 @@ export default function Navigation() {
                                         onToggle={toggleSection}
                                         onNavigate={closeMenu}
                                     />
-
-                                    {isAuthenticated && typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
-                                        <Link
-                                            href="/admin"
-                                            onClick={closeMenu}
-                                            className="mt-1 block px-3 py-2.5 rounded-lg font-poppins text-[19px] md:text-[17px] leading-snug font-semibold text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors"
-                                        >
-                                            Admin Dashboard
-                                        </Link>
-                                    )}
                                 </div>
 
                                 {isAuthenticated ? (
@@ -488,10 +480,12 @@ export default function Navigation() {
                                             <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Order History</Link>
                                             <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Track Orders</Link>
                                             <Link href="/profile/addresses" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Saved Addresses</Link>
-                                            {typeof window !== 'undefined' && getStoredUserRole() === 'ADMIN' && (
+                                            {isAdmin && (
                                                 <>
-                                                    <Link href="/admin/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Orders Management</Link>
-                                                    <Link href="/admin/products" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Products &amp; Categories</Link>
+                                                    <div className="mx-3 my-1.5 border-t border-[#86162f]/10"></div>
+                                                    <Link href="/admin" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug font-medium text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors flex items-center gap-2">
+                                                        <Shield size={16} /> Admin Panel
+                                                    </Link>
                                                 </>
                                             )}
                                             <button onClick={handleLogout} className="mt-1 px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] flex items-center gap-2 text-left transition-colors">
