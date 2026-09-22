@@ -12,6 +12,10 @@ import Image from 'next/image';
 import { PRODUCT_CARD_IMAGES, pickImage } from '@/lib/gallery-images';
 import { fetchProductBySlug } from '@/lib/products-api';
 
+/** Height of the fixed bar. Used by both the bar rows and the in-flow spacer
+ *  below it, so content always starts exactly where the bar ends. */
+export const NAV_HEIGHT = 'h-16 md:h-[72px]';
+
 function getStoredUserRole(): string | undefined {
     try {
         return JSON.parse(globalThis.localStorage?.getItem('la-fete-user') || '{}')?.role;
@@ -295,6 +299,7 @@ function CartLineItem({
 
 export default function Navigation() {
     const pathname = usePathname() || '/';
+    const isHome = pathname === '/';
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -447,10 +452,8 @@ export default function Navigation() {
                 className={`fixed top-0 w-full z-[60] transition-all duration-300 ${
                     isMenuOpen
                         ? 'bg-transparent'
-                        : (pathname === '/'
-                            ? (isScrolled
-                                ? 'bg-[#fcf9f8]/95 backdrop-blur-md border-b border-[#86162f]/10 shadow-[0_1px_16px_rgba(134,22,47,0.06)] md:bg-transparent md:backdrop-blur-none md:border-transparent md:shadow-none'
-                                : 'bg-gradient-to-b from-[#fcf9f8]/80 via-[#fcf9f8]/30 to-transparent')
+                        : (isHome && !isScrolled
+                            ? 'bg-gradient-to-b from-[#fcf9f8]/80 via-[#fcf9f8]/30 to-transparent border-b border-transparent'
                             : 'bg-[#fcf9f8]/95 backdrop-blur-md border-b border-[#86162f]/10 shadow-[0_1px_16px_rgba(134,22,47,0.06)]')
                 }`}
             >
@@ -552,6 +555,11 @@ export default function Navigation() {
                     </div>
                 </div>
             </nav>
+
+            {/* The bar is fixed, so it takes no room in the flow. Reserve its
+                exact height here so no page has to guess an offset — except
+                the home page, whose full-bleed hero sits under the bar. */}
+            {!isHome && <div aria-hidden="true" className={NAV_HEIGHT} />}
 
             {/* Menu drawer */}
             <AnimatePresence>

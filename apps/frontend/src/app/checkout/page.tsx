@@ -185,7 +185,7 @@ export default function CheckoutPage() {
     <main className="min-h-screen bg-white">
       <Navigation />
 
-      <div className="mt-16 md:mt-20 pt-6 md:pt-8 pb-4 md:pb-6 text-center border-b border-[#86162f]/10">
+      <div className="pt-6 md:pt-8 pb-4 md:pb-6 text-center border-b border-[#86162f]/10">
         <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.45em] mb-2 font-poppins">
           {itemCount} {itemCount === 1 ? 'item' : 'items'} in your basket
         </p>
