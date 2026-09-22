@@ -23,13 +23,34 @@ function leadDays(format: string | undefined) {
   return ['tea cake', 'tub cake'].includes((format || '').toLowerCase()) ? 1 : 2;
 }
 
+/** The last window any day offers starts at 18:00; once the lead time lands
+ *  past it, no window that day can take the order. Mirrors SLOT_TIMES on the
+ *  backend. */
+const LAST_WINDOW_START_MS = 18 * 60 * 60 * 1000;
+
 /**
  * The earliest date an order placed right now can arrive, given the
  * product's lead time. The exact slot is still chosen at checkout.
+ *
+ * Counts real elapsed hours rather than calendar days, and rolls forward
+ * when the lead time lands after the last window: adding a calendar day to
+ * a 23:00 order promised a 10:00 slot the next morning, which is 11 hours'
+ * notice, and advertised a date checkout would then refuse to offer.
+ *
+ * Reads the shopper's own clock, so it can differ by a day from the
+ * kitchen's Asia/Kolkata reckoning for someone browsing from another
+ * timezone. The server is authoritative; this is the shop-window estimate.
  */
 function earliestDelivery(now: Date, format: string | undefined) {
-  const date = new Date(now);
-  date.setDate(date.getDate() + leadDays(format));
+  const date = new Date(now.getTime() + leadDays(format) * 24 * 60 * 60 * 1000);
+
+  const msIntoDay =
+    date.getHours() * 60 * 60 * 1000 +
+    date.getMinutes() * 60 * 1000 +
+    date.getSeconds() * 1000;
+  if (msIntoDay > LAST_WINDOW_START_MS) {
+    date.setDate(date.getDate() + 1);
+  }
 
   return {
     date,

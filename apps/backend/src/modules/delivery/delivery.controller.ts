@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
+import { clampLeadDays } from './delivery-lead-time';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -25,22 +26,17 @@ export class DeliveryController {
     // Tea Cakes and Tub Cakes ship next-day (1); a signature gateau or any
     // other celebration cake needs the full 48 hours (2, the default) —
     // the caller sends the slowest lead time across everything in the cart.
+    //
+    // This only shapes what the shopper is shown. The same lead time is
+    // re-derived server-side from the cart and enforced again when the order
+    // is placed, so a client that lies here gains nothing.
     @Query('minLeadDays') minLeadDays?: string,
   ) {
-    const leadDays = Math.max(1, parseInt(minLeadDays ?? '2', 10) || 2);
-
-    const earliest = new Date();
-    earliest.setDate(earliest.getDate() + leadDays);
-    earliest.setHours(0, 0, 0, 0);
-
-    const requestedStart = startDate ? new Date(startDate) : earliest;
-    const start = requestedStart > earliest ? requestedStart : earliest;
-    // No caller ever needs more than the single earliest deliverable date's
-    // slots — checkout shows exactly that day's three windows, nothing
-    // beyond it, so default the window to just that one day.
-    const end = endDate ? new Date(endDate) : start;
-
-    return this.deliveryService.getAvailableSlots(start, end);
+    return this.deliveryService.getDeliverableSlots(
+      clampLeadDays(minLeadDays),
+      startDate,
+      endDate,
+    );
   }
 
   @Get('estimate')

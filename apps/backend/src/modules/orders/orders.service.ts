@@ -10,6 +10,7 @@ import { OrderItem } from './entities/order-item.entity';
 import { CartService } from '../cart/cart.service';
 import { ProductsService } from '../products/products.service';
 import { DeliveryService } from '../delivery/delivery.service';
+import { leadDaysForFormats } from '../delivery/delivery-lead-time';
 import { DeliverySlot } from '../delivery/entities/delivery-slot.entity';
 import { Delivery } from '../delivery/entities/delivery.entity';
 import { PaymentsService } from '../payments/payments.service';
@@ -44,12 +45,20 @@ export class OrdersService {
       throw new BadRequestException('Cart is empty');
     }
 
+    // The slowest lead time across the basket, derived here from the cart's
+    // own products rather than trusted from the client — the `minLeadDays`
+    // the checkout page sends only shapes what it displays.
+    const requiredLeadDays = leadDaysForFormats(
+      cart.items.map((item) => item.product?.format),
+    );
+
     // Start transaction
     return await this.dataSource.transaction(async (manager) => {
       // 1. Validate and lock delivery slot
       const slot = await this.deliveryService.lockAndValidateSlot(
         deliverySlotId,
         manager,
+        requiredLeadDays,
       );
 
       // 2. Validate and lock product variants
