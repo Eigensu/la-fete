@@ -86,7 +86,6 @@ export default function CollectionPage({ params }: { params: Promise<{ collectio
 
   const cardImages = useMemo(
     () => assignDistinctImages(filtered.map(p => String(p.id ?? p.name)), PRODUCT_CARD_IMAGES),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [filtered.map(p => p.id ?? p.name).join(',')],
   );
 

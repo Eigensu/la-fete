@@ -268,16 +268,43 @@ GRAPHQL_ENDPOINT="http://localhost:3001/graphql"
 ## 🧪 Testing
 
 ```bash
-# Backend tests
 cd apps/backend
-pnpm run test
-pnpm run test:e2e
+pnpm run test       # unit tests (src/**/*.spec.ts)
 pnpm run test:cov
-
-# Frontend tests
-cd apps/frontend
-pnpm run test
+pnpm run test:e2e   # end-to-end suite (test/**/*.e2e-spec.ts), needs Postgres
 ```
+
+### End-to-end suite
+
+`apps/backend/test/checkout-flow.e2e-spec.ts` boots the real Nest app against
+a real Postgres and drives it over HTTP: register → admin creates catalog →
+cart → order → payment verification → delivery tracking → admin fulfilment,
+plus the failure modes (access control, empty cart, full slot, rollbacks,
+two customers racing for the last units).
+
+Razorpay, Borzo and SMTP are replaced with stubs in `test/utils/test-app.ts`,
+so no secrets or network access are needed. Each run **drops and recreates
+the schema** of the database it points at — use a dedicated one:
+
+```bash
+createdb lafete_e2e   # or any empty database you don't mind wiping
+DATABASE_URL=postgresql://<user>@localhost:5432/lafete_e2e pnpm --filter backend test:e2e
+```
+
+### CI
+
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`:
+
+| Job | What it checks |
+| --- | --- |
+| Lint & type-check | ESLint (errors fail, warnings don't) and `tsc` for backend, frontend, env-config |
+| Backend unit tests | `jest` |
+| Backend e2e | the suite above, against a Postgres 16 service container |
+| Build | `nest build` and `next build` |
+| Migrations replay | runs every migration on an empty DB — **non-blocking** for now, see the note in the workflow |
+
+`CI OK` aggregates the required jobs; mark that single check as required in
+the `main` branch protection rule.
 
 ## 📝 Contributing
 

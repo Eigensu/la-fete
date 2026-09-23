@@ -75,7 +75,7 @@ const CLAIMS = [
   { icon: PalmOilFreeIcon, label: 'Palm Oil Free' },
 ];
 
-function ClaimBadge({ icon: Icon, label }: { icon: () => JSX.Element; label: string }) {
+function ClaimBadge({ icon: Icon, label }: { icon: () => React.JSX.Element; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2 flex-1 min-w-0 max-w-[64px] sm:max-w-[100px]">
       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-[#86162f]/25 flex items-center justify-center text-[#86162f] bg-white shrink-0">

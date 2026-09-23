@@ -59,7 +59,7 @@ async function seed() {
 
     // Update existing products with correct categories
     for (const p of productsToSeed) {
-        let product = await productRepo.findOne({ where: { name: p.name } });
+        const product = await productRepo.findOne({ where: { name: p.name } });
         if (product) {
             product.category = categoryMap[p.category];
             await productRepo.save(product);

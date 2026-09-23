@@ -1,5 +1,4 @@
 /* eslint-env jest */
-/* global describe, beforeEach, it, expect, jest */
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

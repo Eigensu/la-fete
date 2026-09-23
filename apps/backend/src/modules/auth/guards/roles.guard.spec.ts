@@ -1,5 +1,4 @@
 /* eslint-env jest */
-/* global describe, it, expect, jest */
 import { RolesGuard } from './roles.guard';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '../../../common/enums/user-role.enum';
