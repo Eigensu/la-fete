@@ -18,6 +18,14 @@ export class MakeAddressLatitudeNullable1790178777990 implements MigrationInterf
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    // Once addresses without coordinates exist, NOT NULL can't come back
+    // without inventing data, and failing here would block a rollback. The
+    // entity has always allowed null, so leaving it relaxed is harmless.
+    const [{ has_nulls }] = await queryRunner.query(
+      `SELECT EXISTS (SELECT 1 FROM "addresses" WHERE "latitude" IS NULL) AS has_nulls`
+    );
+    if (has_nulls) return;
+
     await queryRunner.query(
       `ALTER TABLE "addresses" ALTER COLUMN "latitude" SET NOT NULL`
     );

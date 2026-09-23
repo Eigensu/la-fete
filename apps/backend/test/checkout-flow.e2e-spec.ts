@@ -154,18 +154,11 @@ describe('Checkout flow (e2e)', () => {
     });
   });
 
-  describe('happy path: browse → cart → order → payment → delivery → fulfilment', () => {
-    let customer: TestUser;
+  describe('catalog', () => {
     let catalog: { productId: string; variantId: string; slug: string };
-    let addressId: string;
-    let slotId: string;
-    let order: AnyBody;
 
     beforeAll(async () => {
-      customer = await registerUser(app);
       catalog = await createProductWithVariant(5);
-      addressId = await createAddress(customer);
-      slotId = await firstAvailableSlotId();
     });
 
     it('lists the product publicly and serves it by slug', async () => {
@@ -197,11 +190,14 @@ describe('Checkout flow (e2e)', () => {
         catalog.productId
       );
     });
+  });
 
+  describe('cart', () => {
     it('adds items to the cart', async () => {
-      await addToCart(customer, catalog.productId, catalog.variantId, 2).expect(
-        201
-      );
+      const customer = await registerUser(app);
+      const { productId, variantId } = await createProductWithVariant(5);
+
+      await addToCart(customer, productId, variantId, 2).expect(201);
 
       const cart = await http(app)
         .get(`${API}/cart`)
@@ -211,8 +207,36 @@ describe('Checkout flow (e2e)', () => {
       expect(cart.body.cart.items[0].quantity).toBe(2);
       expect(cart.body.hasUnavailableItems).toBe(false);
     });
+  });
 
-    it('places the order and captures payment', async () => {
+  /**
+   * One checkout runs in beforeAll and every test below only inspects its
+   * outcome, so each test can run on its own (`-t`) and a broken checkout
+   * surfaces once, as a hook failure, rather than as a cascade.
+   */
+  describe('checkout: order → payment → delivery → fulfilment', () => {
+    let customer: TestUser;
+    let catalog: { productId: string; variantId: string; slug: string };
+    let addressId: string;
+    let slotId: string;
+    let slotBookingsBefore: number;
+    let orderResponse: AnyBody;
+    let order: AnyBody;
+
+    beforeAll(async () => {
+      customer = await registerUser(app);
+      catalog = await createProductWithVariant(5);
+      addressId = await createAddress(customer);
+      slotId = await firstAvailableSlotId();
+      slotBookingsBefore = (
+        await dataSource
+          .getRepository(DeliverySlot)
+          .findOneByOrFail({ id: slotId })
+      ).currentBookings;
+
+      await addToCart(customer, catalog.productId, catalog.variantId, 2).expect(
+        201
+      );
       const res = await placeOrder(customer, {
         deliverySlotId: slotId,
         deliveryAddressId: addressId,
@@ -220,7 +244,11 @@ describe('Checkout flow (e2e)', () => {
         isGift: true,
       }).expect(201);
 
+      orderResponse = res.body;
       order = res.body.order;
+    });
+
+    it('prices and confirms the order', () => {
       expect(order.orderNumber).toMatch(/^LF-\d{4}-\d{4}$/);
       expect(order.status).toBe('CONFIRMED');
       expect(Number(order.subtotal)).toBe(2 * PRICE);
@@ -229,8 +257,10 @@ describe('Checkout flow (e2e)', () => {
       expect(order.items).toHaveLength(1);
       expect(order.deliverySlot.id).toBe(slotId);
       expect(order.deliveryAddress.id).toBe(addressId);
+    });
 
-      expect(res.body.payment).toMatchObject({
+    it('captures payment', () => {
+      expect(orderResponse.payment).toMatchObject({
         success: true,
         status: 'PAID',
         amount: 2 * PRICE + DELIVERY_FEE,
@@ -243,7 +273,7 @@ describe('Checkout flow (e2e)', () => {
       const slot = await dataSource
         .getRepository(DeliverySlot)
         .findOneByOrFail({ id: slotId });
-      expect(slot.currentBookings).toBe(1);
+      expect(slot.currentBookings).toBe(slotBookingsBefore + 1);
 
       const cart = await http(app)
         .get(`${API}/cart`)
