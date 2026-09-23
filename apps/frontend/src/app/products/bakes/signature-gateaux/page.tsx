@@ -27,7 +27,7 @@ export default async function SignatureGateauxPage() {
 
   return (
     <main className="min-h-screen bg-white">
-<div className="mt-16 md:mt-20 px-4 sm:px-5 md:px-6 lg:px-8">
+<div className="px-4 sm:px-5 md:px-6 lg:px-8">
         <Link
           href="/products/bakes"
           className="inline-flex items-center gap-1.5 pt-4 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/60 hover:text-[#86162f] transition-colors"

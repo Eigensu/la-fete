@@ -88,7 +88,7 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-white">
-<div className="mt-16 md:mt-20" />
+
 
       {/* Hero */}
       <section className="py-14 md:py-20 text-center px-6">

@@ -57,7 +57,7 @@ export default function BakesCategoryPage({
 
   return (
     <main className="min-h-screen bg-white">
-<div className="mt-12 md:mt-16 px-4 sm:px-5 md:px-6 lg:px-8">
+<div className="pt-6 md:pt-8 px-4 sm:px-5 md:px-6 lg:px-8">
         <Link
           href={backHref}
           className="inline-flex items-center gap-1.5 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/60 hover:text-[#86162f] transition-colors"

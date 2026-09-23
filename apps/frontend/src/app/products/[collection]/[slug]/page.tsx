@@ -30,7 +30,7 @@ export default async function ProductPage({
 
   return (
     <main className="min-h-screen bg-white">
-<div className="mt-16 md:mt-20" />
+
       <ProductClient product={product} allProducts={allProducts} collection={collection} />
 </main>
   );

@@ -46,7 +46,7 @@ export default async function CategoryPage({
   return (
     <main className="min-h-screen bg-white">
 {/* Hero banner */}
-      <div className="mt-16 md:mt-20 text-center">
+      <div className="text-center">
         <p className="text-[#86162f]/40 text-[10px] uppercase tracking-[0.45em] mb-3 font-poppins">Category</p>
         <h1 className="font-seasons text-[#86162f] text-4xl md:text-6xl capitalize">{formatName}</h1>
       </div>
