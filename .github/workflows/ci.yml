@@ -112,14 +112,9 @@ jobs:
         run: pnpm --filter frontend build
 
   migrations:
-    name: Migrations replay on empty DB
+    name: Migrations replay & drift check
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # KNOWN BROKEN: the migration history can't be replayed from scratch
-    # (AddCakeFields drops order_items.sweetener, which no earlier migration
-    # creates). Non-blocking until the chain is repaired — then delete this
-    # line and add the job to `ci-ok` below.
-    continue-on-error: true
     services:
       postgres:
         image: postgres:16-alpine
@@ -144,14 +139,20 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter backend migration:run
+      # Every migration must apply to an empty database…
+      - name: Run all migrations on an empty DB
+        run: pnpm --filter backend migration:run
+      # …and produce exactly the schema the entities describe. Fails when an
+      # entity changes without a migration (or vice versa).
+      - name: Check migrations match entities
+        run: pnpm --filter backend migration:check
 
   # Single stable check to mark as "required" in branch protection, so adding
   # or renaming jobs above never needs a settings change.
   ci-ok:
     name: CI OK
     if: always()
-    needs: [lint, unit, e2e, build]
+    needs: [lint, unit, e2e, build, migrations]
     runs-on: ubuntu-latest
     steps:
       - name: All required jobs passed

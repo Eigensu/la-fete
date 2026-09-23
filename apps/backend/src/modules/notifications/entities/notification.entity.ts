@@ -41,12 +41,12 @@ export class Notification {
   @Column({ default: false })
   isSent: boolean;
 
-  @Column({ nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   sentAt: Date;
 
   @Column({ nullable: true })
   errorMessage: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

@@ -24,6 +24,7 @@
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/data-source.ts",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:check": "ts-node scripts/check-schema-drift.ts",
     "type-check": "tsc --noEmit",
     "seed:delivery-slots": "ts-node -r tsconfig-paths/register src/seed-delivery-slots.ts"
   },

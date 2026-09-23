@@ -301,7 +301,11 @@ DATABASE_URL=postgresql://<user>@localhost:5432/lafete_e2e pnpm --filter backend
 | Backend unit tests | `jest` |
 | Backend e2e | the suite above, against a Postgres 16 service container |
 | Build | `nest build` and `next build` |
-| Migrations replay | runs every migration on an empty DB — **non-blocking** for now, see the note in the workflow |
+| Migrations replay & drift check | runs every migration on an empty DB, then `migration:check` fails if the result differs from the entities |
+
+If the drift check fails, you changed an entity without a migration (or the
+reverse): run `pnpm --filter backend migration:generate src/migrations/<Name>`
+against an up-to-date database and commit the result.
 
 `CI OK` aggregates the required jobs; mark that single check as required in
 the `main` branch protection rule.

@@ -32,7 +32,7 @@ export class ProductVariant {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   discountPrice: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: () => '0.01' })
   weight: number;
 
   @Column({ type: 'int', default: 0 })
@@ -44,7 +44,7 @@ export class ProductVariant {
   @Column({ default: true })
   isAvailable: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @DeleteDateColumn()

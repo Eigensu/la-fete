@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { DeliverySlot } from '../src/modules/delivery/entities/delivery-slot.entity';
 import { Payment } from '../src/modules/payments/entities/payment.entity';
 import { ProductVariant } from '../src/modules/products/entities/product-variant.entity';
+import { Product } from '../src/modules/products/entities/product.entity';
 import {
   API,
   AnyBody,
@@ -180,6 +181,21 @@ describe('Checkout flow (e2e)', () => {
         .get(`${API}/products/${catalog.slug}`)
         .expect(200);
       expect(one.body.id).toBe(catalog.productId);
+    });
+
+    it('filters by collection, including legacy subcategory rows', async () => {
+      // Collections come from the sheet import, not the admin API.
+      await dataSource
+        .getRepository(Product)
+        .update({ id: catalog.productId }, { collections: ['dark chocolate'] });
+
+      const res = await http(app)
+        .get(`${API}/products`)
+        .query({ subcategory: 'Dark Chocolate' })
+        .expect(200);
+      expect(res.body.data.map((p: AnyBody) => p.id)).toContain(
+        catalog.productId
+      );
     });
 
     it('adds items to the cart', async () => {
