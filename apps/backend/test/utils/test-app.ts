@@ -75,9 +75,25 @@ export function createStubs() {
 
 export type Stubs = ReturnType<typeof createStubs>;
 
+/** The suite wipes its database, so refuse anything that isn't obviously a
+ *  throwaway test database — a stray exported DATABASE_URL must never be
+ *  able to point this at dev or production data. */
+export function assertDisposableDatabase(url: string | undefined): void {
+  const dbName = url ? new URL(url).pathname.replace(/^\//, '') : '';
+  if (!/(^|[_-])(e2e|test)([_-]|$)/i.test(dbName)) {
+    throw new Error(
+      `Refusing to run e2e tests against database "${dbName || '(none)'}": ` +
+        'the suite drops and recreates its schema. Point DATABASE_URL at a ' +
+        'dedicated database whose name contains "e2e" or "test" ' +
+        '(e.g. lafete_e2e).'
+    );
+  }
+}
+
 /** Drops and rebuilds the schema from the entity definitions so every spec
  *  file starts from an empty, known database. */
 export async function resetDatabase(): Promise<void> {
+  assertDisposableDatabase(process.env.DATABASE_URL);
   const ds = new DataSource({
     type: 'postgres',
     url: process.env.DATABASE_URL,
