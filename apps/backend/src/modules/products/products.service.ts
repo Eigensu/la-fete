@@ -33,6 +33,8 @@ export class ProductsService {
 
     const product = this.productRepository.create({
       ...createProductDto,
+      // images is optional in the DTO but NOT NULL in the table.
+      images: createProductDto.images ?? [],
       category,
     });
     return this.productRepository.save(product);

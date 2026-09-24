@@ -1,6 +1,6 @@
 'use client';
 
-/* global HTMLInputElement, HTMLFormElement */
+/* global HTMLFormElement */
 
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import Link from 'next/link';

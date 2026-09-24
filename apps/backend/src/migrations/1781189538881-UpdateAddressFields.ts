@@ -4,6 +4,11 @@ export class UpdateAddressFields1781189538881 implements MigrationInterface {
     name = 'UpdateAddressFields1781189538881'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        // This migration was parked as a .bak while existing databases got
+        // the new address columns some other way, so a database may reach
+        // here already converted. Only the legacy "street" layout needs it.
+        if (!(await queryRunner.hasColumn('addresses', 'street'))) return;
+
         await queryRunner.query(`ALTER TABLE "addresses" ADD "fullName" character varying`);
         await queryRunner.query(`ALTER TABLE "addresses" ADD "phone" character varying`);
         await queryRunner.query(`ALTER TABLE "addresses" ADD "addressLine1" character varying`);

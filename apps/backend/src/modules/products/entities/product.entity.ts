@@ -19,6 +19,9 @@ import { User } from '../../users/entities/user.entity';
 @Index('products_category_id', ['category'])
 @Index('products_is_available', ['isAvailable'])
 @Index('products_is_featured', ['isFeatured'])
+// GIN index created by the AddProductCollections migration. @Index can't
+// express GIN, so synchronize: false tells TypeORM it exists but not to manage it.
+@Index('products_collections', { synchronize: false })
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -52,10 +55,10 @@ export class Product {
   @JoinColumn({ name: 'createdById' })
   createdBy: User;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @DeleteDateColumn()
@@ -99,7 +102,11 @@ export class Product {
    * every collection page it lists here, so this supersedes the single-valued
    * `subcategory` for browsing.
    */
-  // Indexed as GIN in the AddProductCollections migration, which @Index cannot express.
   @Column({ type: 'text', array: true, default: () => "'{}'" })
   collections: string[];
+
+  /** Legacy single-valued collection, still matched by the products filter
+   *  for rows imported before `collections` was populated. */
+  @Column({ nullable: true })
+  subcategory: string;
 }

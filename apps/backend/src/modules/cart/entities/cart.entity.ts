@@ -27,6 +27,6 @@ export class Cart {
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

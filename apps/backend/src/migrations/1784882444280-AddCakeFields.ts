@@ -4,12 +4,12 @@ export class AddCakeFields1784882444280 implements MigrationInterface {
     name = 'AddCakeFields1784882444280'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "order_items" DROP COLUMN "sweetener"`);
-        await queryRunner.query(`ALTER TABLE "order_items" DROP COLUMN "cakeMessage"`);
-        await queryRunner.query(`ALTER TABLE "order_items" DROP COLUMN "cakeTopper"`);
-        await queryRunner.query(`ALTER TABLE "cart_items" DROP COLUMN "sweetener"`);
-        await queryRunner.query(`ALTER TABLE "cart_items" DROP COLUMN "cakeMessage"`);
-        await queryRunner.query(`ALTER TABLE "cart_items" DROP COLUMN "cakeTopper"`);
+        await queryRunner.query(`ALTER TABLE "order_items" DROP COLUMN IF EXISTS "sweetener"`);
+        await queryRunner.query(`ALTER TABLE "order_items" DROP COLUMN IF EXISTS "cakeMessage"`);
+        await queryRunner.query(`ALTER TABLE "order_items" DROP COLUMN IF EXISTS "cakeTopper"`);
+        await queryRunner.query(`ALTER TABLE "cart_items" DROP COLUMN IF EXISTS "sweetener"`);
+        await queryRunner.query(`ALTER TABLE "cart_items" DROP COLUMN IF EXISTS "cakeMessage"`);
+        await queryRunner.query(`ALTER TABLE "cart_items" DROP COLUMN IF EXISTS "cakeTopper"`);
         await queryRunner.query(`ALTER TABLE "products" ADD "format" character varying NOT NULL DEFAULT ''`);
         await queryRunner.query(`ALTER TABLE "products" ADD "dietaryTags" character varying`);
         await queryRunner.query(`ALTER TABLE "products" ADD "otherTags" character varying`);

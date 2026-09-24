@@ -46,6 +46,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
           globalThis.localStorage.removeItem('la-fete-access-token');
           globalThis.localStorage.removeItem('la-fete-user');
           window.location.href = '/auth';
+          // eslint-disable-next-line preserve-caught-error -- the auth failure is deliberately replaced by a generic session error
           throw new Error('Session expired');
         }
       }
@@ -54,6 +55,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
         globalThis.localStorage.removeItem('la-fete-access-token');
         globalThis.localStorage.removeItem('la-fete-user');
         window.location.href = '/auth';
+        // eslint-disable-next-line preserve-caught-error -- the auth failure is deliberately replaced by a generic session error
         throw new Error('Session expired');
       }
     }

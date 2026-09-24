@@ -59,7 +59,7 @@ export class CartItem {
   @Column({ type: 'varchar', nullable: true })
   celebrationTopperType: string | null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @UpdateDateColumn()
