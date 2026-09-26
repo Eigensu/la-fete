@@ -193,7 +193,7 @@ export function ProductClient({ product, allProducts, collection }: { product: P
   return (
     <>
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24 pt-8 pb-4">
-        <nav className="flex items-center gap-2 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/40 flex-wrap">
+        <nav className="hidden md:flex items-center gap-2 font-poppins text-[10px] uppercase tracking-widest text-[#86162f]/40 flex-wrap">
           <Link href="/products/bakes" className="hover:text-[#86162f] transition-colors">
             Shop All
           </Link>
