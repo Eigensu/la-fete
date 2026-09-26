@@ -77,9 +77,9 @@ const MAIN_MENU: MenuNode[] = [
 /** Type scale per nesting level — larger on touch, tighter from md up, so the
  *  hierarchy reads without extra chrome and every row stays thumb-sized. */
 const LEVEL_STYLES = [
-    'text-[17px] uppercase tracking-wide md:text-[17px] md:tracking-normal font-medium',
-    'text-[14px] uppercase tracking-wide md:text-[14px] md:tracking-normal',
-    'text-[13px] uppercase tracking-wide md:text-[13px] md:tracking-normal',
+    'text-[16px] md:text-[14px] uppercase tracking-wide md:tracking-normal font-medium',
+    'text-[14px] uppercase tracking-wide md:text-[13px] md:tracking-normal',
+    'text-[13px] uppercase tracking-wide md:text-[12px] md:tracking-normal',
 ] as const;
 
 const ROW_BASE =
@@ -115,8 +115,8 @@ function MenuTree({
                 const isActive = pathname === node.href;
                 const size = LEVEL_STYLES[Math.min(depth, LEVEL_STYLES.length - 1)];
                 const tone = isActive
-                    ? 'bg-[#86162f]/[0.08] text-[#86162f] font-semibold'
-                    : 'text-[#86162f]/80 hover:bg-[#86162f]/[0.05] hover:text-[#86162f]';
+                    ? 'bg-[#86162f]/[0.03] text-[#86162f] font-semibold'
+                    : 'text-[#86162f]/80 hover:bg-[#86162f]/[0.04] hover:text-[#86162f]';
                 const focus =
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86162f]/30';
 
@@ -453,7 +453,7 @@ export default function Navigation() {
                     isMenuOpen
                         ? 'bg-transparent'
                         : (isHome && !isScrolled
-                            ? 'bg-gradient-to-b from-[#fcf9f8]/80 via-[#fcf9f8]/30 to-transparent border-b border-transparent'
+                            ? 'bg-gradient-to-b from-[#fcf9f8]/80 via-[#fcf9f8]/30 to-transparent'
                             : 'bg-[#fcf9f8]/95 backdrop-blur-md border-b border-[#86162f]/10 shadow-[0_1px_16px_rgba(134,22,47,0.06)]')
                 }`}
             >
@@ -584,7 +584,7 @@ export default function Navigation() {
                         >
                             <nav aria-label="Main menu" className="w-full flex flex-col gap-7 px-4 sm:px-5">
                                 <div>
-                                    <p className="px-3 pb-2 font-poppins text-[10px] uppercase tracking-[0.28em] text-[#86162f]/40">
+                                    <p className="px-3 pb-2 font-poppins text-[13px] uppercase tracking-[0.28em] text-[#86162f]/40">
                                         Browse
                                     </p>
                                     <MenuTree
@@ -599,18 +599,18 @@ export default function Navigation() {
 
                                 {isAuthenticated ? (
                                     <div>
-                                        <p className="px-3 pb-2 font-poppins text-[10px] uppercase tracking-[0.28em] text-[#86162f]/40">
+                                        <p className="px-3 pb-2 font-poppins text-[13px] uppercase tracking-[0.28em] text-[#86162f]/40">
                                             My Account
                                         </p>
                                         <div className="flex flex-col gap-0.5">
-                                            <Link href="/profile" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">My Profile</Link>
-                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Order History</Link>
-                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Track Orders</Link>
-                                            <Link href="/profile/addresses" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors">Saved Addresses</Link>
+                                            <Link href="/profile" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.04] transition-colors">My Profile</Link>
+                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.04] transition-colors">Order History</Link>
+                                            <Link href="/orders" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.04] transition-colors">Track Orders</Link>
+                                            <Link href="/profile/addresses" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins font-medium text-[16px] md:text-[14px] uppercase tracking-wide leading-snug text-[#86162f]/80 hover:text-[#86162f] hover:bg-[#86162f]/[0.04] transition-colors">Saved Addresses</Link>
                                             {isAdmin && (
                                                 <>
                                                     <div className="mx-3 my-1.5 border-t border-[#86162f]/10"></div>
-                                                    <Link href="/admin" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] uppercase tracking-wide leading-snug font-medium text-[#86162f] hover:bg-[#86162f]/[0.05] transition-colors flex items-center gap-2">
+                                                    <Link href="/admin" onClick={closeMenu} className="px-3 py-2.5 rounded-lg font-poppins text-[16px] md:text-[14px] uppercase tracking-wide leading-snug font-medium text-[#86162f] hover:bg-[#86162f]/[0.04] transition-colors flex items-center gap-2">
                                                         <Shield size={16} /> Admin Panel
                                                     </Link>
                                                 </>
